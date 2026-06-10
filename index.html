@@ -7,6 +7,35 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">
+      <div class="pin-card">
+        <p class="eyebrow">Daily Adventure</p>
+        <h1 id="pin-title">Enter your PIN</h1>
+        <p class="pin-help">Use the same kind of PIN screen you already know.</p>
+        <div class="pin-display" id="pinDisplay" aria-label="PIN entry">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="pin-pad" aria-label="Number pad">
+          <button class="pin-key" data-pin-key="1">1</button>
+          <button class="pin-key" data-pin-key="2">2</button>
+          <button class="pin-key" data-pin-key="3">3</button>
+          <button class="pin-key" data-pin-key="4">4</button>
+          <button class="pin-key" data-pin-key="5">5</button>
+          <button class="pin-key" data-pin-key="6">6</button>
+          <button class="pin-key" data-pin-key="7">7</button>
+          <button class="pin-key" data-pin-key="8">8</button>
+          <button class="pin-key" data-pin-key="9">9</button>
+          <button class="pin-key secondary" data-pin-clear>Clear</button>
+          <button class="pin-key" data-pin-key="0">0</button>
+          <button class="pin-key secondary" data-pin-back>Back</button>
+        </div>
+        <p class="pin-message" id="pinMessage" aria-live="polite"></p>
+      </div>
+    </section>
+
     <main class="app-shell">
       <section class="hero" aria-labelledby="page-title">
         <div>
@@ -187,7 +216,12 @@
             Encouraging message
             <input id="messageInput" type="text" value="Nice work. You stayed with it.">
           </label>
+          <label>
+            App PIN
+            <input id="pinInput" type="password" inputmode="numeric" maxlength="8" value="1234">
+          </label>
           <button id="saveSettings">Save settings</button>
+          <button id="lockApp" class="secondary-button">Lock app</button>
           <button id="resetProgress" class="secondary-button">Reset today's progress</button>
         </div>
       </section>

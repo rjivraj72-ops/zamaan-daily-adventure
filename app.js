@@ -373,7 +373,7 @@ const curriculum = [
 
 const todayPlan = curriculum[curriculumDay];
 
-const title = document.querySelector("h1");
+const title = document.querySelector("#page-title");
 const todayLabel = document.querySelector("#todayLabel");
 const progressCount = document.querySelector("#progressCount");
 const progressBar = document.querySelector("#progressBar");
@@ -387,13 +387,19 @@ const caregiverPanel = document.querySelector("#caregiver-panel");
 const nameInput = document.querySelector("#nameInput");
 const promptInput = document.querySelector("#promptInput");
 const messageInput = document.querySelector("#messageInput");
+const pinInput = document.querySelector("#pinInput");
 const resetProgress = document.querySelector("#resetProgress");
+const lockApp = document.querySelector("#lockApp");
 const memoryGame = document.querySelector("[data-memory-game]");
 const sequenceGame = document.querySelector("[data-sequence-game]");
 const miniGames = document.querySelector(".mini-games");
+const pinGate = document.querySelector("#pinGate");
+const pinMessage = document.querySelector("#pinMessage");
+const pinDots = [...document.querySelectorAll("#pinDisplay span")];
 
 let memoryPicks = [];
 let sequenceStep = 1;
+let enteredPin = "";
 const sortPicks = new Set();
 
 function save() {
@@ -402,6 +408,45 @@ function save() {
 
 function saveHistory() {
   localStorage.setItem("dailyAdventureHistory", JSON.stringify(history));
+}
+
+function getAppPin() {
+  return localStorage.getItem("dailyAdventurePin") || "1234";
+}
+
+function saveAppPin(pin) {
+  localStorage.setItem("dailyAdventurePin", pin);
+}
+
+function showPinGate() {
+  enteredPin = "";
+  updatePinDisplay();
+  pinMessage.textContent = "";
+  document.body.classList.add("locked");
+}
+
+function unlockApp() {
+  sessionStorage.setItem("dailyAdventureUnlocked", "true");
+  document.body.classList.remove("locked");
+  speak("Welcome to Daily Adventure.");
+}
+
+function updatePinDisplay() {
+  pinDots.forEach((dot, index) => {
+    dot.classList.toggle("filled", index < enteredPin.length);
+  });
+}
+
+function checkPin() {
+  if (enteredPin === getAppPin()) {
+    unlockApp();
+    return;
+  }
+
+  pinMessage.textContent = "Try again.";
+  speak("Try again.");
+  enteredPin = "";
+  updatePinDisplay();
 }
 
 function speak(text) {
@@ -445,6 +490,7 @@ function updateGreeting() {
   nameInput.value = state.name;
   promptInput.value = state.talkPrompt;
   messageInput.value = state.message;
+  pinInput.value = getAppPin();
 }
 
 function updateProgress() {
@@ -737,6 +783,31 @@ document.querySelectorAll(".mood-button").forEach((button) => {
   });
 });
 
+document.querySelectorAll("[data-pin-key]").forEach((button) => {
+  button.addEventListener("click", () => {
+    if (enteredPin.length >= 8) return;
+    enteredPin += button.dataset.pinKey;
+    pinMessage.textContent = "";
+    updatePinDisplay();
+
+    if (enteredPin.length === getAppPin().length) {
+      window.setTimeout(checkPin, 120);
+    }
+  });
+});
+
+document.querySelector("[data-pin-clear]").addEventListener("click", () => {
+  enteredPin = "";
+  pinMessage.textContent = "";
+  updatePinDisplay();
+});
+
+document.querySelector("[data-pin-back]").addEventListener("click", () => {
+  enteredPin = enteredPin.slice(0, -1);
+  pinMessage.textContent = "";
+  updatePinDisplay();
+});
+
 function attachMiniGameHandlers() {
   sortPicks.clear();
 
@@ -820,11 +891,19 @@ document.querySelector("#saveSettings").addEventListener("click", () => {
   state.name = nameInput.value.trim() || "Alex";
   state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
   state.message = messageInput.value.trim() || defaultState.message;
+  saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");
   save();
   updateGreeting();
   renderTalkRound();
   celebration.textContent = "Settings saved.";
   speak("Settings saved.");
+});
+
+lockApp.addEventListener("click", () => {
+  sessionStorage.removeItem("dailyAdventureUnlocked");
+  caregiverToggle.setAttribute("aria-expanded", "false");
+  caregiverPanel.hidden = true;
+  showPinGate();
 });
 
 resetProgress.addEventListener("click", () => {
@@ -871,3 +950,7 @@ renderDailyRounds();
 renderMiniGames();
 updateProgress();
 updateHistory();
+
+if (sessionStorage.getItem("dailyAdventureUnlocked") !== "true") {
+  showPinGate();
+}
