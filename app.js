@@ -1,0 +1,873 @@
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getDayNumber(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const current = new Date(year, month - 1, day);
+  const anchor = new Date(2026, 0, 5);
+  const diff = Math.floor((current - anchor) / 86400000);
+  return ((diff % 14) + 14) % 14;
+}
+
+const todayKey = getLocalDateKey();
+const curriculumDay = getDayNumber(todayKey);
+const sectionIds = ["brain", "life", "talk"];
+const totalRounds = 9;
+const maxRounds = {
+  brain: 3,
+  life: 3,
+  talk: 3
+};
+
+const defaultState = {
+  name: "Alex",
+  talkPrompt: "What is one thing you want to do today?",
+  message: "Nice work. You stayed with it.",
+  mood: "",
+  completed: [],
+  rounds: {
+    brain: 0,
+    life: 0,
+    talk: 0
+  },
+  date: todayKey
+};
+
+const defaultHistory = {
+  days: {}
+};
+
+const saved = JSON.parse(localStorage.getItem("dailyAdventure") || "null");
+const state = saved && saved.date === todayKey
+  ? { ...defaultState, ...saved, rounds: { ...defaultState.rounds, ...(saved.rounds || {}) } }
+  : defaultState;
+const history = { ...defaultHistory, ...(JSON.parse(localStorage.getItem("dailyAdventureHistory") || "null") || {}) };
+
+const curriculum = [
+  {
+    name: "Morning Routine",
+    brain: [
+    {
+      title: "Find the pair",
+      prompt: "Tap two cards that go together.",
+      cards: [
+        { text: "Toothbrush", pair: "teeth" },
+        { text: "Bread", pair: "toast" },
+        { text: "Toothpaste", pair: "teeth" },
+        { text: "Toaster", pair: "toast" }
+      ]
+    },
+    {
+      title: "Find the pair",
+      prompt: "Tap two cards that go together.",
+      cards: [
+        { text: "Rain", pair: "weather" },
+        { text: "Fork", pair: "table" },
+        { text: "Umbrella", pair: "weather" },
+        { text: "Plate", pair: "table" }
+      ]
+    },
+    {
+      title: "Find the pair",
+      prompt: "Tap two cards that go together.",
+      cards: [
+        { text: "Pillow", pair: "bed" },
+        { text: "Soap", pair: "bath" },
+        { text: "Blanket", pair: "bed" },
+        { text: "Towel", pair: "bath" }
+      ]
+    }
+  ],
+    life: [
+    {
+      title: "Make toast",
+      prompt: "Tap the steps in the right order.",
+      steps: [
+        "Put bread in the toaster",
+        "Wait for the toast",
+        "Put toast on a plate"
+      ]
+    },
+    {
+      title: "Brush teeth",
+      prompt: "Tap the steps in the right order.",
+      steps: [
+        "Put toothpaste on the brush",
+        "Brush your teeth",
+        "Rinse your mouth"
+      ]
+    },
+    {
+      title: "Get ready to go",
+      prompt: "Tap the steps in the right order.",
+      steps: [
+        "Put on shoes",
+        "Take your keys or bag",
+        "Close the door"
+      ]
+    }
+  ],
+    talk: [
+    "What is one thing you want to do today?",
+    "Who is someone you would like to talk to?",
+    "What made you smile today?"
+    ],
+    mini: {
+      sort: { title: "Food or not food?", prompt: "Tap the things you can eat.", instruction: "Find 2 food choices.", correct: ["Apple", "Soup"], wrong: ["Chair", "Shoes"], success: "You found both foods." },
+      pattern: { title: "What comes next?", sequence: ["blue", "red", "blue", "red"], answer: "blue", choices: ["Blue", "Red", "Green"] },
+      money: { title: "Pay for a snack", prompt: "The snack costs $3. Which choice pays exactly $3?", answer: "$3", choices: ["$1", "$3", "$5"] }
+    }
+  },
+  {
+    name: "Home Helpers",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Laundry", pair: "wash" }, { text: "Broom", pair: "clean" }, { text: "Washer", pair: "wash" }, { text: "Dustpan", pair: "clean" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Key", pair: "door" }, { text: "Lamp", pair: "light" }, { text: "Door", pair: "door" }, { text: "Switch", pair: "light" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Plant", pair: "water" }, { text: "Mail", pair: "letter" }, { text: "Watering can", pair: "water" }, { text: "Envelope", pair: "letter" }] }
+    ],
+    life: [
+      { title: "Do laundry", prompt: "Tap the steps in the right order.", steps: ["Put clothes in washer", "Add soap", "Start the washer"] },
+      { title: "Clean table", prompt: "Tap the steps in the right order.", steps: ["Move dishes", "Wipe the table", "Put cloth away"] },
+      { title: "Water a plant", prompt: "Tap the steps in the right order.", steps: ["Fill watering can", "Pour water on soil", "Put can away"] }
+    ],
+    talk: ["What chore do you like helping with?", "What room feels cozy to you?", "Who helps you at home?"],
+    mini: {
+      sort: { title: "Cleaning items", prompt: "Tap the things used for cleaning.", instruction: "Find 2 cleaning choices.", correct: ["Broom", "Soap"], wrong: ["Banana", "Hat"], success: "You found the cleaning items." },
+      pattern: { title: "What comes next?", sequence: ["green", "green", "blue", "green"], answer: "green", choices: ["Green", "Blue", "Red"] },
+      money: { title: "Buy soap", prompt: "Soap costs $4. Which choice pays exactly $4?", answer: "$4", choices: ["$2", "$4", "$6"] }
+    }
+  },
+  {
+    name: "Community Day",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Library", pair: "book" }, { text: "Bus", pair: "ride" }, { text: "Book", pair: "book" }, { text: "Bus stop", pair: "ride" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Doctor", pair: "health" }, { text: "Cashier", pair: "store" }, { text: "Clinic", pair: "health" }, { text: "Register", pair: "store" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Park", pair: "outside" }, { text: "Movie", pair: "theater" }, { text: "Bench", pair: "outside" }, { text: "Ticket", pair: "theater" }] }
+    ],
+    life: [
+      { title: "Ride the bus", prompt: "Tap the steps in the right order.", steps: ["Wait at bus stop", "Show pass or pay", "Sit down safely"] },
+      { title: "Visit library", prompt: "Tap the steps in the right order.", steps: ["Choose a book", "Check it out", "Take it home"] },
+      { title: "Buy a drink", prompt: "Tap the steps in the right order.", steps: ["Choose drink", "Pay cashier", "Say thank you"] }
+    ],
+    talk: ["Where would you like to go today?", "What do you like at the library?", "Who do you see in your community?"],
+    mini: {
+      sort: { title: "Community places", prompt: "Tap the places you can visit.", instruction: "Find 2 places.", correct: ["Library", "Park"], wrong: ["Fork", "Pillow"], success: "You found the places." },
+      pattern: { title: "What comes next?", sequence: ["red", "blue", "blue", "red"], answer: "blue", choices: ["Blue", "Red", "Green"] },
+      money: { title: "Buy a drink", prompt: "The drink costs $2. Which choice pays exactly $2?", answer: "$2", choices: ["$1", "$2", "$5"] }
+    }
+  },
+  {
+    name: "Healthy Choices",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Water", pair: "drink" }, { text: "Shoes", pair: "walk" }, { text: "Cup", pair: "drink" }, { text: "Sidewalk", pair: "walk" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Apple", pair: "fruit" }, { text: "Toothbrush", pair: "teeth" }, { text: "Banana", pair: "fruit" }, { text: "Toothpaste", pair: "teeth" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Pill box", pair: "medicine" }, { text: "Bed", pair: "sleep" }, { text: "Medicine", pair: "medicine" }, { text: "Pillow", pair: "sleep" }] }
+    ],
+    life: [
+      { title: "Wash hands", prompt: "Tap the steps in the right order.", steps: ["Turn on water", "Use soap and scrub", "Rinse and dry"] },
+      { title: "Take a walk", prompt: "Tap the steps in the right order.", steps: ["Put on shoes", "Check weather", "Walk safely"] },
+      { title: "Drink water", prompt: "Tap the steps in the right order.", steps: ["Get a cup", "Fill with water", "Take a drink"] }
+    ],
+    talk: ["What healthy food do you like?", "How does your body feel today?", "What helps you relax?"],
+    mini: {
+      sort: { title: "Healthy choices", prompt: "Tap the healthy choices.", instruction: "Find 2 healthy choices.", correct: ["Water", "Walk"], wrong: ["Too much candy", "No sleep"], success: "You found healthy choices." },
+      pattern: { title: "What comes next?", sequence: ["blue", "green", "blue", "green"], answer: "blue", choices: ["Blue", "Green", "Red"] },
+      money: { title: "Buy fruit", prompt: "Fruit costs $5. Which choice pays exactly $5?", answer: "$5", choices: ["$1", "$3", "$5"] }
+    }
+  },
+  {
+    name: "Kitchen Skills",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Spoon", pair: "soup" }, { text: "Cup", pair: "drink" }, { text: "Soup", pair: "soup" }, { text: "Juice", pair: "drink" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Fridge", pair: "cold" }, { text: "Oven", pair: "hot" }, { text: "Ice", pair: "cold" }, { text: "Pan", pair: "hot" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Napkin", pair: "table" }, { text: "Cereal", pair: "breakfast" }, { text: "Plate", pair: "table" }, { text: "Milk", pair: "breakfast" }] }
+    ],
+    life: [
+      { title: "Make cereal", prompt: "Tap the steps in the right order.", steps: ["Pour cereal", "Add milk", "Use spoon"] },
+      { title: "Set table", prompt: "Tap the steps in the right order.", steps: ["Put down plate", "Add fork or spoon", "Add napkin"] },
+      { title: "Clean a spill", prompt: "Tap the steps in the right order.", steps: ["Get towel", "Wipe spill", "Throw towel in laundry"] }
+    ],
+    talk: ["What snack do you enjoy?", "What kitchen job can you help with?", "What food smells good to you?"],
+    mini: {
+      sort: { title: "Kitchen items", prompt: "Tap the things used in the kitchen.", instruction: "Find 2 kitchen choices.", correct: ["Spoon", "Plate"], wrong: ["Sock", "Book"], success: "You found kitchen items." },
+      pattern: { title: "What comes next?", sequence: ["red", "red", "blue", "red"], answer: "red", choices: ["Red", "Blue", "Green"] },
+      money: { title: "Buy cereal", prompt: "Cereal costs $6. Which choice pays exactly $6?", answer: "$6", choices: ["$4", "$6", "$8"] }
+    }
+  },
+  {
+    name: "Safety Practice",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Stop sign", pair: "stop" }, { text: "Phone", pair: "call" }, { text: "Stop", pair: "stop" }, { text: "911", pair: "call" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Seat belt", pair: "car" }, { text: "Smoke alarm", pair: "fire" }, { text: "Car", pair: "car" }, { text: "Fire drill", pair: "fire" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Crosswalk", pair: "street" }, { text: "Helmet", pair: "bike" }, { text: "Street", pair: "street" }, { text: "Bicycle", pair: "bike" }] }
+    ],
+    life: [
+      { title: "Cross street", prompt: "Tap the steps in the right order.", steps: ["Stop at curb", "Look both ways", "Cross when safe"] },
+      { title: "Car safety", prompt: "Tap the steps in the right order.", steps: ["Sit in seat", "Buckle seat belt", "Keep belt on"] },
+      { title: "If lost", prompt: "Tap the steps in the right order.", steps: ["Stay calm", "Find safe helper", "Call family"] }
+    ],
+    talk: ["What does a stop sign mean?", "Who can help if you feel lost?", "What makes you feel safe?"],
+    mini: {
+      sort: { title: "Safe choices", prompt: "Tap the safe choices.", instruction: "Find 2 safe choices.", correct: ["Wear seat belt", "Use crosswalk"], wrong: ["Run in street", "Touch hot stove"], success: "You found safe choices." },
+      pattern: { title: "What comes next?", sequence: ["green", "red", "green", "red"], answer: "green", choices: ["Green", "Red", "Blue"] },
+      money: { title: "Emergency card", prompt: "A card costs $1. Which choice pays exactly $1?", answer: "$1", choices: ["$1", "$2", "$5"] }
+    }
+  },
+  {
+    name: "Feelings Day",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Smile", pair: "happy" }, { text: "Tears", pair: "sad" }, { text: "Happy", pair: "happy" }, { text: "Sad", pair: "sad" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Calm", pair: "relax" }, { text: "Angry", pair: "mad" }, { text: "Deep breath", pair: "relax" }, { text: "Mad face", pair: "mad" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Friend", pair: "kind" }, { text: "Help", pair: "support" }, { text: "Kind words", pair: "kind" }, { text: "Support", pair: "support" }] }
+    ],
+    life: [
+      { title: "Calm down", prompt: "Tap the steps in the right order.", steps: ["Stop and breathe", "Name the feeling", "Ask for help"] },
+      { title: "Say sorry", prompt: "Tap the steps in the right order.", steps: ["Look at person", "Say I am sorry", "Try again kindly"] },
+      { title: "Share feelings", prompt: "Tap the steps in the right order.", steps: ["Choose feeling", "Use calm words", "Listen to response"] }
+    ],
+    talk: ["How are you feeling right now?", "What helps when you feel upset?", "Who makes you feel happy?"],
+    mini: {
+      sort: { title: "Feeling words", prompt: "Tap the feeling words.", instruction: "Find 2 feelings.", correct: ["Happy", "Calm"], wrong: ["Table", "Shoe"], success: "You found feeling words." },
+      pattern: { title: "What comes next?", sequence: ["blue", "blue", "red", "blue"], answer: "blue", choices: ["Blue", "Red", "Green"] },
+      money: { title: "Buy a card", prompt: "A card costs $2. Which choice pays exactly $2?", answer: "$2", choices: ["$1", "$2", "$4"] }
+    }
+  },
+  {
+    name: "Weather Day",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Raincoat", pair: "rain" }, { text: "Sunglasses", pair: "sun" }, { text: "Rain", pair: "rain" }, { text: "Sun", pair: "sun" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Snow", pair: "winter" }, { text: "Shorts", pair: "summer" }, { text: "Gloves", pair: "winter" }, { text: "Warm day", pair: "summer" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Cloud", pair: "sky" }, { text: "Wind", pair: "breeze" }, { text: "Sky", pair: "sky" }, { text: "Breeze", pair: "breeze" }] }
+    ],
+    life: [
+      { title: "Dress for rain", prompt: "Tap the steps in the right order.", steps: ["Check weather", "Put on raincoat", "Take umbrella"] },
+      { title: "Sunny day", prompt: "Tap the steps in the right order.", steps: ["Check sun", "Put on sunscreen", "Wear hat"] },
+      { title: "Cold day", prompt: "Tap the steps in the right order.", steps: ["Check temperature", "Put on coat", "Wear gloves"] }
+    ],
+    talk: ["What is the weather today?", "What do you wear when it rains?", "Do you like sunny days or cloudy days?"],
+    mini: {
+      sort: { title: "Rainy day items", prompt: "Tap the rainy day items.", instruction: "Find 2 rainy choices.", correct: ["Umbrella", "Raincoat"], wrong: ["Sunscreen", "Sandals"], success: "You found rainy day items." },
+      pattern: { title: "What comes next?", sequence: ["red", "green", "red", "green"], answer: "red", choices: ["Red", "Green", "Blue"] },
+      money: { title: "Buy umbrella", prompt: "An umbrella costs $7. Which choice pays exactly $7?", answer: "$7", choices: ["$5", "$7", "$9"] }
+    }
+  },
+  {
+    name: "Friendship",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Wave", pair: "hello" }, { text: "Gift", pair: "birthday" }, { text: "Hello", pair: "hello" }, { text: "Birthday", pair: "birthday" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Listen", pair: "talk" }, { text: "Game", pair: "play" }, { text: "Talk", pair: "talk" }, { text: "Play", pair: "play" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Share", pair: "kind" }, { text: "Phone", pair: "call" }, { text: "Kind", pair: "kind" }, { text: "Call", pair: "call" }] }
+    ],
+    life: [
+      { title: "Greet someone", prompt: "Tap the steps in the right order.", steps: ["Look at person", "Say hello", "Ask a question"] },
+      { title: "Take turns", prompt: "Tap the steps in the right order.", steps: ["Wait your turn", "Play your turn", "Let friend go next"] },
+      { title: "Call a friend", prompt: "Tap the steps in the right order.", steps: ["Choose contact", "Say hello", "Have a short talk"] }
+    ],
+    talk: ["Who is a good friend?", "What is something kind you can say?", "What game do you like playing with others?"],
+    mini: {
+      sort: { title: "Kind actions", prompt: "Tap the kind actions.", instruction: "Find 2 kind choices.", correct: ["Share", "Listen"], wrong: ["Yell", "Push"], success: "You found kind actions." },
+      pattern: { title: "What comes next?", sequence: ["green", "blue", "green", "blue"], answer: "green", choices: ["Green", "Blue", "Red"] },
+      money: { title: "Buy a small gift", prompt: "A gift costs $4. Which choice pays exactly $4?", answer: "$4", choices: ["$2", "$4", "$5"] }
+    }
+  },
+  {
+    name: "Exercise",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Shoes", pair: "walk" }, { text: "Ball", pair: "throw" }, { text: "Walk", pair: "walk" }, { text: "Throw", pair: "throw" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Music", pair: "dance" }, { text: "Pool", pair: "swim" }, { text: "Dance", pair: "dance" }, { text: "Swim", pair: "swim" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Stretch", pair: "body" }, { text: "Bottle", pair: "water" }, { text: "Body", pair: "body" }, { text: "Water", pair: "water" }] }
+    ],
+    life: [
+      { title: "Go for walk", prompt: "Tap the steps in the right order.", steps: ["Put on shoes", "Choose safe path", "Walk with care"] },
+      { title: "Stretch", prompt: "Tap the steps in the right order.", steps: ["Stand still", "Reach arms up", "Relax body"] },
+      { title: "Dance break", prompt: "Tap the steps in the right order.", steps: ["Choose music", "Make space", "Dance safely"] }
+    ],
+    talk: ["What movement do you enjoy?", "What song makes you move?", "How do you feel after exercise?"],
+    mini: {
+      sort: { title: "Movement words", prompt: "Tap the movement words.", instruction: "Find 2 movement choices.", correct: ["Walk", "Dance"], wrong: ["Sleep", "Chair"], success: "You found movement words." },
+      pattern: { title: "What comes next?", sequence: ["blue", "red", "green", "blue"], answer: "red", choices: ["Red", "Blue", "Green"] },
+      money: { title: "Buy water", prompt: "Water costs $1. Which choice pays exactly $1?", answer: "$1", choices: ["$1", "$3", "$5"] }
+    }
+  },
+  {
+    name: "Shopping",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Cart", pair: "store" }, { text: "Money", pair: "pay" }, { text: "Store", pair: "store" }, { text: "Pay", pair: "pay" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "List", pair: "shop" }, { text: "Receipt", pair: "buy" }, { text: "Shop", pair: "shop" }, { text: "Buy", pair: "buy" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Bag", pair: "carry" }, { text: "Shelf", pair: "items" }, { text: "Carry", pair: "carry" }, { text: "Items", pair: "items" }] }
+    ],
+    life: [
+      { title: "Use a shopping list", prompt: "Tap the steps in the right order.", steps: ["Read list", "Find item", "Put item in cart"] },
+      { title: "Pay cashier", prompt: "Tap the steps in the right order.", steps: ["Wait in line", "Pay cashier", "Take receipt"] },
+      { title: "Put groceries away", prompt: "Tap the steps in the right order.", steps: ["Bring bags inside", "Put cold food away", "Put bags away"] }
+    ],
+    talk: ["What do you like buying at the store?", "What does a cashier do?", "What is one thing on a grocery list?"],
+    mini: {
+      sort: { title: "Store items", prompt: "Tap the things you might buy at a store.", instruction: "Find 2 store items.", correct: ["Milk", "Soap"], wrong: ["Cloud", "Doorbell"], success: "You found store items." },
+      pattern: { title: "What comes next?", sequence: ["red", "blue", "red", "blue"], answer: "red", choices: ["Red", "Blue", "Green"] },
+      money: { title: "Buy milk", prompt: "Milk costs $3. Which choice pays exactly $3?", answer: "$3", choices: ["$2", "$3", "$6"] }
+    }
+  },
+  {
+    name: "Time Practice",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Morning", pair: "breakfast" }, { text: "Night", pair: "bed" }, { text: "Breakfast", pair: "breakfast" }, { text: "Bedtime", pair: "bed" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Clock", pair: "time" }, { text: "Calendar", pair: "date" }, { text: "Time", pair: "time" }, { text: "Date", pair: "date" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Lunch", pair: "noon" }, { text: "Alarm", pair: "wake" }, { text: "Noon", pair: "noon" }, { text: "Wake up", pair: "wake" }] }
+    ],
+    life: [
+      { title: "Morning routine", prompt: "Tap the steps in the right order.", steps: ["Wake up", "Get dressed", "Eat breakfast"] },
+      { title: "Bedtime routine", prompt: "Tap the steps in the right order.", steps: ["Put on pajamas", "Brush teeth", "Get in bed"] },
+      { title: "Get to appointment", prompt: "Tap the steps in the right order.", steps: ["Check time", "Get ready", "Leave on time"] }
+    ],
+    talk: ["What do you do in the morning?", "What helps you know the time?", "What is part of bedtime?"],
+    mini: {
+      sort: { title: "Morning or night", prompt: "Tap the morning activities.", instruction: "Find 2 morning choices.", correct: ["Breakfast", "Get dressed"], wrong: ["Pajamas", "Bedtime"], success: "You found morning activities." },
+      pattern: { title: "What comes next?", sequence: ["green", "red", "red", "green"], answer: "red", choices: ["Red", "Green", "Blue"] },
+      money: { title: "Buy calendar", prompt: "A calendar costs $5. Which choice pays exactly $5?", answer: "$5", choices: ["$2", "$5", "$7"] }
+    }
+  },
+  {
+    name: "Personal Care",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Comb", pair: "hair" }, { text: "Soap", pair: "hands" }, { text: "Hair", pair: "hair" }, { text: "Hands", pair: "hands" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Shirt", pair: "clothes" }, { text: "Deodorant", pair: "fresh" }, { text: "Pants", pair: "clothes" }, { text: "Fresh", pair: "fresh" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Shampoo", pair: "shower" }, { text: "Towel", pair: "dry" }, { text: "Shower", pair: "shower" }, { text: "Dry", pair: "dry" }] }
+    ],
+    life: [
+      { title: "Comb hair", prompt: "Tap the steps in the right order.", steps: ["Get comb", "Comb hair", "Put comb away"] },
+      { title: "Take shower", prompt: "Tap the steps in the right order.", steps: ["Turn on water", "Wash body", "Dry with towel"] },
+      { title: "Choose clothes", prompt: "Tap the steps in the right order.", steps: ["Check weather", "Pick clean clothes", "Get dressed"] }
+    ],
+    talk: ["What helps you feel clean?", "What clothes do you like wearing?", "What personal-care job can you do by yourself?"],
+    mini: {
+      sort: { title: "Bathroom items", prompt: "Tap the bathroom items.", instruction: "Find 2 bathroom choices.", correct: ["Soap", "Towel"], wrong: ["Fork", "Remote"], success: "You found bathroom items." },
+      pattern: { title: "What comes next?", sequence: ["blue", "green", "green", "blue"], answer: "green", choices: ["Green", "Blue", "Red"] },
+      money: { title: "Buy shampoo", prompt: "Shampoo costs $6. Which choice pays exactly $6?", answer: "$6", choices: ["$3", "$6", "$8"] }
+    }
+  },
+  {
+    name: "Hobbies",
+    brain: [
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Paint", pair: "art" }, { text: "Guitar", pair: "music" }, { text: "Picture", pair: "art" }, { text: "Song", pair: "music" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Puzzle", pair: "pieces" }, { text: "Movie", pair: "screen" }, { text: "Pieces", pair: "pieces" }, { text: "Screen", pair: "screen" }] },
+      { title: "Find the pair", prompt: "Tap two cards that go together.", cards: [{ text: "Book", pair: "read" }, { text: "Camera", pair: "photo" }, { text: "Read", pair: "read" }, { text: "Photo", pair: "photo" }] }
+    ],
+    life: [
+      { title: "Start a puzzle", prompt: "Tap the steps in the right order.", steps: ["Open box", "Find edge pieces", "Start puzzle"] },
+      { title: "Paint a picture", prompt: "Tap the steps in the right order.", steps: ["Get paper", "Choose colors", "Paint picture"] },
+      { title: "Watch movie", prompt: "Tap the steps in the right order.", steps: ["Choose movie", "Sit comfortably", "Press play"] }
+    ],
+    talk: ["What hobby do you enjoy?", "What music do you like?", "What would you like to make?"],
+    mini: {
+      sort: { title: "Hobby items", prompt: "Tap the hobby items.", instruction: "Find 2 hobby choices.", correct: ["Puzzle", "Paint"], wrong: ["Toothpaste", "Umbrella"], success: "You found hobby items." },
+      pattern: { title: "What comes next?", sequence: ["red", "green", "blue", "red"], answer: "green", choices: ["Green", "Red", "Blue"] },
+      money: { title: "Buy paint", prompt: "Paint costs $4. Which choice pays exactly $4?", answer: "$4", choices: ["$1", "$4", "$7"] }
+    }
+  }
+];
+
+const todayPlan = curriculum[curriculumDay];
+
+const title = document.querySelector("h1");
+const todayLabel = document.querySelector("#todayLabel");
+const progressCount = document.querySelector("#progressCount");
+const progressBar = document.querySelector("#progressBar");
+const celebration = document.querySelector("#celebration");
+const stars = [...document.querySelectorAll(".star")];
+const activities = [...document.querySelectorAll(".activity")];
+const talkPrompt = document.querySelector("#talkPrompt");
+const talkAnswer = document.querySelector("#talkAnswer");
+const caregiverToggle = document.querySelector(".caregiver-toggle");
+const caregiverPanel = document.querySelector("#caregiver-panel");
+const nameInput = document.querySelector("#nameInput");
+const promptInput = document.querySelector("#promptInput");
+const messageInput = document.querySelector("#messageInput");
+const resetProgress = document.querySelector("#resetProgress");
+const memoryGame = document.querySelector("[data-memory-game]");
+const sequenceGame = document.querySelector("[data-sequence-game]");
+const miniGames = document.querySelector(".mini-games");
+
+let memoryPicks = [];
+let sequenceStep = 1;
+const sortPicks = new Set();
+
+function save() {
+  localStorage.setItem("dailyAdventure", JSON.stringify(state));
+}
+
+function saveHistory() {
+  localStorage.setItem("dailyAdventureHistory", JSON.stringify(history));
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+
+function getRoundTotal() {
+  return sectionIds.reduce((total, id) => total + state.rounds[id], 0);
+}
+
+function completeSection(id) {
+  if (!state.completed.includes(id)) {
+    state.completed.push(id);
+  }
+}
+
+function completeRound(id, message) {
+  if (state.rounds[id] < maxRounds[id]) {
+    state.rounds[id] += 1;
+  }
+
+  if (state.rounds[id] >= maxRounds[id]) {
+    completeSection(id);
+  }
+
+  save();
+  updateProgress();
+  updateHistory();
+  speak(message);
+}
+
+function nextActivityId() {
+  return sectionIds.find((id) => !state.completed.includes(id)) || "talk";
+}
+
+function updateGreeting() {
+  title.textContent = `Hi, ${state.name}. Ready for today's adventure?`;
+  document.querySelector(".intro").textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. Three short sections plus extra learning games.`;
+  nameInput.value = state.name;
+  promptInput.value = state.talkPrompt;
+  messageInput.value = state.message;
+}
+
+function updateProgress() {
+  const doneRounds = getRoundTotal();
+  const doneSections = state.completed.length;
+  progressCount.textContent = `${doneRounds} of ${totalRounds} rounds`;
+  progressBar.style.width = `${(doneRounds / totalRounds) * 100}%`;
+
+  stars.forEach((star, index) => {
+    star.classList.toggle("earned", index < doneSections);
+  });
+
+  activities.forEach((activity) => {
+    const id = activity.dataset.activity;
+    const round = Math.min(state.rounds[id] + 1, maxRounds[id]);
+    const type = activity.querySelector(".activity-type");
+    const isDone = state.completed.includes(id);
+
+    activity.classList.toggle("done", isDone);
+    activity.classList.toggle("active", id === nextActivityId());
+    type.textContent = isDone
+      ? `${labelFor(id)} complete`
+      : `${labelFor(id)} ${round} of ${maxRounds[id]}`;
+  });
+
+  celebration.textContent = doneRounds === totalRounds
+    ? `${state.message} Today's adventure is complete.`
+    : doneRounds > 0
+      ? "Good progress. Another short round is ready."
+      : "Finish rounds to earn stars and mark the calendar.";
+}
+
+function labelFor(id) {
+  if (id === "brain") return "Memory Game";
+  if (id === "life") return "Life Skill";
+  return "Talk Time";
+}
+
+function renderBrainRound() {
+  const round = Math.min(state.rounds.brain, maxRounds.brain - 1);
+  const deck = todayPlan.brain[round];
+  const activity = document.querySelector('[data-activity="brain"]');
+
+  activity.querySelector("h2").textContent = state.completed.includes("brain") ? "Memory complete" : deck.title;
+  activity.querySelector(".prompt").textContent = state.completed.includes("brain")
+    ? "You finished all memory rounds for today."
+    : deck.prompt;
+  activity.querySelector(".feedback").textContent = "";
+
+  memoryGame.innerHTML = deck.cards.map((card) => (
+    `<button class="game-card" data-pair="${card.pair}">${card.text}</button>`
+  )).join("");
+  memoryPicks = [];
+}
+
+function renderLifeRound() {
+  const round = Math.min(state.rounds.life, maxRounds.life - 1);
+  const deck = todayPlan.life[round];
+  const activity = document.querySelector('[data-activity="life"]');
+  const shuffledSteps = [deck.steps[0], deck.steps[2], deck.steps[1]];
+
+  activity.querySelector("h2").textContent = state.completed.includes("life") ? "Life skills complete" : deck.title;
+  activity.querySelector(".prompt").textContent = state.completed.includes("life")
+    ? "You finished all life-skill rounds for today."
+    : deck.prompt;
+  activity.querySelector(".feedback").textContent = "";
+
+  sequenceGame.innerHTML = shuffledSteps.map((step) => {
+    const order = deck.steps.indexOf(step) + 1;
+    return `<button class="sequence-choice" data-order="${order}">${step}</button>`;
+  }).join("");
+  sequenceStep = 1;
+}
+
+function renderTalkRound() {
+  const round = Math.min(state.rounds.talk, maxRounds.talk - 1);
+  const prompt = round === 0 && state.talkPrompt !== defaultState.talkPrompt
+    ? state.talkPrompt
+    : todayPlan.talk[round];
+  const activity = document.querySelector('[data-activity="talk"]');
+
+  activity.querySelector("h2").textContent = state.completed.includes("talk") ? "Talk Time complete" : "Share an answer";
+  talkPrompt.textContent = state.completed.includes("talk")
+    ? "You finished all Talk Time rounds for today."
+    : prompt;
+  talkAnswer.value = "";
+  activity.querySelector(".feedback").textContent = "";
+}
+
+function renderDailyRounds() {
+  renderBrainRound();
+  renderLifeRound();
+  renderTalkRound();
+  attachRoundHandlers();
+}
+
+function renderMiniGames() {
+  const sortChoices = [...todayPlan.mini.sort.correct, ...todayPlan.mini.sort.wrong];
+  const pattern = todayPlan.mini.pattern;
+  const money = todayPlan.mini.money;
+
+  miniGames.innerHTML = `
+    <article class="mini-game" data-mini-game="sort">
+      <div class="mini-game-header">
+        <span>Sort</span>
+        <strong>${todayPlan.mini.sort.title}</strong>
+      </div>
+      <p>${todayPlan.mini.sort.prompt}</p>
+      <div class="tile-grid">
+        ${sortChoices.map((choice) => (
+          `<button class="tile" data-sort-correct="${todayPlan.mini.sort.correct.includes(choice)}">${choice}</button>`
+        )).join("")}
+      </div>
+      <p class="mini-feedback" aria-live="polite">${todayPlan.mini.sort.instruction}</p>
+    </article>
+
+    <article class="mini-game" data-mini-game="pattern">
+      <div class="mini-game-header">
+        <span>Pattern</span>
+        <strong>${pattern.title}</strong>
+      </div>
+      <div class="pattern-row" aria-label="${pattern.sequence.join(" ")} pattern">
+        ${pattern.sequence.map((color) => `<span class="pattern-dot ${color}"></span>`).join("")}
+        <span class="pattern-dot mystery">?</span>
+      </div>
+      <div class="tile-grid three">
+        ${pattern.choices.map((choice) => (
+          `<button class="tile color-choice" data-pattern="${choice.toLowerCase()}">${choice}</button>`
+        )).join("")}
+      </div>
+      <p class="mini-feedback" aria-live="polite">Choose the next color.</p>
+    </article>
+
+    <article class="mini-game" data-mini-game="money">
+      <div class="mini-game-header">
+        <span>Money</span>
+        <strong>${money.title}</strong>
+      </div>
+      <p>${money.prompt}</p>
+      <div class="tile-grid three">
+        ${money.choices.map((choice) => (
+          `<button class="tile money-choice" data-money-correct="${choice === money.answer}">${choice}</button>`
+        )).join("")}
+      </div>
+      <p class="mini-feedback" aria-live="polite">Pick the exact amount.</p>
+    </article>
+  `;
+
+  attachMiniGameHandlers();
+}
+
+function attachRoundHandlers() {
+  document.querySelectorAll("[data-memory-game] .game-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      if (state.completed.includes("brain")) return;
+
+      const activity = card.closest(".activity");
+      const feedback = activity.querySelector(".feedback");
+
+      if (card.classList.contains("matched") || memoryPicks.includes(card)) return;
+
+      card.classList.add("selected");
+      memoryPicks.push(card);
+      speak(card.textContent);
+
+      if (memoryPicks.length < 2) {
+        feedback.textContent = "Pick one more card.";
+        return;
+      }
+
+      const [first, second] = memoryPicks;
+      const isMatch = first.dataset.pair === second.dataset.pair;
+
+      if (isMatch) {
+        first.classList.add("matched");
+        second.classList.add("matched");
+        const isLast = state.rounds.brain + 1 >= maxRounds.brain;
+        const message = isLast ? "Memory section complete." : "That's a pair. New cards are ready.";
+        feedback.textContent = message;
+        completeRound("brain", message);
+        window.setTimeout(renderDailyRounds, 700);
+      } else {
+        first.classList.add("wrong");
+        second.classList.add("wrong");
+        feedback.textContent = "Good try. Those are different. Try again.";
+        speak("Good try. Those are different. Try again.");
+        window.setTimeout(() => {
+          first.classList.remove("selected", "wrong");
+          second.classList.remove("selected", "wrong");
+        }, 700);
+      }
+
+      memoryPicks = [];
+    });
+  });
+
+  document.querySelectorAll("[data-sequence-game] .sequence-choice").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.completed.includes("life")) return;
+
+      const activity = button.closest(".activity");
+      const feedback = activity.querySelector(".feedback");
+      const order = Number(button.dataset.order);
+
+      if (button.classList.contains("selected")) return;
+
+      if (order === sequenceStep) {
+        button.classList.add("selected");
+        button.dataset.picked = String(sequenceStep);
+        sequenceStep += 1;
+
+        if (sequenceStep > 3) {
+          const isLast = state.rounds.life + 1 >= maxRounds.life;
+          const message = isLast ? "Life skills section complete." : "You put the steps in order. New steps are ready.";
+          feedback.textContent = message;
+          completeRound("life", message);
+          window.setTimeout(renderDailyRounds, 700);
+        } else {
+          feedback.textContent = `Good. Now find step ${sequenceStep}.`;
+          speak(`Good. Now find step ${sequenceStep}.`);
+        }
+        return;
+      }
+
+      button.classList.add("wrong");
+      feedback.textContent = "Good try. Start with step 1.";
+      speak("Good try. Start with step 1.");
+      window.setTimeout(resetSequenceGame, 800);
+    });
+  });
+}
+
+function updateHistory() {
+  history.days[todayKey] = {
+    completed: getRoundTotal() === totalRounds,
+    rounds: getRoundTotal(),
+    mood: state.mood,
+    plan: todayPlan.name,
+    day: curriculumDay + 1,
+    updatedAt: new Date().toISOString()
+  };
+  saveHistory();
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const calendar = document.querySelector("#calendarGrid");
+  if (!calendar) return;
+
+  const days = [];
+  const now = new Date();
+  for (let i = 13; i >= 0; i -= 1) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - i);
+    const key = date.toISOString().slice(0, 10);
+    const record = history.days[key];
+    days.push({ date, key, record });
+  }
+
+  calendar.innerHTML = days.map(({ date, key, record }) => {
+    const label = new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(date);
+    const day = date.getDate();
+    const status = record?.completed ? "done" : record?.rounds ? "started" : "";
+    const rounds = record?.rounds || 0;
+    return `
+      <div class="calendar-day ${status}" aria-label="${label} ${day}, ${rounds} of ${totalRounds} rounds">
+        <span>${label}</span>
+        <strong>${day}</strong>
+        <small>${rounds}/${totalRounds}</small>
+      </div>
+    `;
+  }).join("");
+}
+
+todayLabel.textContent = `${new Intl.DateTimeFormat(undefined, {
+  weekday: "long",
+  month: "short",
+  day: "numeric"
+}).format(new Date())} · Day ${curriculumDay + 1} of 14`;
+
+document.querySelectorAll(".mood-button").forEach((button) => {
+  button.classList.toggle("selected", button.dataset.mood === state.mood);
+  button.addEventListener("click", () => {
+    state.mood = button.dataset.mood;
+    document.querySelectorAll(".mood-button").forEach((item) => item.classList.remove("selected"));
+    button.classList.add("selected");
+    save();
+    updateHistory();
+    speak(`You chose ${state.mood}.`);
+  });
+});
+
+function attachMiniGameHandlers() {
+  sortPicks.clear();
+
+  document.querySelectorAll("[data-mini-game='sort'] .tile").forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const game = tile.closest(".mini-game");
+      const feedback = game.querySelector(".mini-feedback");
+      const isCorrect = tile.dataset.sortCorrect === "true";
+
+      if (isCorrect) {
+        tile.classList.add("selected", "correct");
+        sortPicks.add(tile.textContent);
+        feedback.textContent = sortPicks.size === todayPlan.mini.sort.correct.length
+          ? todayPlan.mini.sort.success
+          : "Yes. Find one more.";
+        speak(feedback.textContent);
+      } else {
+        tile.classList.add("wrong");
+        feedback.textContent = "Good try. Pick a different one.";
+        speak("Good try. Pick a different one.");
+        window.setTimeout(() => tile.classList.remove("wrong"), 700);
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-mini-game='pattern'] .tile").forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const game = tile.closest(".mini-game");
+      const feedback = game.querySelector(".mini-feedback");
+      const isCorrect = tile.dataset.pattern === todayPlan.mini.pattern.answer;
+
+      game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
+      tile.classList.add(isCorrect ? "correct" : "wrong");
+      feedback.textContent = isCorrect
+        ? `Yes. ${capitalize(todayPlan.mini.pattern.answer)} comes next.`
+        : "Good try. Look at the pattern again.";
+      speak(feedback.textContent);
+    });
+  });
+
+  document.querySelectorAll("[data-mini-game='money'] .tile").forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const game = tile.closest(".mini-game");
+      const feedback = game.querySelector(".mini-feedback");
+      const isCorrect = tile.dataset.moneyCorrect === "true";
+
+      game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
+      tile.classList.add(isCorrect ? "correct" : "wrong");
+      feedback.textContent = isCorrect
+        ? `Correct. ${todayPlan.mini.money.answer} is the exact amount.`
+        : "Good try. Pick the exact amount.";
+      speak(feedback.textContent);
+    });
+  });
+}
+
+function capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+document.querySelector("[data-complete-talk]").addEventListener("click", () => {
+  if (state.completed.includes("talk")) return;
+
+  const answer = talkAnswer.value.trim();
+  const isLast = state.rounds.talk + 1 >= maxRounds.talk;
+  const message = answer
+    ? isLast ? "Thank you for sharing. Talk Time is complete." : "Thank you for sharing. New question is ready."
+    : isLast ? "Talk Time is complete." : "New Talk Time question is ready.";
+  document.querySelector('[data-activity="talk"] .feedback').textContent = message;
+  completeRound("talk", message);
+  window.setTimeout(renderDailyRounds, 500);
+});
+
+caregiverToggle.addEventListener("click", () => {
+  const isOpen = caregiverToggle.getAttribute("aria-expanded") === "true";
+  caregiverToggle.setAttribute("aria-expanded", String(!isOpen));
+  caregiverPanel.hidden = isOpen;
+});
+
+document.querySelector("#saveSettings").addEventListener("click", () => {
+  state.name = nameInput.value.trim() || "Alex";
+  state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
+  state.message = messageInput.value.trim() || defaultState.message;
+  save();
+  updateGreeting();
+  renderTalkRound();
+  celebration.textContent = "Settings saved.";
+  speak("Settings saved.");
+});
+
+resetProgress.addEventListener("click", () => {
+  state.completed = [];
+  state.rounds = { brain: 0, life: 0, talk: 0 };
+  talkAnswer.value = "";
+  document.querySelectorAll(".feedback").forEach((feedback) => {
+    feedback.textContent = "";
+  });
+  document.querySelectorAll(".choice, .game-card, .sequence-choice, .tile").forEach((choice) => {
+    choice.classList.remove("correct", "wrong", "selected", "matched");
+    choice.removeAttribute("data-picked");
+  });
+  document.querySelectorAll(".mini-feedback").forEach((feedback) => {
+    feedback.textContent = feedback.closest("[data-mini-game='sort']")
+      ? "Find 2 food choices."
+      : feedback.closest("[data-mini-game='pattern']")
+        ? "Choose the next color."
+        : "Pick the exact amount.";
+  });
+  memoryPicks = [];
+  sequenceStep = 1;
+  sortPicks.clear();
+  delete history.days[todayKey];
+  save();
+  saveHistory();
+  renderDailyRounds();
+  renderMiniGames();
+  updateProgress();
+  renderCalendar();
+  speak("Today's progress has been reset.");
+});
+
+function resetSequenceGame() {
+  sequenceStep = 1;
+  document.querySelectorAll("[data-sequence-game] .sequence-choice").forEach((button) => {
+    button.classList.remove("selected", "wrong");
+    button.removeAttribute("data-picked");
+  });
+}
+
+updateGreeting();
+renderDailyRounds();
+renderMiniGames();
+updateProgress();
+updateHistory();

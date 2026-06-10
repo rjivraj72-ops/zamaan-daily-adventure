@@ -1,0 +1,643 @@
+:root {
+  color-scheme: light;
+  --bg: #f4fbf8;
+  --panel: #ffffff;
+  --ink: #17312b;
+  --muted: #587068;
+  --accent: #247c6d;
+  --accent-strong: #135c51;
+  --accent-soft: #d9f0ea;
+  --gold: #f2b84b;
+  --line: #cfe3dd;
+  --wrong: #a74343;
+  --shadow: 0 18px 44px rgba(27, 64, 55, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 44px;
+}
+
+.hero,
+.check-in,
+.reward,
+.game-shelf,
+.calendar-panel,
+.caregiver-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 22px;
+  align-items: center;
+  padding: 30px;
+}
+
+.eyebrow,
+.activity-type {
+  margin: 0 0 8px;
+  color: var(--accent-strong);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 780px;
+  margin-bottom: 12px;
+  font-size: clamp(2rem, 4vw, 3.9rem);
+  line-height: 1.05;
+}
+
+h2 {
+  margin-bottom: 8px;
+  font-size: 1.55rem;
+}
+
+.intro,
+.check-in p,
+.prompt,
+.reward p {
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.today-card {
+  padding: 18px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+}
+
+.today-card span,
+.today-card strong {
+  display: block;
+}
+
+.today-card strong {
+  margin: 8px 0 14px;
+  font-size: 1.6rem;
+}
+
+.progress-track {
+  overflow: hidden;
+  height: 14px;
+  border-radius: 999px;
+  background: #eef8f4;
+}
+
+.progress-track span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 220ms ease;
+}
+
+.check-in {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
+  gap: 22px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.mood-grid,
+.choice-grid,
+.memory-grid,
+.sequence-list,
+.tile-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.mood-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mood-button,
+.choice,
+.game-card,
+.sequence-choice,
+.tile,
+.complete-button,
+.caregiver-toggle,
+#saveSettings,
+.secondary-button {
+  min-height: 56px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.mood-button:hover,
+.choice:hover,
+.game-card:hover,
+.sequence-choice:hover,
+.tile:hover,
+.complete-button:hover,
+.caregiver-toggle:hover,
+#saveSettings:hover,
+.secondary-button:hover {
+  border-color: var(--accent);
+}
+
+.mood-button.selected,
+.choice.correct,
+.game-card.selected,
+.game-card.matched,
+.sequence-choice.selected,
+.tile.selected,
+.tile.correct {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.choice.wrong,
+.game-card.wrong,
+.sequence-choice.wrong,
+.tile.wrong {
+  border-color: var(--wrong);
+  color: var(--wrong);
+}
+
+.activity-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.activity {
+  min-height: 360px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.activity.active {
+  outline: 4px solid var(--accent-soft);
+}
+
+.activity.done {
+  background: #fbfffd;
+}
+
+.activity-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.activity-step {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.choice-grid {
+  margin-top: 18px;
+}
+
+.choice,
+.game-card,
+.sequence-choice,
+.tile {
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.memory-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.game-card {
+  min-height: 92px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: 1.08rem;
+}
+
+.game-card.matched {
+  color: var(--accent-strong);
+}
+
+.sequence-list {
+  margin-top: 18px;
+}
+
+.sequence-choice {
+  position: relative;
+  padding-left: 54px;
+}
+
+.sequence-choice::before {
+  content: attr(data-picked);
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 800;
+  transform: translateY(-50%);
+}
+
+.sequence-choice:not([data-picked])::before {
+  content: "";
+}
+
+.feedback {
+  min-height: 32px;
+  margin: 18px 0 0;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.answer-label {
+  display: block;
+  margin: 16px 0 8px;
+  font-weight: 700;
+}
+
+textarea,
+input {
+  width: 100%;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.game-shelf {
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.section-heading {
+  max-width: 760px;
+}
+
+.section-heading p:last-child {
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.mini-games {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.mini-game {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-height: 330px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfffd;
+}
+
+.mini-game-header {
+  display: grid;
+  gap: 6px;
+}
+
+.mini-game-header span {
+  width: max-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.mini-game-header strong {
+  font-size: 1.25rem;
+}
+
+.mini-game p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.tile-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tile-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tile {
+  min-height: 74px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+.pattern-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pattern-dot {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 800;
+}
+
+.pattern-dot.blue {
+  background: #2d6fc2;
+}
+
+.pattern-dot.red {
+  background: #c64d4d;
+}
+
+.pattern-dot.green {
+  background: #3f8f5c;
+}
+
+.pattern-dot.mystery {
+  border: 2px dashed var(--accent);
+  background: #fff;
+  color: var(--accent-strong);
+}
+
+.color-choice[data-pattern="blue"] {
+  border-color: #2d6fc2;
+}
+
+.color-choice[data-pattern="red"] {
+  border-color: #c64d4d;
+}
+
+.color-choice[data-pattern="green"] {
+  border-color: #3f8f5c;
+}
+
+.mini-feedback {
+  min-height: 26px;
+  font-weight: 700;
+}
+
+.calendar-panel {
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.calendar-day {
+  display: grid;
+  gap: 4px;
+  min-height: 82px;
+  place-items: center;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.calendar-day span,
+.calendar-day small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.calendar-day strong {
+  font-size: 1.25rem;
+}
+
+.calendar-day.started {
+  border-color: var(--gold);
+  background: #fff7e5;
+}
+
+.calendar-day.done {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+textarea:focus,
+input:focus,
+button:focus-visible {
+  outline: 4px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.complete-button,
+#saveSettings {
+  width: 100%;
+  margin-top: 12px;
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.secondary-button {
+  width: 100%;
+  background: #fff;
+}
+
+.reward {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.star-row {
+  display: flex;
+  gap: 12px;
+}
+
+.star {
+  width: 52px;
+  height: 52px;
+  clip-path: polygon(50% 0%, 62% 34%, 98% 35%, 69% 56%, 80% 91%, 50% 70%, 20% 91%, 31% 56%, 2% 35%, 38% 34%);
+  background: #d7e3df;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.star.earned {
+  background: var(--gold);
+  transform: scale(1.08);
+}
+
+.caregiver {
+  margin-top: 18px;
+}
+
+.caregiver-toggle {
+  width: 100%;
+  background: transparent;
+}
+
+.caregiver-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 20px;
+}
+
+.caregiver-panel[hidden] {
+  display: none;
+}
+
+.caregiver-panel label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+  .hero,
+  .check-in,
+  .activity-layout,
+  .mini-games,
+  .reward {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .reward {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell {
+    width: min(100% - 20px, 1120px);
+    padding-top: 10px;
+  }
+
+  .hero,
+  .check-in,
+  .activity,
+  .game-shelf,
+  .calendar-panel,
+  .reward {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .mood-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .memory-grid,
+  .tile-grid,
+  .tile-grid.three {
+    grid-template-columns: 1fr;
+  }
+
+  .game-card,
+  .sequence-choice,
+  .tile,
+  .mood-button,
+  .complete-button,
+  .caregiver-toggle,
+  #saveSettings,
+  .secondary-button {
+    min-height: 64px;
+  }
+
+  .mini-game {
+    min-height: auto;
+  }
+
+  .calendar-grid {
+    gap: 6px;
+  }
+
+  .calendar-day {
+    min-height: 70px;
+  }
+}
