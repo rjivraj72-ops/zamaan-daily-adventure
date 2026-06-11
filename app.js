@@ -509,12 +509,14 @@ function getSyncConfig() {
 }
 
 function saveSyncConfig() {
+  if (!syncUrlInput || !familyCodeInput) return;
   localStorage.setItem("dailyAdventureSyncUrl", syncUrlInput.value.trim());
   localStorage.setItem("dailyAdventureFamilyCode", familyCodeInput.value.trim());
   updateSyncStatus();
 }
 
 function updateSyncStatus() {
+  if (!syncStatus) return;
   const { url, familyCode } = getSyncConfig();
   syncStatus.textContent = url && familyCode
     ? "Sync is set up. New completed rounds will be sent to the private Sheet."
@@ -530,11 +532,13 @@ function decodeSetupData(value) {
 }
 
 function getSetupLink() {
-  const syncUrl = syncUrlInput.value.trim() || getSyncConfig().url;
-  const familyCode = familyCodeInput.value.trim() || getSyncConfig().familyCode;
+  const syncUrl = syncUrlInput?.value.trim() || getSyncConfig().url;
+  const familyCode = familyCodeInput?.value.trim() || getSyncConfig().familyCode;
 
   if (!syncUrl || !familyCode) {
-    syncStatus.textContent = "Add the Sync web app URL and family code first. Then send the iPhone setup link.";
+    if (syncStatus) {
+      syncStatus.textContent = "Add the Sync web app URL and family code first. Then send the iPhone setup link.";
+    }
     return "";
   }
 
@@ -593,14 +597,20 @@ async function shareOrCopySetupLink(preferShare = false) {
         title: "Daily Adventure setup",
         text: message
       });
-      syncStatus.textContent = "Setup link is ready to send. Choose Messages or another app.";
+      if (syncStatus) {
+        syncStatus.textContent = "Setup link is ready to send. Choose Messages or another app.";
+      }
       return;
     }
 
     await copyTextToClipboard(message);
-    syncStatus.textContent = "Setup link copied. Paste it into iMessage, email, or Notes.";
+    if (syncStatus) {
+      syncStatus.textContent = "Setup link copied. Paste it into iMessage, email, or Notes.";
+    }
   } catch {
-    syncStatus.textContent = "Could not copy automatically. Try Copy setup link again.";
+    if (syncStatus) {
+      syncStatus.textContent = "Could not copy automatically. Try Copy setup link again.";
+    }
   }
 }
 
@@ -743,8 +753,12 @@ function updateGreeting() {
   promptInput.value = state.talkPrompt;
   messageInput.value = state.message;
   pinInput.value = getAppPin();
-  syncUrlInput.value = getSyncConfig().url;
-  familyCodeInput.value = getSyncConfig().familyCode;
+  if (syncUrlInput) {
+    syncUrlInput.value = getSyncConfig().url;
+  }
+  if (familyCodeInput) {
+    familyCodeInput.value = getSyncConfig().familyCode;
+  }
   updateSyncStatus();
 }
 
@@ -864,9 +878,13 @@ function renderLifeRound() {
 }
 
 function renderLanguageRound() {
+  if (!languagePrompt || !languageWord || !languageChoices) return;
+
   const round = Math.min(state.rounds.language, maxRounds.language - 1);
   const deck = todayLanguage[round];
   const activity = document.querySelector('[data-activity="language"]');
+  if (!activity) return;
+
   const isDone = state.completed.includes("language");
 
   activity.querySelector("h2").textContent = isDone ? "Spanish cards complete" : "Learn a word";
@@ -1270,13 +1288,17 @@ document.querySelector("#saveSettings").addEventListener("click", () => {
   speak("Settings saved.");
 });
 
-shareSyncSetup.addEventListener("click", () => {
-  shareOrCopySetupLink(true);
-});
+if (shareSyncSetup) {
+  shareSyncSetup.addEventListener("click", () => {
+    shareOrCopySetupLink(true);
+  });
+}
 
-copySyncSetup.addEventListener("click", () => {
-  shareOrCopySetupLink(false);
-});
+if (copySyncSetup) {
+  copySyncSetup.addEventListener("click", () => {
+    shareOrCopySetupLink(false);
+  });
+}
 
 lockApp.addEventListener("click", () => {
   sessionStorage.removeItem("dailyAdventureUnlocked");
