@@ -15,11 +15,12 @@ function getDayNumber(dateKey) {
 
 const todayKey = getLocalDateKey();
 const curriculumDay = getDayNumber(todayKey);
-const sectionIds = ["brain", "life", "talk"];
-const totalRounds = 9;
+const sectionIds = ["brain", "life", "language", "talk"];
+const totalRounds = 12;
 const maxRounds = {
   brain: 3,
   life: 3,
+  language: 3,
   talk: 3
 };
 
@@ -32,6 +33,7 @@ const defaultState = {
   rounds: {
     brain: 0,
     life: 0,
+    language: 0,
     talk: 0
   },
   date: todayKey
@@ -372,7 +374,81 @@ const curriculum = [
   }
 ];
 
+const languageDecks = [
+  [
+    { english: "Water", spanish: "agua", choices: ["agua", "pan", "casa"] },
+    { english: "Bread", spanish: "pan", choices: ["sol", "pan", "libro"] },
+    { english: "Thank you", spanish: "gracias", choices: ["hola", "gracias", "alto"] }
+  ],
+  [
+    { english: "House", spanish: "casa", choices: ["casa", "leche", "amigo"] },
+    { english: "Clean", spanish: "limpio", choices: ["trabajo", "limpio", "frio"] },
+    { english: "Work", spanish: "trabajo", choices: ["trabajo", "plato", "noche"] }
+  ],
+  [
+    { english: "Bus", spanish: "autobus", choices: ["autobus", "manzana", "pelo"] },
+    { english: "Library", spanish: "biblioteca", choices: ["cliente", "biblioteca", "lluvia"] },
+    { english: "Friend", spanish: "amigo", choices: ["jabon", "amigo", "dinero"] }
+  ],
+  [
+    { english: "Apple", spanish: "manzana", choices: ["manzana", "precio", "ayuda"] },
+    { english: "Walk", spanish: "caminar", choices: ["caminar", "musica", "toalla"] },
+    { english: "Calm", spanish: "tranquilo", choices: ["frio", "tranquilo", "cliente"] }
+  ],
+  [
+    { english: "Milk", spanish: "leche", choices: ["leche", "sol", "hoy"] },
+    { english: "Spoon", spanish: "cuchara", choices: ["cuchara", "alto", "venta"] },
+    { english: "Plate", spanish: "plato", choices: ["plato", "adios", "pintar"] }
+  ],
+  [
+    { english: "Stop", spanish: "alto", choices: ["alto", "feliz", "libro"] },
+    { english: "Help", spanish: "ayuda", choices: ["ayuda", "precio", "bailar"] },
+    { english: "Safe", spanish: "seguro", choices: ["seguro", "pan", "casa"] }
+  ],
+  [
+    { english: "Happy", spanish: "feliz", choices: ["feliz", "agua", "cliente"] },
+    { english: "Tired", spanish: "cansado", choices: ["trabajo", "cansado", "plato"] },
+    { english: "Calm", spanish: "tranquilo", choices: ["tranquilo", "jabon", "sol"] }
+  ],
+  [
+    { english: "Sun", spanish: "sol", choices: ["sol", "leche", "venta"] },
+    { english: "Rain", spanish: "lluvia", choices: ["lluvia", "pelo", "precio"] },
+    { english: "Cold", spanish: "frio", choices: ["frio", "amigo", "cuchara"] }
+  ],
+  [
+    { english: "Hello", spanish: "hola", choices: ["hola", "noche", "dinero"] },
+    { english: "Goodbye", spanish: "adios", choices: ["adios", "agua", "caminar"] },
+    { english: "Friend", spanish: "amigo", choices: ["libro", "amigo", "alto"] }
+  ],
+  [
+    { english: "Dance", spanish: "bailar", choices: ["bailar", "toalla", "cliente"] },
+    { english: "Music", spanish: "musica", choices: ["musica", "frio", "pan"] },
+    { english: "Water", spanish: "agua", choices: ["agua", "pintar", "precio"] }
+  ],
+  [
+    { english: "Money", spanish: "dinero", choices: ["dinero", "sol", "jabon"] },
+    { english: "Price", spanish: "precio", choices: ["precio", "amigo", "leche"] },
+    { english: "Customer", spanish: "cliente", choices: ["cliente", "hoy", "casa"] }
+  ],
+  [
+    { english: "Morning", spanish: "manana", choices: ["manana", "lluvia", "plato"] },
+    { english: "Night", spanish: "noche", choices: ["noche", "seguro", "venta"] },
+    { english: "Today", spanish: "hoy", choices: ["hoy", "libro", "feliz"] }
+  ],
+  [
+    { english: "Soap", spanish: "jabon", choices: ["jabon", "cliente", "sol"] },
+    { english: "Towel", spanish: "toalla", choices: ["toalla", "dinero", "hola"] },
+    { english: "Hair", spanish: "pelo", choices: ["pelo", "ayuda", "manzana"] }
+  ],
+  [
+    { english: "Book", spanish: "libro", choices: ["libro", "frio", "cuchara"] },
+    { english: "Music", spanish: "musica", choices: ["musica", "precio", "alto"] },
+    { english: "Paint", spanish: "pintar", choices: ["pintar", "agua", "noche"] }
+  ]
+];
+
 const todayPlan = curriculum[curriculumDay];
+const todayLanguage = languageDecks[curriculumDay];
 
 const title = document.querySelector("#page-title");
 const todayLabel = document.querySelector("#todayLabel");
@@ -383,6 +459,9 @@ const stars = [...document.querySelectorAll(".star")];
 const activities = [...document.querySelectorAll(".activity")];
 const talkPrompt = document.querySelector("#talkPrompt");
 const talkAnswer = document.querySelector("#talkAnswer");
+const languagePrompt = document.querySelector("#languagePrompt");
+const languageWord = document.querySelector("#languageWord");
+const languageChoices = document.querySelector(".language-choices");
 const caregiverToggle = document.querySelector(".caregiver-toggle");
 const caregiverPanel = document.querySelector("#caregiver-panel");
 const nameInput = document.querySelector("#nameInput");
@@ -574,7 +653,7 @@ function nextActivityId() {
 
 function updateGreeting() {
   title.textContent = `Hi, ${state.name}. Ready for today's adventure?`;
-  document.querySelector(".intro").textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. Three short sections plus extra learning games.`;
+  document.querySelector(".intro").textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. Four short sections plus extra learning games.`;
   nameInput.value = state.name;
   promptInput.value = state.talkPrompt;
   messageInput.value = state.message;
@@ -659,6 +738,7 @@ function escapeHtml(value) {
 function labelFor(id) {
   if (id === "brain") return "Memory Game";
   if (id === "life") return "Life Skill";
+  if (id === "language") return "Spanish Cards";
   return "Talk Time";
 }
 
@@ -698,6 +778,25 @@ function renderLifeRound() {
   sequenceStep = 1;
 }
 
+function renderLanguageRound() {
+  const round = Math.min(state.rounds.language, maxRounds.language - 1);
+  const deck = todayLanguage[round];
+  const activity = document.querySelector('[data-activity="language"]');
+  const isDone = state.completed.includes("language");
+
+  activity.querySelector("h2").textContent = isDone ? "Spanish cards complete" : "Learn a word";
+  languagePrompt.textContent = isDone
+    ? "You finished all Spanish cards for today."
+    : `Which Spanish word means ${deck.english.toLowerCase()}?`;
+  languageWord.textContent = isDone ? "Great work" : deck.english;
+  languageChoices.innerHTML = isDone
+    ? ""
+    : deck.choices.map((choice) => (
+      `<button class="choice language-choice" data-language-choice="${choice}">${choice}</button>`
+    )).join("");
+  activity.querySelector(".feedback").textContent = "";
+}
+
 function renderTalkRound() {
   const round = Math.min(state.rounds.talk, maxRounds.talk - 1);
   const prompt = round === 0 && state.talkPrompt !== defaultState.talkPrompt
@@ -716,6 +815,7 @@ function renderTalkRound() {
 function renderDailyRounds() {
   renderBrainRound();
   renderLifeRound();
+  renderLanguageRound();
   renderTalkRound();
   attachRoundHandlers();
 }
@@ -862,6 +962,40 @@ function attachRoundHandlers() {
       feedback.textContent = "Good try. Start with step 1.";
       speak("Good try. Start with step 1.");
       window.setTimeout(resetSequenceGame, 800);
+    });
+  });
+
+  document.querySelectorAll("[data-language-game] .language-choice").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (state.completed.includes("language")) return;
+
+      const activity = button.closest(".activity");
+      const feedback = activity.querySelector(".feedback");
+      const roundIndex = Math.min(state.rounds.language, maxRounds.language - 1);
+      const deck = todayLanguage[roundIndex];
+      const isCorrect = button.dataset.languageChoice === deck.spanish;
+
+      activity.querySelectorAll(".language-choice").forEach((choice) => {
+        choice.classList.remove("correct", "wrong");
+      });
+
+      if (!isCorrect) {
+        button.classList.add("wrong");
+        feedback.textContent = "Good try. Try another word.";
+        speak("Good try. Try another word.");
+        return;
+      }
+
+      button.classList.add("correct");
+      const isLast = state.rounds.language + 1 >= maxRounds.language;
+      const message = isLast ? "Spanish cards complete." : "Correct. New Spanish card is ready.";
+      feedback.textContent = `${deck.english} means ${deck.spanish}.`;
+      completeRound("language", message, {
+        title: "Spanish Card",
+        prompt: `${deck.english} = ${deck.spanish}`,
+        answer: deck.spanish
+      });
+      window.setTimeout(renderDailyRounds, 700);
     });
   });
 }
@@ -1060,7 +1194,7 @@ lockApp.addEventListener("click", () => {
 
 resetProgress.addEventListener("click", () => {
   state.completed = [];
-  state.rounds = { brain: 0, life: 0, talk: 0 };
+  state.rounds = { brain: 0, life: 0, language: 0, talk: 0 };
   talkAnswer.value = "";
   document.querySelectorAll(".feedback").forEach((feedback) => {
     feedback.textContent = "";

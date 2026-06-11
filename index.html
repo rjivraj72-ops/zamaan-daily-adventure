@@ -50,7 +50,7 @@
           <img class="app-mark" src="icons/app-icon-192.png" alt="" aria-hidden="true">
           <p class="eyebrow">Daily Adventure</p>
           <h1 id="page-title">Hi, Alex. Ready for today's adventure?</h1>
-          <p class="intro">Three short activities, plus learning games for memory, sorting, patterns, and everyday choices.</p>
+          <p class="intro">Four short activities, plus learning games for memory, sorting, patterns, and everyday choices.</p>
         </div>
         <div class="today-card" aria-label="Today's progress">
           <span id="todayLabel">Today</span>
@@ -110,9 +110,25 @@
           <p class="feedback" aria-live="polite"></p>
         </article>
 
-        <article class="activity" data-activity="talk">
+        <article class="activity" data-activity="language">
           <div class="activity-header">
             <span class="activity-step">3</span>
+            <div>
+          <p class="activity-type">Spanish Cards</p>
+              <h2>Learn a word</h2>
+            </div>
+          </div>
+          <p class="prompt" id="languagePrompt">Which Spanish word means water?</p>
+          <div class="language-card" data-language-game>
+            <strong class="language-word" id="languageWord">Water</strong>
+            <div class="language-choices"></div>
+          </div>
+          <p class="feedback" aria-live="polite"></p>
+        </article>
+
+        <article class="activity" data-activity="talk">
+          <div class="activity-header">
+            <span class="activity-step">4</span>
             <div>
           <p class="activity-type">Talk Time</p>
               <h2>Share an answer</h2>
@@ -194,6 +210,7 @@
           <span class="star" data-star="1"></span>
           <span class="star" data-star="2"></span>
           <span class="star" data-star="3"></span>
+          <span class="star" data-star="4"></span>
         </div>
         <p id="celebration">Finish an activity to earn a star.</p>
       </section>
