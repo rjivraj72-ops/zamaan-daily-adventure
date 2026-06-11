@@ -18,6 +18,10 @@ The PIN is meant as a simple privacy and routine screen. It is not bank-grade se
 
 New completed rounds will be sent to the Sheet. The app still keeps a local report on the device.
 
+## iPhone Sync Setup
+
+After the Sync web app URL and family code are saved in Caregiver settings, use **Send iPhone setup link** or **Copy setup link**. Send that link by iMessage, email, or Notes, then open it on the iPhone. The iPhone will save the sync settings automatically.
+
 ## GitHub Pages
 
 This folder is ready to publish with GitHub Pages. Put these files at the root of a GitHub repository:

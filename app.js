@@ -481,6 +481,8 @@ const reportList = document.querySelector("#reportList");
 const syncUrlInput = document.querySelector("#syncUrlInput");
 const familyCodeInput = document.querySelector("#familyCodeInput");
 const syncStatus = document.querySelector("#syncStatus");
+const shareSyncSetup = document.querySelector("#shareSyncSetup");
+const copySyncSetup = document.querySelector("#copySyncSetup");
 
 let memoryPicks = [];
 let sequenceStep = 1;
@@ -517,6 +519,89 @@ function updateSyncStatus() {
   syncStatus.textContent = url && familyCode
     ? "Sync is set up. New completed rounds will be sent to the private Sheet."
     : "Sync is not set up yet.";
+}
+
+function encodeSetupData(data) {
+  return btoa(JSON.stringify(data));
+}
+
+function decodeSetupData(value) {
+  return JSON.parse(atob(value));
+}
+
+function getSetupLink() {
+  const syncUrl = syncUrlInput.value.trim() || getSyncConfig().url;
+  const familyCode = familyCodeInput.value.trim() || getSyncConfig().familyCode;
+
+  if (!syncUrl || !familyCode) {
+    syncStatus.textContent = "Add the Sync web app URL and family code first. Then send the iPhone setup link.";
+    return "";
+  }
+
+  const setupData = encodeURIComponent(encodeSetupData({ syncUrl, familyCode }));
+  return `${window.location.href.split("#")[0]}#syncSetup=${setupData}`;
+}
+
+function applyIncomingSyncSetup() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return false;
+
+  const params = new URLSearchParams(hash);
+  const setupData = params.get("syncSetup");
+  if (!setupData) return false;
+
+  try {
+    const setup = decodeSetupData(decodeURIComponent(setupData));
+    if (!setup.syncUrl || !setup.familyCode) return false;
+
+    localStorage.setItem("dailyAdventureSyncUrl", setup.syncUrl);
+    localStorage.setItem("dailyAdventureFamilyCode", setup.familyCode);
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+async function shareOrCopySetupLink(preferShare = false) {
+  saveSyncConfig();
+  const setupLink = getSetupLink();
+  if (!setupLink) return;
+
+  const message = `Open this on the iPhone to connect Daily Adventure to the private Google Sheet:\n${setupLink}`;
+
+  try {
+    if (preferShare && navigator.share) {
+      await navigator.share({
+        title: "Daily Adventure setup",
+        text: message
+      });
+      syncStatus.textContent = "Setup link is ready to send. Choose Messages or another app.";
+      return;
+    }
+
+    await copyTextToClipboard(message);
+    syncStatus.textContent = "Setup link copied. Paste it into iMessage, email, or Notes.";
+  } catch {
+    syncStatus.textContent = "Could not copy automatically. Try Copy setup link again.";
+  }
 }
 
 function getTodayLogs() {
@@ -1185,6 +1270,14 @@ document.querySelector("#saveSettings").addEventListener("click", () => {
   speak("Settings saved.");
 });
 
+shareSyncSetup.addEventListener("click", () => {
+  shareOrCopySetupLink(true);
+});
+
+copySyncSetup.addEventListener("click", () => {
+  shareOrCopySetupLink(false);
+});
+
 lockApp.addEventListener("click", () => {
   sessionStorage.removeItem("dailyAdventureUnlocked");
   caregiverToggle.setAttribute("aria-expanded", "false");
@@ -1234,12 +1327,18 @@ function resetSequenceGame() {
   });
 }
 
+const syncSetupApplied = applyIncomingSyncSetup();
+
 updateGreeting();
 renderDailyRounds();
 renderMiniGames();
 updateProgress();
 updateHistory();
 renderCaregiverReport();
+
+if (syncSetupApplied) {
+  celebration.textContent = "Sync settings were added on this device.";
+}
 
 if (sessionStorage.getItem("dailyAdventureUnlocked") !== "true") {
   showPinGate();

@@ -689,6 +689,7 @@ button:focus-visible {
 }
 
 .complete-button,
+#shareSyncSetup,
 #saveSettings {
   width: 100%;
   margin-top: 12px;
@@ -781,6 +782,20 @@ button:focus-visible {
   background: var(--blue-soft);
   color: var(--ink);
   font-weight: 800;
+}
+
+.sync-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.sync-actions button {
+  margin-top: 0;
+}
+
+.sync-note {
+  font-size: 0.92rem;
 }
 
 .report-list {
@@ -898,10 +913,15 @@ button:focus-visible {
   .tile,
   .mood-button,
   .complete-button,
+  #shareSyncSetup,
   .caregiver-toggle,
   #saveSettings,
   .secondary-button {
     min-height: 64px;
+  }
+
+  .sync-actions {
+    grid-template-columns: 1fr;
   }
 
   .mini-game {
