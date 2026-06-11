@@ -46,6 +46,7 @@ const state = saved && saved.date === todayKey
   ? { ...defaultState, ...saved, rounds: { ...defaultState.rounds, ...(saved.rounds || {}) } }
   : defaultState;
 const history = { ...defaultHistory, ...(JSON.parse(localStorage.getItem("dailyAdventureHistory") || "null") || {}) };
+const activityLogs = JSON.parse(localStorage.getItem("dailyAdventureLogs") || "{}");
 
 const curriculum = [
   {
@@ -396,6 +397,11 @@ const miniGames = document.querySelector(".mini-games");
 const pinGate = document.querySelector("#pinGate");
 const pinMessage = document.querySelector("#pinMessage");
 const pinDots = [...document.querySelectorAll("#pinDisplay span")];
+const reportSummary = document.querySelector("#reportSummary");
+const reportList = document.querySelector("#reportList");
+const syncUrlInput = document.querySelector("#syncUrlInput");
+const familyCodeInput = document.querySelector("#familyCodeInput");
+const syncStatus = document.querySelector("#syncStatus");
 
 let memoryPicks = [];
 let sequenceStep = 1;
@@ -408,6 +414,78 @@ function save() {
 
 function saveHistory() {
   localStorage.setItem("dailyAdventureHistory", JSON.stringify(history));
+}
+
+function saveLogs() {
+  localStorage.setItem("dailyAdventureLogs", JSON.stringify(activityLogs));
+}
+
+function getSyncConfig() {
+  return {
+    url: localStorage.getItem("dailyAdventureSyncUrl") || "",
+    familyCode: localStorage.getItem("dailyAdventureFamilyCode") || ""
+  };
+}
+
+function saveSyncConfig() {
+  localStorage.setItem("dailyAdventureSyncUrl", syncUrlInput.value.trim());
+  localStorage.setItem("dailyAdventureFamilyCode", familyCodeInput.value.trim());
+  updateSyncStatus();
+}
+
+function updateSyncStatus() {
+  const { url, familyCode } = getSyncConfig();
+  syncStatus.textContent = url && familyCode
+    ? "Sync is set up. New completed rounds will be sent to the private Sheet."
+    : "Sync is not set up yet.";
+}
+
+function getTodayLogs() {
+  if (!activityLogs[todayKey]) {
+    activityLogs[todayKey] = [];
+  }
+  return activityLogs[todayKey];
+}
+
+function addActivityLog(entry) {
+  const savedEntry = {
+    ...entry,
+    completedAt: new Date().toISOString()
+  };
+
+  getTodayLogs().push(savedEntry);
+  saveLogs();
+  syncActivityLog(savedEntry);
+}
+
+function syncActivityLog(entry) {
+  const { url, familyCode } = getSyncConfig();
+  if (!url || !familyCode) return;
+
+  const payload = {
+    familyCode,
+    date: todayKey,
+    childName: state.name,
+    mood: state.mood,
+    curriculumDay: curriculumDay + 1,
+    plan: todayPlan.name,
+    section: labelFor(entry.section),
+    round: entry.round,
+    title: entry.title,
+    prompt: entry.prompt,
+    answer: entry.answer,
+    completedAt: entry.completedAt
+  };
+
+  fetch(url, {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify(payload)
+  }).then(() => {
+    syncStatus.textContent = "Last completed round was sent to the private Sheet.";
+  }).catch(() => {
+    syncStatus.textContent = "Could not sync just now. The app saved it on this device.";
+  });
 }
 
 function getAppPin() {
@@ -465,7 +543,9 @@ function completeSection(id) {
   }
 }
 
-function completeRound(id, message) {
+function completeRound(id, message, detail = {}) {
+  const roundNumber = Math.min(state.rounds[id] + 1, maxRounds[id]);
+
   if (state.rounds[id] < maxRounds[id]) {
     state.rounds[id] += 1;
   }
@@ -474,9 +554,17 @@ function completeRound(id, message) {
     completeSection(id);
   }
 
+  addActivityLog({
+    section: id,
+    round: roundNumber,
+    title: detail.title || labelFor(id),
+    prompt: detail.prompt || "",
+    answer: detail.answer || ""
+  });
   save();
   updateProgress();
   updateHistory();
+  renderCaregiverReport();
   speak(message);
 }
 
@@ -491,6 +579,9 @@ function updateGreeting() {
   promptInput.value = state.talkPrompt;
   messageInput.value = state.message;
   pinInput.value = getAppPin();
+  syncUrlInput.value = getSyncConfig().url;
+  familyCodeInput.value = getSyncConfig().familyCode;
+  updateSyncStatus();
 }
 
 function updateProgress() {
@@ -521,6 +612,48 @@ function updateProgress() {
     : doneRounds > 0
       ? "Good progress. Another short round is ready."
       : "Finish rounds to earn stars and mark the calendar.";
+}
+
+function renderCaregiverReport() {
+  if (!reportSummary || !reportList) return;
+
+  const logs = getTodayLogs();
+  const doneRounds = getRoundTotal();
+  const mood = state.mood ? ` Mood: ${state.mood}.` : "";
+  reportSummary.textContent = `${doneRounds} of ${totalRounds} rounds completed. Day ${curriculumDay + 1}: ${todayPlan.name}.${mood}`;
+
+  if (!logs.length) {
+    reportList.innerHTML = "";
+    return;
+  }
+
+  reportList.innerHTML = logs.map((entry) => {
+    const time = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit"
+    }).format(new Date(entry.completedAt));
+    const answer = entry.answer
+      ? `<span class="report-answer">Answer: ${escapeHtml(entry.answer)}</span>`
+      : "";
+
+    return `
+      <article class="report-item ${entry.section}">
+        <small>${time} · ${labelFor(entry.section)} round ${entry.round}</small>
+        <strong>${escapeHtml(entry.title)}</strong>
+        <span>${escapeHtml(entry.prompt)}</span>
+        ${answer}
+      </article>
+    `;
+  }).join("");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function labelFor(id) {
@@ -667,10 +800,15 @@ function attachRoundHandlers() {
       if (isMatch) {
         first.classList.add("matched");
         second.classList.add("matched");
+        const roundIndex = Math.min(state.rounds.brain, maxRounds.brain - 1);
+        const deck = todayPlan.brain[roundIndex];
         const isLast = state.rounds.brain + 1 >= maxRounds.brain;
         const message = isLast ? "Memory section complete." : "That's a pair. New cards are ready.";
         feedback.textContent = message;
-        completeRound("brain", message);
+        completeRound("brain", message, {
+          title: deck.title,
+          prompt: `${deck.prompt} Matched: ${first.textContent} and ${second.textContent}.`
+        });
         window.setTimeout(renderDailyRounds, 700);
       } else {
         first.classList.add("wrong");
@@ -703,10 +841,15 @@ function attachRoundHandlers() {
         sequenceStep += 1;
 
         if (sequenceStep > 3) {
+          const roundIndex = Math.min(state.rounds.life, maxRounds.life - 1);
+          const deck = todayPlan.life[roundIndex];
           const isLast = state.rounds.life + 1 >= maxRounds.life;
           const message = isLast ? "Life skills section complete." : "You put the steps in order. New steps are ready.";
           feedback.textContent = message;
-          completeRound("life", message);
+          completeRound("life", message, {
+            title: deck.title,
+            prompt: deck.steps.join(" → ")
+          });
           window.setTimeout(renderDailyRounds, 700);
         } else {
           feedback.textContent = `Good. Now find step ${sequenceStep}.`;
@@ -872,12 +1015,17 @@ document.querySelector("[data-complete-talk]").addEventListener("click", () => {
   if (state.completed.includes("talk")) return;
 
   const answer = talkAnswer.value.trim();
+  const prompt = talkPrompt.textContent;
   const isLast = state.rounds.talk + 1 >= maxRounds.talk;
   const message = answer
     ? isLast ? "Thank you for sharing. Talk Time is complete." : "Thank you for sharing. New question is ready."
     : isLast ? "Talk Time is complete." : "New Talk Time question is ready.";
   document.querySelector('[data-activity="talk"] .feedback').textContent = message;
-  completeRound("talk", message);
+  completeRound("talk", message, {
+    title: "Talk Time",
+    prompt,
+    answer: answer || "Said out loud or skipped typing."
+  });
   window.setTimeout(renderDailyRounds, 500);
 });
 
@@ -885,6 +1033,9 @@ caregiverToggle.addEventListener("click", () => {
   const isOpen = caregiverToggle.getAttribute("aria-expanded") === "true";
   caregiverToggle.setAttribute("aria-expanded", String(!isOpen));
   caregiverPanel.hidden = isOpen;
+  if (isOpen === false) {
+    renderCaregiverReport();
+  }
 });
 
 document.querySelector("#saveSettings").addEventListener("click", () => {
@@ -892,6 +1043,7 @@ document.querySelector("#saveSettings").addEventListener("click", () => {
   state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
   state.message = messageInput.value.trim() || defaultState.message;
   saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");
+  saveSyncConfig();
   save();
   updateGreeting();
   renderTalkRound();
@@ -928,12 +1080,15 @@ resetProgress.addEventListener("click", () => {
   sequenceStep = 1;
   sortPicks.clear();
   delete history.days[todayKey];
+  delete activityLogs[todayKey];
   save();
   saveHistory();
+  saveLogs();
   renderDailyRounds();
   renderMiniGames();
   updateProgress();
   renderCalendar();
+  renderCaregiverReport();
   speak("Today's progress has been reset.");
 });
 
@@ -950,6 +1105,7 @@ renderDailyRounds();
 renderMiniGames();
 updateProgress();
 updateHistory();
+renderCaregiverReport();
 
 if (sessionStorage.getItem("dailyAdventureUnlocked") !== "true") {
   showPinGate();

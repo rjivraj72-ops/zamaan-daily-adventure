@@ -808,6 +808,80 @@ button:focus-visible {
   font-weight: 700;
 }
 
+.caregiver-report,
+.sync-settings {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff, #f8fcfa);
+}
+
+.caregiver-report h3,
+.sync-settings h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.caregiver-report p,
+.sync-settings p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.sync-settings {
+  border-left: 5px solid var(--sky);
+}
+
+.sync-status {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--sky-soft);
+  font-weight: 700;
+}
+
+.report-list {
+  display: grid;
+  gap: 8px;
+}
+
+.report-item {
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  border-left: 5px solid var(--accent);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 5px 12px rgba(27, 64, 55, 0.06);
+}
+
+.report-item.life {
+  border-left-color: var(--sky);
+}
+
+.report-item.talk {
+  border-left-color: var(--coral);
+}
+
+.report-item strong,
+.report-item span {
+  display: block;
+}
+
+.report-item small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.report-answer {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--gold-soft);
+  color: var(--ink);
+}
+
 @media (max-width: 860px) {
   .hero,
   .check-in,

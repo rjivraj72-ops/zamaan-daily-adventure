@@ -229,6 +229,24 @@
             App PIN
             <input id="pinInput" type="password" inputmode="numeric" maxlength="8" value="1234">
           </label>
+          <section class="caregiver-report" aria-labelledby="report-title">
+            <h3 id="report-title">Today's details</h3>
+            <p id="reportSummary">No rounds completed yet.</p>
+            <div class="report-list" id="reportList"></div>
+          </section>
+          <section class="sync-settings" aria-labelledby="sync-title">
+            <h3 id="sync-title">Google Sheet sync</h3>
+            <p>Optional. Add a private Sheet web app link to send completed rounds to mom and dad.</p>
+            <label>
+              Sync web app URL
+              <input id="syncUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+            </label>
+            <label>
+              Family code
+              <input id="familyCodeInput" type="password" placeholder="Private family code">
+            </label>
+            <p class="sync-status" id="syncStatus">Sync is not set up yet.</p>
+          </section>
           <button id="saveSettings">Save settings</button>
           <button id="lockApp" class="secondary-button">Lock app</button>
           <button id="resetProgress" class="secondary-button">Reset today's progress</button>
