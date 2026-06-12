@@ -483,6 +483,9 @@ const familyCodeInput = document.querySelector("#familyCodeInput");
 const syncStatus = document.querySelector("#syncStatus");
 const shareSyncSetup = document.querySelector("#shareSyncSetup");
 const copySyncSetup = document.querySelector("#copySyncSetup");
+const syncSetupCode = document.querySelector("#syncSetupCode");
+const copySyncCode = document.querySelector("#copySyncCode");
+const importSyncCode = document.querySelector("#importSyncCode");
 
 let memoryPicks = [];
 let sequenceStep = 1;
@@ -546,6 +549,37 @@ function getSetupLink() {
   return `${window.location.href.split("#")[0]}#syncSetup=${setupData}`;
 }
 
+function getSetupCode() {
+  const syncUrl = syncUrlInput?.value.trim() || getSyncConfig().url;
+  const familyCode = familyCodeInput?.value.trim() || getSyncConfig().familyCode;
+
+  if (!syncUrl || !familyCode) {
+    if (syncStatus) {
+      syncStatus.textContent = "Add the Sync web app URL and family code first. Then copy the setup code.";
+    }
+    return "";
+  }
+
+  return encodeSetupData({ syncUrl, familyCode });
+}
+
+function saveDecodedSetup(setup) {
+  if (!setup.syncUrl || !setup.familyCode) return false;
+
+  localStorage.setItem("dailyAdventureSyncUrl", setup.syncUrl);
+  localStorage.setItem("dailyAdventureFamilyCode", setup.familyCode);
+
+  if (syncUrlInput) {
+    syncUrlInput.value = setup.syncUrl;
+  }
+  if (familyCodeInput) {
+    familyCodeInput.value = setup.familyCode;
+  }
+
+  updateSyncStatus();
+  return true;
+}
+
 function applyIncomingSyncSetup() {
   const hash = window.location.hash.slice(1);
   if (!hash) return false;
@@ -556,14 +590,54 @@ function applyIncomingSyncSetup() {
 
   try {
     const setup = decodeSetupData(decodeURIComponent(setupData));
-    if (!setup.syncUrl || !setup.familyCode) return false;
-
-    localStorage.setItem("dailyAdventureSyncUrl", setup.syncUrl);
-    localStorage.setItem("dailyAdventureFamilyCode", setup.familyCode);
+    if (!saveDecodedSetup(setup)) return false;
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
     return true;
   } catch {
     return false;
+  }
+}
+
+async function copySetupCode() {
+  saveSyncConfig();
+  const setupCode = getSetupCode();
+  if (!setupCode) return;
+
+  if (syncSetupCode) {
+    syncSetupCode.value = setupCode;
+  }
+
+  try {
+    await copyTextToClipboard(setupCode);
+    if (syncStatus) {
+      syncStatus.textContent = "Setup code copied. Open the Home Screen app, paste it here, then tap Import setup code.";
+    }
+  } catch {
+    if (syncStatus) {
+      syncStatus.textContent = "Setup code is ready. Select it and copy it manually.";
+    }
+  }
+}
+
+function importSetupCode() {
+  const setupCode = syncSetupCode?.value.trim();
+  if (!setupCode) {
+    if (syncStatus) {
+      syncStatus.textContent = "Paste the setup code first, then tap Import setup code.";
+    }
+    return;
+  }
+
+  try {
+    const setup = decodeSetupData(setupCode);
+    if (!saveDecodedSetup(setup)) throw new Error("Missing setup values");
+    if (syncStatus) {
+      syncStatus.textContent = "Sync settings restored on this Home Screen app.";
+    }
+  } catch {
+    if (syncStatus) {
+      syncStatus.textContent = "That setup code did not work. Copy a fresh setup code from Safari.";
+    }
   }
 }
 
@@ -1298,6 +1372,14 @@ if (copySyncSetup) {
   copySyncSetup.addEventListener("click", () => {
     shareOrCopySetupLink(false);
   });
+}
+
+if (copySyncCode) {
+  copySyncCode.addEventListener("click", copySetupCode);
+}
+
+if (importSyncCode) {
+  importSyncCode.addEventListener("click", importSetupCode);
 }
 
 lockApp.addEventListener("click", () => {

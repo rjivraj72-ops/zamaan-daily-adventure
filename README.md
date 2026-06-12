@@ -22,6 +22,8 @@ New completed rounds will be sent to the Sheet. The app still keeps a local repo
 
 After the Sync web app URL and family code are saved in Caregiver settings, use **Send iPhone setup link** or **Copy setup link**. Send that link by iMessage, email, or Notes, then open it on the iPhone. The iPhone will save the sync settings automatically.
 
+On iPhone, Safari and the Home Screen app may keep separate settings. If sync settings disappear after adding the app to the Home Screen, open Caregiver settings in Safari, tap **Copy setup code**, then open the Home Screen app, paste the code into **Home Screen setup code**, and tap **Import setup code**.
+
 ## GitHub Pages
 
 This folder is ready to publish with GitHub Pages. Put these files at the root of a GitHub repository:
