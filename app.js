@@ -447,8 +447,32 @@ const languageDecks = [
   ]
 ];
 
+const moneyMathDecks = [
+  { title: "Snack change", prompt: "You have $5. A snack costs $3. How much money is left?", answer: "$2", choices: ["$1", "$2", "$4"] },
+  { title: "Two items", prompt: "A drink is $2 and chips are $3. How much together?", answer: "$5", choices: ["$4", "$5", "$6"] },
+  { title: "Business sale", prompt: "A customer pays $10 for a $7 item. How much change?", answer: "$3", choices: ["$2", "$3", "$5"] },
+  { title: "Save money", prompt: "You save $2 today and $2 tomorrow. How much saved?", answer: "$4", choices: ["$3", "$4", "$5"] },
+  { title: "Buy cereal", prompt: "Cereal costs $6. You have $8. How much is left?", answer: "$2", choices: ["$1", "$2", "$3"] },
+  { title: "Small purchase", prompt: "A card costs $1 and a sticker costs $2. How much total?", answer: "$3", choices: ["$2", "$3", "$4"] },
+  { title: "Earn money", prompt: "You earn $4, then earn $3 more. How much money?", answer: "$7", choices: ["$6", "$7", "$8"] },
+  { title: "Umbrella change", prompt: "An umbrella costs $7. You pay $10. How much change?", answer: "$3", choices: ["$2", "$3", "$4"] },
+  { title: "Gift budget", prompt: "You have $5. A gift costs $4. How much is left?", answer: "$1", choices: ["$1", "$2", "$3"] },
+  { title: "Water bottles", prompt: "One water is $1. Two waters cost how much?", answer: "$2", choices: ["$1", "$2", "$3"] },
+  { title: "Store math", prompt: "Milk costs $3 and soap costs $4. How much together?", answer: "$7", choices: ["$6", "$7", "$8"] },
+  { title: "Calendar change", prompt: "A calendar costs $5. You pay $10. How much change?", answer: "$5", choices: ["$4", "$5", "$6"] },
+  { title: "Care items", prompt: "Soap costs $2 and shampoo costs $6. How much together?", answer: "$8", choices: ["$7", "$8", "$9"] },
+  { title: "Art supplies", prompt: "Paint costs $4. You buy two. How much total?", answer: "$8", choices: ["$6", "$8", "$10"] }
+];
+
+const sentenceFrames = [
+  "Who: I was with ___. What: We ___.",
+  "Where/When: I went to ___ today.",
+  "How: I felt ___ because ___."
+];
+
 const todayPlan = curriculum[curriculumDay];
 const todayLanguage = languageDecks[curriculumDay];
+const todayMoneyMath = moneyMathDecks[curriculumDay];
 
 const title = document.querySelector("#page-title");
 const todayLabel = document.querySelector("#todayLabel");
@@ -459,6 +483,7 @@ const stars = [...document.querySelectorAll(".star")];
 const activities = [...document.querySelectorAll(".activity")];
 const talkPrompt = document.querySelector("#talkPrompt");
 const talkAnswer = document.querySelector("#talkAnswer");
+const sentenceExamples = document.querySelector("#sentenceExamples");
 const languagePrompt = document.querySelector("#languagePrompt");
 const languageWord = document.querySelector("#languageWord");
 const languageChoices = document.querySelector(".language-choices");
@@ -985,6 +1010,11 @@ function renderTalkRound() {
   talkPrompt.textContent = state.completed.includes("talk")
     ? "You finished all Talk Time rounds for today."
     : prompt;
+  if (sentenceExamples) {
+    sentenceExamples.innerHTML = state.completed.includes("talk")
+      ? ""
+      : sentenceFrames.map((frame) => `<li>${frame}</li>`).join("");
+  }
   talkAnswer.value = "";
   activity.querySelector(".feedback").textContent = "";
 }
@@ -1001,6 +1031,7 @@ function renderMiniGames() {
   const sortChoices = [...todayPlan.mini.sort.correct, ...todayPlan.mini.sort.wrong];
   const pattern = todayPlan.mini.pattern;
   const money = todayPlan.mini.money;
+  const moneyMath = todayMoneyMath;
 
   miniGames.innerHTML = `
     <article class="mini-game" data-mini-game="sort">
@@ -1046,6 +1077,20 @@ function renderMiniGames() {
         )).join("")}
       </div>
       <p class="mini-feedback" aria-live="polite">Pick the exact amount.</p>
+    </article>
+
+    <article class="mini-game" data-mini-game="money-math">
+      <div class="mini-game-header">
+        <span>Money Math</span>
+        <strong>${moneyMath.title}</strong>
+      </div>
+      <p>${moneyMath.prompt}</p>
+      <div class="tile-grid three">
+        ${moneyMath.choices.map((choice) => (
+          `<button class="tile money-math-choice" data-money-math-correct="${choice === moneyMath.answer}">${choice}</button>`
+        )).join("")}
+      </div>
+      <p class="mini-feedback" aria-live="polite">Choose the answer.</p>
     </article>
   `;
 
@@ -1313,6 +1358,21 @@ function attachMiniGameHandlers() {
       feedback.textContent = isCorrect
         ? `Correct. ${todayPlan.mini.money.answer} is the exact amount.`
         : "Good try. Pick the exact amount.";
+      speak(feedback.textContent);
+    });
+  });
+
+  document.querySelectorAll("[data-mini-game='money-math'] .tile").forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const game = tile.closest(".mini-game");
+      const feedback = game.querySelector(".mini-feedback");
+      const isCorrect = tile.dataset.moneyMathCorrect === "true";
+
+      game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
+      tile.classList.add(isCorrect ? "correct" : "wrong");
+      feedback.textContent = isCorrect
+        ? `Correct. The answer is ${todayMoneyMath.answer}.`
+        : "Good try. Count the dollars again.";
       speak(feedback.textContent);
     });
   });

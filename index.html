@@ -135,8 +135,12 @@
             </div>
           </div>
           <p class="prompt" id="talkPrompt">What is one thing you want to do today?</p>
+          <div class="sentence-helper" aria-labelledby="sentence-helper-title">
+            <strong id="sentence-helper-title">Try a sentence</strong>
+            <ul id="sentenceExamples"></ul>
+          </div>
           <label class="answer-label" for="talkAnswer">My answer</label>
-          <textarea id="talkAnswer" rows="4" placeholder="Type here, or say it out loud to someone nearby."></textarea>
+          <textarea id="talkAnswer" rows="4" placeholder="Try 1 or 2 sentences, or say it out loud to someone nearby."></textarea>
           <button class="complete-button" data-complete-talk>Done</button>
           <p class="feedback" aria-live="polite"></p>
         </article>
