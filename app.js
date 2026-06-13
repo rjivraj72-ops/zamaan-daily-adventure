@@ -25,9 +25,9 @@ const maxRounds = {
 };
 
 const defaultState = {
-  name: "Alex",
+  name: "Zamaan",
   talkPrompt: "What is one thing you want to do today?",
-  message: "Nice work. You stayed with it.",
+  message: "Great job. You finished today's adventure.",
   mood: "",
   completed: [],
   rounds: {
@@ -47,6 +47,12 @@ const saved = JSON.parse(localStorage.getItem("dailyAdventure") || "null");
 const state = saved && saved.date === todayKey
   ? { ...defaultState, ...saved, rounds: { ...defaultState.rounds, ...(saved.rounds || {}) } }
   : defaultState;
+if (state.name === "Alex") {
+  state.name = "Zamaan";
+}
+if (state.message === "Nice work. You stayed with it.") {
+  state.message = defaultState.message;
+}
 const history = { ...defaultHistory, ...(JSON.parse(localStorage.getItem("dailyAdventureHistory") || "null") || {}) };
 const activityLogs = JSON.parse(localStorage.getItem("dailyAdventureLogs") || "{}");
 
@@ -448,26 +454,82 @@ const languageDecks = [
 ];
 
 const moneyMathDecks = [
-  { title: "Snack change", prompt: "You have $5. A snack costs $3. How much money is left?", answer: "$2", choices: ["$1", "$2", "$4"] },
-  { title: "Two items", prompt: "A drink is $2 and chips are $3. How much together?", answer: "$5", choices: ["$4", "$5", "$6"] },
-  { title: "Business sale", prompt: "A customer pays $10 for a $7 item. How much change?", answer: "$3", choices: ["$2", "$3", "$5"] },
-  { title: "Save money", prompt: "You save $2 today and $2 tomorrow. How much saved?", answer: "$4", choices: ["$3", "$4", "$5"] },
-  { title: "Buy cereal", prompt: "Cereal costs $6. You have $8. How much is left?", answer: "$2", choices: ["$1", "$2", "$3"] },
-  { title: "Small purchase", prompt: "A card costs $1 and a sticker costs $2. How much total?", answer: "$3", choices: ["$2", "$3", "$4"] },
-  { title: "Earn money", prompt: "You earn $4, then earn $3 more. How much money?", answer: "$7", choices: ["$6", "$7", "$8"] },
-  { title: "Umbrella change", prompt: "An umbrella costs $7. You pay $10. How much change?", answer: "$3", choices: ["$2", "$3", "$4"] },
-  { title: "Gift budget", prompt: "You have $5. A gift costs $4. How much is left?", answer: "$1", choices: ["$1", "$2", "$3"] },
-  { title: "Water bottles", prompt: "One water is $1. Two waters cost how much?", answer: "$2", choices: ["$1", "$2", "$3"] },
-  { title: "Store math", prompt: "Milk costs $3 and soap costs $4. How much together?", answer: "$7", choices: ["$6", "$7", "$8"] },
-  { title: "Calendar change", prompt: "A calendar costs $5. You pay $10. How much change?", answer: "$5", choices: ["$4", "$5", "$6"] },
-  { title: "Care items", prompt: "Soap costs $2 and shampoo costs $6. How much together?", answer: "$8", choices: ["$7", "$8", "$9"] },
-  { title: "Art supplies", prompt: "Paint costs $4. You buy two. How much total?", answer: "$8", choices: ["$6", "$8", "$10"] }
+  [
+    { title: "Snack change", prompt: "You have $5. A snack costs $3. How much money is left?", answer: "$2", choices: ["$1", "$2", "$4"] },
+    { title: "Two items", prompt: "A drink is $2 and chips are $3. How much together?", answer: "$5", choices: ["$4", "$5", "$6"] },
+    { title: "Business sale", prompt: "A customer pays $10 for a $7 item. How much change?", answer: "$3", choices: ["$2", "$3", "$5"] }
+  ],
+  [
+    { title: "Save money", prompt: "You save $2 today and $2 tomorrow. How much saved?", answer: "$4", choices: ["$3", "$4", "$5"] },
+    { title: "Buy cereal", prompt: "Cereal costs $6. You have $8. How much is left?", answer: "$2", choices: ["$1", "$2", "$3"] },
+    { title: "Small purchase", prompt: "A card costs $1 and a sticker costs $2. How much total?", answer: "$3", choices: ["$2", "$3", "$4"] }
+  ],
+  [
+    { title: "Earn money", prompt: "You earn $4, then earn $3 more. How much money?", answer: "$7", choices: ["$6", "$7", "$8"] },
+    { title: "Umbrella change", prompt: "An umbrella costs $7. You pay $10. How much change?", answer: "$3", choices: ["$2", "$3", "$4"] },
+    { title: "Gift budget", prompt: "You have $5. A gift costs $4. How much is left?", answer: "$1", choices: ["$1", "$2", "$3"] }
+  ],
+  [
+    { title: "Water bottles", prompt: "One water is $1. Two waters cost how much?", answer: "$2", choices: ["$1", "$2", "$3"] },
+    { title: "Store math", prompt: "Milk costs $3 and soap costs $4. How much together?", answer: "$7", choices: ["$6", "$7", "$8"] },
+    { title: "Calendar change", prompt: "A calendar costs $5. You pay $10. How much change?", answer: "$5", choices: ["$4", "$5", "$6"] }
+  ],
+  [
+    { title: "Care items", prompt: "Soap costs $2 and shampoo costs $6. How much together?", answer: "$8", choices: ["$7", "$8", "$9"] },
+    { title: "Art supplies", prompt: "Paint costs $4. You buy two. How much total?", answer: "$8", choices: ["$6", "$8", "$10"] },
+    { title: "Lunch budget", prompt: "Lunch costs $6. You have $10. How much is left?", answer: "$4", choices: ["$2", "$4", "$6"] }
+  ],
+  [
+    { title: "Customer order", prompt: "A customer buys 2 items for $3 each. How much total?", answer: "$6", choices: ["$5", "$6", "$8"] },
+    { title: "Make change", prompt: "The price is $4. The customer pays $5. How much change?", answer: "$1", choices: ["$1", "$2", "$3"] },
+    { title: "Add sales", prompt: "You sell one item for $5 and one for $2. How much money?", answer: "$7", choices: ["$6", "$7", "$8"] }
+  ],
+  [
+    { title: "Two snacks", prompt: "One snack is $2. Two snacks cost how much?", answer: "$4", choices: ["$2", "$4", "$6"] },
+    { title: "Save more", prompt: "You have $3 and save $5 more. How much now?", answer: "$8", choices: ["$6", "$8", "$9"] },
+    { title: "Spend money", prompt: "You have $9 and spend $4. How much is left?", answer: "$5", choices: ["$4", "$5", "$6"] }
+  ],
+  [
+    { title: "Rainy day buy", prompt: "A raincoat costs $8. You pay $10. How much change?", answer: "$2", choices: ["$1", "$2", "$3"] },
+    { title: "Two drinks", prompt: "A drink is $2. Two drinks cost how much?", answer: "$4", choices: ["$3", "$4", "$5"] },
+    { title: "Add coins", prompt: "$1 plus $3 equals how much?", answer: "$4", choices: ["$2", "$4", "$5"] }
+  ],
+  [
+    { title: "Gift and card", prompt: "A gift is $4 and a card is $2. How much together?", answer: "$6", choices: ["$5", "$6", "$7"] },
+    { title: "Change back", prompt: "The total is $6. You pay $10. How much change?", answer: "$4", choices: ["$3", "$4", "$5"] },
+    { title: "Save for gift", prompt: "You saved $5 and need $8. How much more?", answer: "$3", choices: ["$2", "$3", "$4"] }
+  ],
+  [
+    { title: "Water sale", prompt: "You sell 3 waters for $1 each. How much money?", answer: "$3", choices: ["$2", "$3", "$4"] },
+    { title: "Buy water", prompt: "Water costs $1. You have $5. How much is left?", answer: "$4", choices: ["$3", "$4", "$5"] },
+    { title: "Add dollars", prompt: "$2 plus $6 equals how much?", answer: "$8", choices: ["$7", "$8", "$9"] }
+  ],
+  [
+    { title: "Grocery total", prompt: "Milk is $3 and bread is $2. How much together?", answer: "$5", choices: ["$4", "$5", "$6"] },
+    { title: "Pay cashier", prompt: "The total is $5. You pay $10. How much change?", answer: "$5", choices: ["$4", "$5", "$6"] },
+    { title: "Business total", prompt: "Two customers pay $4 each. How much money?", answer: "$8", choices: ["$6", "$8", "$10"] }
+  ],
+  [
+    { title: "Morning sale", prompt: "You sell one item for $6 and one for $3. How much total?", answer: "$9", choices: ["$8", "$9", "$10"] },
+    { title: "Appointment budget", prompt: "You have $10 and spend $5. How much is left?", answer: "$5", choices: ["$4", "$5", "$6"] },
+    { title: "Double dollars", prompt: "$4 plus $4 equals how much?", answer: "$8", choices: ["$6", "$8", "$10"] }
+  ],
+  [
+    { title: "Soap and towel", prompt: "Soap is $2 and a towel is $5. How much together?", answer: "$7", choices: ["$6", "$7", "$8"] },
+    { title: "Shampoo change", prompt: "Shampoo costs $6. You pay $10. How much change?", answer: "$4", choices: ["$3", "$4", "$5"] },
+    { title: "Care budget", prompt: "You have $8 and spend $3. How much is left?", answer: "$5", choices: ["$4", "$5", "$6"] }
+  ],
+  [
+    { title: "Paint sale", prompt: "Paint costs $4. You sell 2. How much money?", answer: "$8", choices: ["$6", "$8", "$10"] },
+    { title: "Book and music", prompt: "A book is $5 and music is $3. How much together?", answer: "$8", choices: ["$7", "$8", "$9"] },
+    { title: "Art change", prompt: "Art supplies cost $7. You pay $10. How much change?", answer: "$3", choices: ["$2", "$3", "$4"] }
+  ]
 ];
 
 const sentenceFrames = [
-  "Who: I was with ___. What: We ___.",
-  "Where/When: I went to ___ today.",
-  "How: I felt ___ because ___."
+  "Who + What: I was with ___. We ___.",
+  "Where + When: I went to ___ in the morning / afternoon / evening.",
+  "How + Why: I felt ___. I felt that way because ___."
 ];
 
 const todayPlan = curriculum[curriculumDay];
@@ -779,7 +841,9 @@ function showPinGate() {
 function unlockApp() {
   sessionStorage.setItem("dailyAdventureUnlocked", "true");
   document.body.classList.remove("locked");
-  speak("Welcome to Daily Adventure.");
+  const welcomeMessage = `Welcome, ${state.name}. Ready for today's adventure?`;
+  celebration.textContent = welcomeMessage;
+  speak(welcomeMessage);
 }
 
 function updatePinDisplay() {
@@ -838,7 +902,9 @@ function completeRound(id, message, detail = {}) {
   updateProgress();
   updateHistory();
   renderCaregiverReport();
-  speak(message);
+  speak(getRoundTotal() === totalRounds
+    ? `Congratulations, ${state.name}. You finished today's adventure.`
+    : message);
 }
 
 function nextActivityId() {
@@ -885,7 +951,7 @@ function updateProgress() {
   });
 
   celebration.textContent = doneRounds === totalRounds
-    ? `${state.message} Today's adventure is complete.`
+    ? `Congratulations, ${state.name}. ${state.message}`
     : doneRounds > 0
       ? "Good progress. Another short round is ready."
       : "Finish rounds to earn stars and mark the calendar.";
@@ -1030,8 +1096,7 @@ function renderDailyRounds() {
 function renderMiniGames() {
   const sortChoices = [...todayPlan.mini.sort.correct, ...todayPlan.mini.sort.wrong];
   const pattern = todayPlan.mini.pattern;
-  const money = todayPlan.mini.money;
-  const moneyMath = todayMoneyMath;
+  const moneyMathQuestions = todayMoneyMath;
 
   miniGames.innerHTML = `
     <article class="mini-game" data-mini-game="sort">
@@ -1065,32 +1130,25 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Choose the next color.</p>
     </article>
 
-    <article class="mini-game" data-mini-game="money">
-      <div class="mini-game-header">
-        <span>Money</span>
-        <strong>${money.title}</strong>
-      </div>
-      <p>${money.prompt}</p>
-      <div class="tile-grid three">
-        ${money.choices.map((choice) => (
-          `<button class="tile money-choice" data-money-correct="${choice === money.answer}">${choice}</button>`
-        )).join("")}
-      </div>
-      <p class="mini-feedback" aria-live="polite">Pick the exact amount.</p>
-    </article>
-
     <article class="mini-game" data-mini-game="money-math">
       <div class="mini-game-header">
         <span>Money Math</span>
-        <strong>${moneyMath.title}</strong>
+        <strong>3 quick questions</strong>
       </div>
-      <p>${moneyMath.prompt}</p>
-      <div class="tile-grid three">
-        ${moneyMath.choices.map((choice) => (
-          `<button class="tile money-math-choice" data-money-math-correct="${choice === moneyMath.answer}">${choice}</button>`
+      <div class="money-math-list">
+        ${moneyMathQuestions.map((question, index) => (
+          `<div class="money-question" data-money-question="${index}">
+            <strong>${index + 1}. ${question.title}</strong>
+            <p>${question.prompt}</p>
+            <div class="tile-grid three">
+              ${question.choices.map((choice) => (
+                `<button class="tile money-math-choice" data-money-question-index="${index}" data-money-math-correct="${choice === question.answer}">${choice}</button>`
+              )).join("")}
+            </div>
+          </div>`
         )).join("")}
       </div>
-      <p class="mini-feedback" aria-live="polite">Choose the answer.</p>
+      <p class="mini-feedback" aria-live="polite">Answer all 3 money questions.</p>
     </article>
   `;
 
@@ -1347,31 +1405,25 @@ function attachMiniGameHandlers() {
     });
   });
 
-  document.querySelectorAll("[data-mini-game='money'] .tile").forEach((tile) => {
-    tile.addEventListener("click", () => {
-      const game = tile.closest(".mini-game");
-      const feedback = game.querySelector(".mini-feedback");
-      const isCorrect = tile.dataset.moneyCorrect === "true";
-
-      game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
-      tile.classList.add(isCorrect ? "correct" : "wrong");
-      feedback.textContent = isCorrect
-        ? `Correct. ${todayPlan.mini.money.answer} is the exact amount.`
-        : "Good try. Pick the exact amount.";
-      speak(feedback.textContent);
-    });
-  });
-
   document.querySelectorAll("[data-mini-game='money-math'] .tile").forEach((tile) => {
     tile.addEventListener("click", () => {
       const game = tile.closest(".mini-game");
       const feedback = game.querySelector(".mini-feedback");
+      const question = tile.closest(".money-question");
+      const questionIndex = Number(tile.dataset.moneyQuestionIndex);
       const isCorrect = tile.dataset.moneyMathCorrect === "true";
 
-      game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
+      question.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
+      if (isCorrect) {
+        question.dataset.answered = "true";
+      }
+
+      const answeredCount = game.querySelectorAll(".money-question[data-answered='true']").length;
       feedback.textContent = isCorrect
-        ? `Correct. The answer is ${todayMoneyMath.answer}.`
+        ? answeredCount === todayMoneyMath.length
+          ? "Nice money math. You answered all 3."
+          : `Correct. ${todayMoneyMath[questionIndex].answer} is right.`
         : "Good try. Count the dollars again.";
       speak(feedback.textContent);
     });
@@ -1410,7 +1462,7 @@ caregiverToggle.addEventListener("click", () => {
 });
 
 document.querySelector("#saveSettings").addEventListener("click", () => {
-  state.name = nameInput.value.trim() || "Alex";
+  state.name = nameInput.value.trim() || "Zamaan";
   state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
   state.message = messageInput.value.trim() || defaultState.message;
   saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");

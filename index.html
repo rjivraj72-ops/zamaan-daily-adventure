@@ -49,7 +49,7 @@
         <div>
           <img class="app-mark" src="icons/app-icon-192.png" alt="" aria-hidden="true">
           <p class="eyebrow">Daily Adventure</p>
-          <h1 id="page-title">Hi, Alex. Ready for today's adventure?</h1>
+          <h1 id="page-title">Hi, Zamaan. Ready for today's adventure?</h1>
           <p class="intro">Four short activities, plus learning games for memory, sorting, patterns, and everyday choices.</p>
         </div>
         <div class="today-card" aria-label="Today's progress">
@@ -189,18 +189,23 @@
             <p class="mini-feedback" aria-live="polite">Choose the next color.</p>
           </article>
 
-          <article class="mini-game" data-mini-game="money">
+          <article class="mini-game" data-mini-game="money-math">
             <div class="mini-game-header">
-              <span>Money</span>
-              <strong>Pay for a snack</strong>
+              <span>Money Math</span>
+              <strong>3 quick questions</strong>
             </div>
-            <p>The snack costs $3. Which choice pays exactly $3?</p>
-            <div class="tile-grid three">
-              <button class="tile money-choice">$1</button>
-              <button class="tile money-choice" data-money-correct="true">$3</button>
-              <button class="tile money-choice">$5</button>
+            <div class="money-math-list">
+              <div class="money-question">
+                <strong>1. Snack change</strong>
+                <p>You have $5. A snack costs $3. How much money is left?</p>
+                <div class="tile-grid three">
+                  <button class="tile money-math-choice">$1</button>
+                  <button class="tile money-math-choice">$2</button>
+                  <button class="tile money-math-choice">$4</button>
+                </div>
+              </div>
             </div>
-            <p class="mini-feedback" aria-live="polite">Pick the exact amount.</p>
+            <p class="mini-feedback" aria-live="polite">Answer all 3 money questions.</p>
           </article>
         </div>
       </section>
@@ -236,7 +241,7 @@
           <h2 id="caregiver-title">Personalize tomorrow</h2>
           <label>
             Name shown in greeting
-            <input id="nameInput" type="text" value="Alex">
+            <input id="nameInput" type="text" value="Zamaan">
           </label>
           <label>
             Talk Time prompt
@@ -244,7 +249,7 @@
           </label>
           <label>
             Encouraging message
-            <input id="messageInput" type="text" value="Nice work. You stayed with it.">
+            <input id="messageInput" type="text" value="Great job. You finished today's adventure.">
           </label>
           <label>
             App PIN

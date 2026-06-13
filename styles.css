@@ -556,7 +556,7 @@ input {
 
 .mini-games {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-top: 18px;
 }
@@ -596,6 +596,27 @@ input {
   margin-bottom: 0;
   color: var(--muted);
   line-height: 1.45;
+}
+
+.money-math-list {
+  display: grid;
+  gap: 14px;
+}
+
+.money-question {
+  display: grid;
+  gap: 9px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.money-question:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.money-question strong {
+  font-size: 1rem;
 }
 
 .tile-grid {
@@ -883,7 +904,7 @@ button:focus-visible {
 
 @media (max-width: 1040px) {
   .mini-games {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }
 

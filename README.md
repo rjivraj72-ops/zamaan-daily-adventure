@@ -18,6 +18,15 @@ The PIN is meant as a simple privacy and routine screen. It is not bank-grade se
 
 New completed rounds will be sent to the Sheet. The app still keeps a local report on the device.
 
+The Apps Script also creates and refreshes these analysis tabs:
+
+- `Dashboard`
+- `Daily Summary`
+- `Section Summary`
+- `Recent Talk Time`
+
+If you update `google-apps-script.js` after the first setup, paste the new script into Apps Script and redeploy the web app. After redeploying, open the Web App URL once in your browser to refresh the dashboard from existing rows.
+
 ## iPhone Sync Setup
 
 After the Sync web app URL and family code are saved in Caregiver settings, use **Send iPhone setup link** or **Copy setup link**. Send that link by iMessage, email, or Notes, then open it on the iPhone. The iPhone will save the sync settings automatically.
