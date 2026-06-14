@@ -586,11 +586,13 @@ const reportList = document.querySelector("#reportList");
 const syncUrlInput = document.querySelector("#syncUrlInput");
 const familyCodeInput = document.querySelector("#familyCodeInput");
 const syncStatus = document.querySelector("#syncStatus");
+const lastSyncStatus = document.querySelector("#lastSyncStatus");
 const shareSyncSetup = document.querySelector("#shareSyncSetup");
 const copySyncSetup = document.querySelector("#copySyncSetup");
 const syncSetupCode = document.querySelector("#syncSetupCode");
 const copySyncCode = document.querySelector("#copySyncCode");
 const importSyncCode = document.querySelector("#importSyncCode");
+const testSync = document.querySelector("#testSync");
 
 let memoryPicks = [];
 let sequenceStep = 1;
@@ -629,6 +631,26 @@ function updateSyncStatus() {
   syncStatus.textContent = url && familyCode
     ? "Sync is set up. New completed rounds will be sent to the private Sheet."
     : "Sync is not set up yet.";
+  updateLastSyncStatus();
+}
+
+function updateLastSyncStatus() {
+  if (!lastSyncStatus) return;
+
+  const lastSyncedAt = localStorage.getItem("dailyAdventureLastSyncedAt");
+  lastSyncStatus.textContent = lastSyncedAt
+    ? `Last synced: ${new Intl.DateTimeFormat(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    }).format(new Date(lastSyncedAt))}`
+    : "Last synced: never";
+}
+
+function markLastSynced() {
+  localStorage.setItem("dailyAdventureLastSyncedAt", new Date().toISOString());
+  updateLastSyncStatus();
 }
 
 function encodeSetupData(data) {
@@ -746,6 +768,33 @@ function importSetupCode() {
   }
 }
 
+function sendTestSync() {
+  saveSyncConfig();
+  const { url, familyCode } = getSyncConfig();
+
+  if (!url || !familyCode) {
+    if (syncStatus) {
+      syncStatus.textContent = "Add the Sync web app URL and family code first. Then tap Test sync.";
+    }
+    return;
+  }
+
+  const completedAt = new Date().toISOString();
+  sendSyncPayload({
+    date: todayKey,
+    childName: state.name,
+    mood: state.mood,
+    curriculumDay: curriculumDay + 1,
+    plan: todayPlan.name,
+    section: "Sync Test",
+    round: "",
+    title: "Caregiver Sync Test",
+    prompt: "This is a caregiver test row.",
+    answer: "If you see this row, sync is connected.",
+    completedAt
+  }, "Test sync sent. Check the Daily Adventure Log tab.");
+}
+
 async function copyTextToClipboard(text) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
@@ -830,14 +879,31 @@ function syncActivityLog(entry) {
     completedAt: entry.completedAt
   };
 
+  sendSyncPayload(payload, "Last completed round was sent to the private Sheet.");
+}
+
+function sendSyncPayload(payload, successMessage) {
+  const { url, familyCode } = getSyncConfig();
+  if (!url || !familyCode) {
+    if (syncStatus) {
+      syncStatus.textContent = "Sync is not set up yet.";
+    }
+    return;
+  }
+
   fetch(url, {
     method: "POST",
     mode: "no-cors",
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ ...payload, familyCode })
   }).then(() => {
-    syncStatus.textContent = "Last completed round was sent to the private Sheet.";
+    markLastSynced();
+    if (syncStatus) {
+      syncStatus.textContent = successMessage;
+    }
   }).catch(() => {
-    syncStatus.textContent = "Could not sync just now. The app saved it on this device.";
+    if (syncStatus) {
+      syncStatus.textContent = "Could not sync just now. The app saved it on this device.";
+    }
   });
 }
 
@@ -1540,6 +1606,10 @@ if (copySyncCode) {
 
 if (importSyncCode) {
   importSyncCode.addEventListener("click", importSetupCode);
+}
+
+if (testSync) {
+  testSync.addEventListener("click", sendTestSync);
 }
 
 lockApp.addEventListener("click", () => {

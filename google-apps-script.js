@@ -112,6 +112,8 @@ function getLogRows_(sheet) {
 }
 
 function buildAnalysis_(rows) {
+  rows = rows.filter((row) => row.section !== "Sync Test");
+
   const dailyMap = {};
   const sectionMap = {};
   const talkRows = [];

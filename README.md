@@ -18,6 +18,12 @@ The PIN is meant as a simple privacy and routine screen. It is not bank-grade se
 
 New completed rounds will be sent to the Sheet. The app still keeps a local report on the device.
 
+Caregiver settings include **Test sync** and **Last synced**:
+
+- **Test sync** sends a clearly labeled test row to `Daily Adventure Log`.
+- **Last synced** shows the most recent time the app sent data from that device.
+- Test sync rows are ignored by the dashboard analysis.
+
 The Apps Script also creates and refreshes these analysis tabs:
 
 - `Dashboard`
