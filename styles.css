@@ -944,7 +944,8 @@ button:focus-visible {
 }
 
 .caregiver-report,
-.sync-settings {
+.sync-settings,
+.parent-view {
   display: grid;
   gap: 10px;
   padding: 16px;
@@ -954,13 +955,15 @@ button:focus-visible {
 }
 
 .caregiver-report h3,
-.sync-settings h3 {
+.sync-settings h3,
+.parent-view h3 {
   margin: 0;
   font-size: 1.15rem;
 }
 
 .caregiver-report p,
-.sync-settings p {
+.sync-settings p,
+.parent-view p {
   margin: 0;
   color: var(--muted);
   line-height: 1.4;
@@ -992,6 +995,65 @@ button:focus-visible {
 .report-list {
   display: grid;
   gap: 8px;
+}
+
+.parent-view-results {
+  display: grid;
+  gap: 14px;
+}
+
+.parent-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.parent-card,
+.parent-list-item {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: #fff;
+}
+
+.parent-card.highlight {
+  border-color: rgba(8, 120, 101, 0.28);
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+}
+
+.parent-card small,
+.parent-list-item small {
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.parent-card span,
+.parent-list-item span,
+.parent-list-item em {
+  color: var(--muted);
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.parent-list {
+  display: grid;
+  gap: 8px;
+}
+
+.parent-list h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.parent-empty {
+  padding: 10px 12px;
+  border-radius: var(--radius-small);
+  background: var(--surface-soft);
 }
 
 .report-item {
@@ -1118,6 +1180,10 @@ button:focus-visible {
   }
 
   .sync-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .parent-summary-grid {
     grid-template-columns: 1fr;
   }
 

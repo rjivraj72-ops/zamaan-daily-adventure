@@ -22,6 +22,7 @@ Caregiver settings include **Test sync** and **Last synced**:
 
 - **Test sync** sends a clearly labeled test row to `Daily Adventure Log`.
 - **Last synced** shows the most recent time the app sent data from that device.
+- **Parent view** loads the shared Google Sheet summary inside the app, so mom and dad can check progress from their own phones.
 - Test sync rows are ignored by the dashboard analysis.
 - Extra Learning Game attempts are logged separately so caregivers can see practice patterns without inflating daily completion.
 

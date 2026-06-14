@@ -35,7 +35,20 @@ function doPost(e) {
   return ContentService.createTextOutput("OK");
 }
 
-function doGet() {
+function doGet(e) {
+  const params = e?.parameter || {};
+
+  if (params.mode === "parentView") {
+    if (params.familyCode !== FAMILY_CODE) {
+      return createJsonResponse_({ ok: false, error: "Not allowed" });
+    }
+
+    const logSheet = getLogSheet_();
+    const rows = getLogRows_(logSheet);
+    const analysis = buildAnalysis_(rows);
+    return createJsonResponse_(buildParentView_(analysis));
+  }
+
   refreshAnalysisSheets_();
   return ContentService.createTextOutput("Daily Adventure dashboard refreshed.");
 }
@@ -295,6 +308,74 @@ function writeDashboard_(sheet, analysis) {
   sheet.setFrozenRows(1);
 }
 
+function buildParentView_(analysis) {
+  const todayKey = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
+  const todayRow = analysis.dailyRows.find((row) => row[0] === todayKey) || null;
+  const recentDaily = analysis.dailyRows.slice(-7).reverse().map((row) => ({
+    date: row[0],
+    mood: row[2],
+    plan: row[3],
+    curriculumDay: row[4],
+    rounds: row[5],
+    completion: row[6],
+    status: row[7],
+    memory: row[8],
+    lifeSkill: row[9],
+    spanish: row[10],
+    talkTime: row[11],
+    moneyMath: row[12],
+    lastCompleted: formatPromptValue_(row[13])
+  }));
+
+  return {
+    ok: true,
+    updatedAt: new Date().toISOString(),
+    dashboard: {
+      totalRounds: analysis.totalRounds,
+      daysUsed: analysis.daysUsed,
+      completedDays: analysis.completedDays,
+      completionRate: analysis.completionRate,
+      lastSevenRounds: analysis.lastSevenRounds,
+      totalAttempts: analysis.totalAttempts,
+      correctAttempts: analysis.correctAttempts,
+      attemptAccuracy: analysis.attemptAccuracy
+    },
+    today: todayRow ? {
+      date: todayRow[0],
+      mood: todayRow[2],
+      plan: todayRow[3],
+      curriculumDay: todayRow[4],
+      rounds: todayRow[5],
+      completion: todayRow[6],
+      status: todayRow[7],
+      memory: todayRow[8],
+      lifeSkill: todayRow[9],
+      spanish: todayRow[10],
+      talkTime: todayRow[11],
+      moneyMath: todayRow[12],
+      lastCompleted: formatPromptValue_(todayRow[13])
+    } : null,
+    recentDaily,
+    recentTalk: analysis.talkRows.slice(0, 5).map((row) => ({
+      timestamp: formatPromptValue_(row[0]),
+      date: row[1],
+      prompt: row[3],
+      answer: row[4],
+      responseType: row[5],
+      answerLength: row[6]
+    })),
+    learningAttempts: analysis.attemptRows.map((row) => ({
+      game: row[0],
+      attempts: row[1],
+      correct: row[2],
+      accuracy: row[3],
+      lastPrompt: row[4],
+      lastAnswer: row[5],
+      lastAttempt: formatPromptValue_(row[6])
+    }))
+  };
+}
+
 function writeDailySummary_(sheet, rows) {
   sheet.clear();
   const headers = [
@@ -409,6 +490,12 @@ function formatPromptValue_(value) {
     return Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy-MM-dd h:mm a");
   }
   return String(value || "");
+}
+
+function createJsonResponse_(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function writeTable_(sheet, headers, rows) {

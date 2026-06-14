@@ -324,6 +324,13 @@
             <p class="sync-status" id="lastSyncStatus">Last synced: never</p>
             <p class="sync-status" id="syncStatus">Sync is not set up yet.</p>
           </section>
+          <section class="parent-view" aria-labelledby="parent-view-title">
+            <h3 id="parent-view-title">Parent view</h3>
+            <p>Load Zamaan's latest shared progress from the private Google Sheet.</p>
+            <button id="loadParentView" class="secondary-button" type="button">Load parent view</button>
+            <p class="sync-status" id="parentViewStatus">Parent view has not loaded yet.</p>
+            <div class="parent-view-results" id="parentViewResults"></div>
+          </section>
           <button id="saveSettings">Save settings</button>
           <button id="lockApp" class="secondary-button">Lock app</button>
           <button id="resetProgress" class="secondary-button">Reset today's progress</button>

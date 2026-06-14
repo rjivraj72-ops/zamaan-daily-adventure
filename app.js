@@ -635,6 +635,9 @@ const syncSetupCode = document.querySelector("#syncSetupCode");
 const copySyncCode = document.querySelector("#copySyncCode");
 const importSyncCode = document.querySelector("#importSyncCode");
 const testSync = document.querySelector("#testSync");
+const loadParentView = document.querySelector("#loadParentView");
+const parentViewStatus = document.querySelector("#parentViewStatus");
+const parentViewResults = document.querySelector("#parentViewResults");
 
 let memoryPicks = [];
 let sequenceStep = 1;
@@ -836,6 +839,48 @@ function sendTestSync() {
     answer: "If you see this row, sync is connected.",
     completedAt
   }, "Test sync sent. Check the Daily Adventure Log tab.");
+}
+
+function getParentViewUrl() {
+  const { url, familyCode } = getSyncConfig();
+  if (!url || !familyCode) return "";
+
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}mode=parentView&familyCode=${encodeURIComponent(familyCode)}`;
+}
+
+async function loadParentViewData() {
+  saveSyncConfig();
+  const parentUrl = getParentViewUrl();
+
+  if (!parentUrl) {
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Add the Sync web app URL and family code first.";
+    }
+    return;
+  }
+
+  if (parentViewStatus) {
+    parentViewStatus.textContent = "Loading parent view from the private Sheet...";
+  }
+
+  try {
+    const response = await fetch(parentUrl, { method: "GET" });
+    const data = await response.json();
+
+    if (!data.ok) {
+      throw new Error(data.error || "Parent view did not load.");
+    }
+
+    renderParentView(data);
+    if (parentViewStatus) {
+      parentViewStatus.textContent = `Loaded ${formatShortDateTime(data.updatedAt)}.`;
+    }
+  } catch {
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Could not load parent view. Check the Web App URL, family code, and Apps Script deployment.";
+    }
+  }
 }
 
 function logLearningAttempt(gameName, titleText, promptText, selectedAnswer, correctAnswer, isCorrect) {
@@ -1134,6 +1179,86 @@ function renderCaregiverReport() {
   }).join("");
 }
 
+function renderParentView(data) {
+  if (!parentViewResults) return;
+
+  const today = data.today;
+  const todayHtml = today
+    ? `
+      <article class="parent-card highlight">
+        <small>Today</small>
+        <strong>${escapeHtml(today.rounds)} of ${totalRounds} rounds · ${escapeHtml(today.status)}</strong>
+        <span>Mood: ${escapeHtml(today.mood || "Not picked yet")}</span>
+        <span>Plan: ${escapeHtml(today.plan || "Daily Adventure")}</span>
+        <span>Last completed: ${escapeHtml(today.lastCompleted || "Not yet")}</span>
+      </article>
+    `
+    : `
+      <article class="parent-card highlight">
+        <small>Today</small>
+        <strong>No shared Sheet data for today yet.</strong>
+        <span>Once Zamaan completes a round on a synced device, it will appear here.</span>
+      </article>
+    `;
+
+  const dailyHtml = (data.recentDaily || []).length
+    ? data.recentDaily.map((day) => `
+      <article class="parent-list-item">
+        <strong>${escapeHtml(day.date)} · ${escapeHtml(day.status)}</strong>
+        <span>${escapeHtml(day.rounds)} of ${totalRounds} rounds, ${escapeHtml(day.completion)} complete</span>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">No recent daily summaries yet.</p>`;
+
+  const talkHtml = (data.recentTalk || []).length
+    ? data.recentTalk.map((item) => `
+      <article class="parent-list-item">
+        <strong>${escapeHtml(item.date)} · ${escapeHtml(item.responseType)}</strong>
+        <span>${escapeHtml(item.prompt)}</span>
+        <em>${escapeHtml(item.answer || "No typed answer")}</em>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">No Talk Time answers yet.</p>`;
+
+  const attemptsHtml = (data.learningAttempts || []).length
+    ? data.learningAttempts.map((item) => `
+      <article class="parent-list-item">
+        <strong>${escapeHtml(item.game)}</strong>
+        <span>${escapeHtml(item.correct)} correct out of ${escapeHtml(item.attempts)} attempts · ${escapeHtml(item.accuracy)}</span>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">No extra learning-game attempts yet.</p>`;
+
+  parentViewResults.innerHTML = `
+    <div class="parent-summary-grid">
+      ${todayHtml}
+      <article class="parent-card">
+        <small>Overall</small>
+        <strong>${escapeHtml(data.dashboard.completedDays)} complete days</strong>
+        <span>${escapeHtml(data.dashboard.totalRounds)} total rounds</span>
+        <span>${escapeHtml(data.dashboard.completionRate)} completion rate</span>
+      </article>
+      <article class="parent-card">
+        <small>Learning games</small>
+        <strong>${escapeHtml(data.dashboard.attemptAccuracy)} accuracy</strong>
+        <span>${escapeHtml(data.dashboard.correctAttempts)} correct out of ${escapeHtml(data.dashboard.totalAttempts)} attempts</span>
+      </article>
+    </div>
+    <div class="parent-list">
+      <h4>Last 7 Days</h4>
+      ${dailyHtml}
+    </div>
+    <div class="parent-list">
+      <h4>Recent Talk Time</h4>
+      ${talkHtml}
+    </div>
+    <div class="parent-list">
+      <h4>Learning Game Attempts</h4>
+      ${attemptsHtml}
+    </div>
+  `;
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -1141,6 +1266,19 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function formatShortDateTime(value) {
+  if (!value) return "just now";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "just now";
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
 }
 
 function labelFor(id) {
@@ -1741,6 +1879,10 @@ if (importSyncCode) {
 
 if (testSync) {
   testSync.addEventListener("click", sendTestSync);
+}
+
+if (loadParentView) {
+  loadParentView.addEventListener("click", loadParentViewData);
 }
 
 lockApp.addEventListener("click", () => {
