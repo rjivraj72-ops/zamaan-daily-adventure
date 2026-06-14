@@ -1,6 +1,6 @@
 # Daily Adventure
 
-A simple daily learning app with memory games, life-skill sequencing, Spanish cards, Talk Time prompts with sentence helpers, money math, rewards, and a 14-day progress calendar.
+A simple daily learning app with memory games, life-skill sequencing, Spanish cards, Talk Time prompts with sentence helpers, money math, granola sales/marketing business practice, rewards, and a 14-day progress calendar.
 
 Default PIN: `1234`
 

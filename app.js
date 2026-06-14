@@ -526,6 +526,23 @@ const moneyMathDecks = [
   ]
 ];
 
+const businessPracticeDecks = [
+  { title: "Our business", prompt: "Our co-packer makes the granola. What does our business focus on?", answer: "Sales and marketing", choices: ["Sales and marketing", "Building cars", "Washing dishes"] },
+  { title: "Who is a buyer?", prompt: "Who might buy granola for a store, cafe, or office?", answer: "A buyer", choices: ["A buyer", "A bus driver", "A dentist"] },
+  { title: "Sample follow-up", prompt: "A buyer tried a granola sample. What should we do next?", answer: "Follow up kindly", choices: ["Follow up kindly", "Never talk again", "Hide the sample"] },
+  { title: "Brand story", prompt: "What helps people remember our granola?", answer: "A clear brand story", choices: ["A clear brand story", "No information", "A messy note"] },
+  { title: "Marketing", prompt: "What is marketing?", answer: "Helping people learn about our granola", choices: ["Helping people learn about our granola", "Keeping it secret", "Throwing papers away"] },
+  { title: "Sales", prompt: "What is sales?", answer: "Helping buyers decide if granola is a good fit", choices: ["Helping buyers decide if granola is a good fit", "Ignoring buyers", "Changing the weather"] },
+  { title: "Co-packer role", prompt: "Who makes the granola for our business?", answer: "Our co-packer", choices: ["Our co-packer", "The buyer", "The delivery truck"] },
+  { title: "End customer", prompt: "Who is the end customer?", answer: "The person who eats the granola", choices: ["The person who eats the granola", "The shelf", "The box"] },
+  { title: "Buyer question", prompt: "A buyer asks about our granola. What should Zamaan do first?", answer: "Listen carefully", choices: ["Listen carefully", "Talk over them", "Walk away"] },
+  { title: "Good follow-up", prompt: "Which follow-up message sounds best?", answer: "Thank you for trying our granola.", choices: ["Thank you for trying our granola.", "Do not answer me.", "I forgot everything."] },
+  { title: "Sales meeting", prompt: "Before talking to a buyer, what should we know?", answer: "Our granola story", choices: ["Our granola story", "A random song", "Nothing at all"] },
+  { title: "Customer feedback", prompt: "An end customer says they like the granola. What should we say?", answer: "Thank you for the feedback.", choices: ["Thank you for the feedback.", "That does not matter.", "Stop talking."] },
+  { title: "Next buyer step", prompt: "After a buyer is interested, what is a good next step?", answer: "Ask about the next order step", choices: ["Ask about the next order step", "Forget their name", "Close the computer"] },
+  { title: "Business focus", prompt: "What does Zamaan practice for the granola business?", answer: "Sales, marketing, and buyer care", choices: ["Sales, marketing, and buyer care", "Making shoes", "Fixing phones"] }
+];
+
 const sentenceFrames = [
   "Who + What: I was with ___. We ___.",
   "Where + When: I went to ___ in the morning / afternoon / evening.",
@@ -535,6 +552,7 @@ const sentenceFrames = [
 const todayPlan = curriculum[curriculumDay];
 const todayLanguage = languageDecks[curriculumDay];
 const todayMoneyMath = moneyMathDecks[curriculumDay];
+const todayBusinessPractice = businessPracticeDecks[curriculumDay];
 
 const title = document.querySelector("#page-title");
 const todayLabel = document.querySelector("#todayLabel");
@@ -1097,6 +1115,7 @@ function renderMiniGames() {
   const sortChoices = [...todayPlan.mini.sort.correct, ...todayPlan.mini.sort.wrong];
   const pattern = todayPlan.mini.pattern;
   const moneyMathQuestions = todayMoneyMath;
+  const businessPractice = todayBusinessPractice;
 
   miniGames.innerHTML = `
     <article class="mini-game" data-mini-game="sort">
@@ -1149,6 +1168,20 @@ function renderMiniGames() {
         )).join("")}
       </div>
       <p class="mini-feedback" aria-live="polite">Answer all 3 money questions.</p>
+    </article>
+
+    <article class="mini-game" data-mini-game="business">
+      <div class="mini-game-header">
+        <span>Business</span>
+        <strong>${businessPractice.title}</strong>
+      </div>
+      <p>${businessPractice.prompt}</p>
+      <div class="tile-grid">
+        ${businessPractice.choices.map((choice) => (
+          `<button class="tile business-choice" data-business-correct="${choice === businessPractice.answer}">${choice}</button>`
+        )).join("")}
+      </div>
+      <p class="mini-feedback" aria-live="polite">Choose the best business action.</p>
     </article>
   `;
 
@@ -1425,6 +1458,21 @@ function attachMiniGameHandlers() {
           ? "Nice money math. You answered all 3."
           : `Correct. ${todayMoneyMath[questionIndex].answer} is right.`
         : "Good try. Count the dollars again.";
+      speak(feedback.textContent);
+    });
+  });
+
+  document.querySelectorAll("[data-mini-game='business'] .tile").forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const game = tile.closest(".mini-game");
+      const feedback = game.querySelector(".mini-feedback");
+      const isCorrect = tile.dataset.businessCorrect === "true";
+
+      game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
+      tile.classList.add(isCorrect ? "correct" : "wrong");
+      feedback.textContent = isCorrect
+        ? "Good business choice."
+        : "Good try. Pick the kind business action.";
       speak(feedback.textContent);
     });
   });
