@@ -4,6 +4,8 @@ const DASHBOARD_SHEET_NAME = "Dashboard";
 const DAILY_SHEET_NAME = "Daily Summary";
 const SECTION_SHEET_NAME = "Section Summary";
 const TALK_SHEET_NAME = "Recent Talk Time";
+const ATTEMPTS_SHEET_NAME = "Learning Attempts";
+const GEMINI_PROMPT_SHEET_NAME = "Gemini Prompt";
 const EXPECTED_DAILY_ROUNDS = 12;
 
 function doPost(e) {
@@ -86,6 +88,8 @@ function refreshAnalysisSheets_() {
   writeDailySummary_(getOrCreateSheet_(spreadsheet, DAILY_SHEET_NAME), analysis.dailyRows);
   writeSectionSummary_(getOrCreateSheet_(spreadsheet, SECTION_SHEET_NAME), analysis.sectionRows);
   writeRecentTalk_(getOrCreateSheet_(spreadsheet, TALK_SHEET_NAME), analysis.talkRows);
+  writeLearningAttempts_(getOrCreateSheet_(spreadsheet, ATTEMPTS_SHEET_NAME), analysis.attemptRows);
+  writeGeminiPrompt_(getOrCreateSheet_(spreadsheet, GEMINI_PROMPT_SHEET_NAME), analysis);
 }
 
 function getLogRows_(sheet) {
@@ -112,16 +116,18 @@ function getLogRows_(sheet) {
 }
 
 function buildAnalysis_(rows) {
-  rows = rows.filter((row) => row.section !== "Sync Test");
+  const completionRows = rows.filter((row) => row.section !== "Sync Test" && row.section !== "Learning Game Attempt");
+  const learningAttemptRows = rows.filter((row) => row.section === "Learning Game Attempt");
 
   const dailyMap = {};
   const sectionMap = {};
   const talkRows = [];
+  const attemptMap = {};
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   sevenDaysAgo.setHours(0, 0, 0, 0);
 
-  rows.forEach((row) => {
+  completionRows.forEach((row) => {
     if (!dailyMap[row.date]) {
       dailyMap[row.date] = {
         date: row.date,
@@ -170,6 +176,28 @@ function buildAnalysis_(rows) {
     }
   });
 
+  learningAttemptRows.forEach((row) => {
+    const isCorrect = String(row.answer || "").indexOf("Result: Correct") !== -1;
+    const key = row.title || "Learning Game";
+
+    if (!attemptMap[key]) {
+      attemptMap[key] = {
+        title: key,
+        attempts: 0,
+        correct: 0,
+        lastPrompt: row.prompt,
+        lastAnswer: row.answer,
+        lastAttempt: row.timestamp
+      };
+    }
+
+    attemptMap[key].attempts += 1;
+    attemptMap[key].correct += isCorrect ? 1 : 0;
+    attemptMap[key].lastPrompt = row.prompt || attemptMap[key].lastPrompt;
+    attemptMap[key].lastAnswer = row.answer || attemptMap[key].lastAnswer;
+    attemptMap[key].lastAttempt = row.timestamp || attemptMap[key].lastAttempt;
+  });
+
   const dailyRows = Object.keys(dailyMap).sort().map((date) => {
     const day = dailyMap[date];
     return [
@@ -200,13 +228,28 @@ function buildAnalysis_(rows) {
     ];
   });
 
-  const totalRounds = rows.length;
+  const attemptRows = Object.keys(attemptMap).sort().map((key) => {
+    const item = attemptMap[key];
+    return [
+      item.title,
+      item.attempts,
+      item.correct,
+      `${Math.round((item.correct / item.attempts) * 100)}%`,
+      item.lastPrompt,
+      item.lastAnswer,
+      item.lastAttempt
+    ];
+  });
+
+  const totalRounds = completionRows.length;
   const daysUsed = dailyRows.length;
   const completedDays = dailyRows.filter((row) => row[7] === "Complete").length;
-  const lastSevenRounds = rows.filter((row) => {
+  const lastSevenRounds = completionRows.filter((row) => {
     const date = parseDateKey_(row.date);
     return date && date >= sevenDaysAgo;
   }).length;
+  const totalAttempts = learningAttemptRows.length;
+  const correctAttempts = learningAttemptRows.filter((row) => String(row.answer || "").indexOf("Result: Correct") !== -1).length;
 
   return {
     totalRounds,
@@ -214,14 +257,19 @@ function buildAnalysis_(rows) {
     completedDays,
     completionRate: daysUsed ? `${Math.round((completedDays / daysUsed) * 100)}%` : "0%",
     lastSevenRounds,
+    totalAttempts,
+    correctAttempts,
+    attemptAccuracy: totalAttempts ? `${Math.round((correctAttempts / totalAttempts) * 100)}%` : "0%",
     lastUpdated: new Date(),
     dailyRows,
     sectionRows,
-    talkRows: talkRows.slice(-25).reverse()
+    talkRows: talkRows.slice(-25).reverse(),
+    attemptRows
   };
 }
 
 function writeDashboard_(sheet, analysis) {
+  sheet.getRange("A1:B1").breakApart();
   sheet.clear();
   const values = [
     ["Daily Adventure Dashboard", ""],
@@ -232,13 +280,16 @@ function writeDashboard_(sheet, analysis) {
     ["Completed Days", analysis.completedDays],
     ["Completion Rate", analysis.completionRate],
     ["Rounds In Last 7 Days", analysis.lastSevenRounds],
+    ["Learning Game Attempts", analysis.totalAttempts],
+    ["Learning Game Correct", analysis.correctAttempts],
+    ["Learning Game Accuracy", analysis.attemptAccuracy],
     ["", ""],
-    ["What to look for", "Use this as a quick caregiver view. Daily Summary shows consistency. Section Summary shows which areas get the most practice. Recent Talk Time shows typed responses."]
+    ["What to look for", "Use this as a quick caregiver view. Daily Summary shows consistency. Section Summary shows required practice. Learning Attempts shows extra-game attempts and accuracy. Recent Talk Time shows typed responses."]
   ];
 
   sheet.getRange(1, 1, values.length, 2).setValues(values);
   sheet.getRange("A1:B1").merge().setFontSize(16).setFontWeight("bold");
-  sheet.getRange("A2:A8").setFontWeight("bold");
+  sheet.getRange("A2:A11").setFontWeight("bold");
   sheet.getRange("B2").setNumberFormat("m/d/yyyy h:mm AM/PM");
   sheet.setColumnWidths(1, 2, 260);
   sheet.setFrozenRows(1);
@@ -278,6 +329,86 @@ function writeRecentTalk_(sheet, rows) {
   const headers = ["Timestamp", "Date", "Child Name", "Prompt", "Answer", "Response Type", "Answer Length"];
   writeTable_(sheet, headers, rows);
   sheet.getRange(2, 1, Math.max(rows.length, 1), 1).setNumberFormat("m/d/yyyy h:mm AM/PM");
+}
+
+function writeLearningAttempts_(sheet, rows) {
+  sheet.clear();
+  const headers = ["Game / Skill", "Attempts", "Correct", "Accuracy", "Last Prompt", "Last Answer", "Last Attempt"];
+  writeTable_(sheet, headers, rows);
+  sheet.getRange(2, 7, Math.max(rows.length, 1), 1).setNumberFormat("m/d/yyyy h:mm AM/PM");
+}
+
+function writeGeminiPrompt_(sheet, analysis) {
+  sheet.clear();
+  const prompt = buildGeminiPrompt_(analysis);
+  const values = [
+    ["Gemini Prompt"],
+    ["Copy the prompt below into Gemini when mom or dad wants a plain-English progress summary."],
+    [prompt]
+  ];
+
+  sheet.getRange(1, 1, values.length, 1).setValues(values);
+  sheet.getRange("A1").setFontSize(16).setFontWeight("bold").setBackground("#e5f4ef");
+  sheet.getRange("A2").setFontWeight("bold");
+  sheet.getRange("A3").setWrap(true).setVerticalAlignment("top");
+  sheet.setColumnWidth(1, 900);
+  sheet.setRowHeight(3, 520);
+}
+
+function buildGeminiPrompt_(analysis) {
+  const recentDailyRows = analysis.dailyRows.slice(-7);
+  const recentTalkRows = analysis.talkRows.slice(0, 10);
+  const attemptRows = analysis.attemptRows;
+
+  return [
+    "You are helping mom and dad understand Zamaan's Daily Adventure progress.",
+    "Please use a warm, practical caregiver tone. Do not diagnose. Focus on patterns, encouragement, and next practice ideas.",
+    "",
+    "Please provide:",
+    "1. Three things Zamaan is doing well.",
+    "2. Three areas to keep practicing.",
+    "3. Patterns in Family Words / pronouns.",
+    "4. Patterns in Money Math.",
+    "5. Patterns in Talk Time responses.",
+    "6. A short parent summary for this week.",
+    "7. Two gentle recommendations for tomorrow.",
+    "",
+    "Dashboard:",
+    `- Total completed rounds: ${analysis.totalRounds}`,
+    `- Days used: ${analysis.daysUsed}`,
+    `- Completed days: ${analysis.completedDays}`,
+    `- Completion rate: ${analysis.completionRate}`,
+    `- Rounds in last 7 days: ${analysis.lastSevenRounds}`,
+    `- Learning game attempts: ${analysis.totalAttempts}`,
+    `- Learning game correct: ${analysis.correctAttempts}`,
+    `- Learning game accuracy: ${analysis.attemptAccuracy}`,
+    "",
+    "Recent Daily Summary:",
+    formatPromptRows_(recentDailyRows, ["Date", "Child", "Mood", "Plan", "Day", "Rounds", "Completion", "Status", "Memory", "Life", "Spanish", "Talk", "Money Math", "Last Completed"]),
+    "",
+    "Learning Attempts:",
+    formatPromptRows_(attemptRows, ["Game / Skill", "Attempts", "Correct", "Accuracy", "Last Prompt", "Last Answer", "Last Attempt"]),
+    "",
+    "Recent Talk Time:",
+    formatPromptRows_(recentTalkRows, ["Timestamp", "Date", "Child", "Prompt", "Answer", "Response Type", "Answer Length"])
+  ].join("\n");
+}
+
+function formatPromptRows_(rows, headers) {
+  if (!rows.length) return "- No data yet.";
+
+  return rows.map((row) => {
+    return "- " + headers.map((header, index) => {
+      return `${header}: ${formatPromptValue_(row[index])}`;
+    }).join(" | ");
+  }).join("\n");
+}
+
+function formatPromptValue_(value) {
+  if (Object.prototype.toString.call(value) === "[object Date]") {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy-MM-dd h:mm a");
+  }
+  return String(value || "");
 }
 
 function writeTable_(sheet, headers, rows) {

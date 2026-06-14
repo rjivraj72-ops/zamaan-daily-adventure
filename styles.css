@@ -603,7 +603,7 @@ input {
 
 .mini-games {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 16px;
   margin-top: 18px;
 }
@@ -642,6 +642,10 @@ input {
   background: var(--plum);
 }
 
+.mini-game[data-mini-game="pronouns"]::before {
+  background: var(--coral);
+}
+
 .mini-game-header {
   display: grid;
   gap: 6px;
@@ -672,6 +676,11 @@ input {
 .mini-game[data-mini-game="business"] .mini-game-header span {
   background: var(--plum-soft);
   color: var(--plum);
+}
+
+.mini-game[data-mini-game="pronouns"] .mini-game-header span {
+  background: var(--coral-soft);
+  color: var(--coral);
 }
 
 .mini-game-header strong {
@@ -999,7 +1008,7 @@ button:focus-visible {
 
 @media (max-width: 1040px) {
   .mini-games {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   }
 }
 

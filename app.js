@@ -543,6 +543,23 @@ const businessPracticeDecks = [
   { title: "Business focus", prompt: "What does Zamaan practice for the granola business?", answer: "Sales, marketing, and buyer care", choices: ["Sales, marketing, and buyer care", "Making shoes", "Fixing phones"] }
 ];
 
+const pronounPracticeDecks = [
+  { title: "My brother", prompt: "Keyaan is Zamaan's ____.", answer: "brother", choices: ["brother", "son", "dad"] },
+  { title: "Mom's son", prompt: "Mom says, 'Keyaan is my son.' Who is Keyaan to Mom?", answer: "son", choices: ["son", "brother", "uncle"] },
+  { title: "My cousin", prompt: "Marcus is Zamaan's ____.", answer: "cousin", choices: ["cousin", "son", "grandmother"] },
+  { title: "Her cousin", prompt: "Jasmine is a girl. For Zamaan, Jasmine is his ____.", answer: "cousin", choices: ["cousin", "brother", "dad"] },
+  { title: "Grandmother", prompt: "Zamaan can say, 'She is my grandmother.' Who is she?", answer: "Grandmother", choices: ["Grandmother", "Keyaan", "Harold"] },
+  { title: "My grandmothers", prompt: "Zamaan's grandmothers are his ____.", answer: "family", choices: ["family", "buyers", "co-packers"] },
+  { title: "My friend", prompt: "Harold is Zamaan's ____.", answer: "friend", choices: ["friend", "son", "mom"] },
+  { title: "His friend", prompt: "Aaron is a boy. For Zamaan, Aaron is his ____.", answer: "friend", choices: ["friend", "grandmother", "brother"] },
+  { title: "Another friend", prompt: "David is Zamaan's ____.", answer: "friend", choices: ["friend", "son", "dad"] },
+  { title: "Our family", prompt: "Zamaan and Keyaan are ____.", answer: "brothers", choices: ["brothers", "customers", "co-packers"] },
+  { title: "Mom's children", prompt: "Zamaan and Keyaan are Mom's ____.", answer: "sons", choices: ["sons", "brothers", "buyers"] },
+  { title: "I am", prompt: "Zamaan can say, 'I am Mom's ____.'", answer: "son", choices: ["son", "brother", "mom"] },
+  { title: "He is", prompt: "Zamaan can say, 'Keyaan is my ____.'", answer: "brother", choices: ["brother", "son", "mom"] },
+  { title: "Family or friend", prompt: "Which sentence is right for Zamaan?", answer: "Harold is my friend.", choices: ["Harold is my friend.", "Harold is my son.", "Harold is my grandmother."] }
+];
+
 const sentenceFrames = [
   "Who + What: I was with ___. We ___.",
   "Where + When: I went to ___ in the morning / afternoon / evening.",
@@ -553,6 +570,7 @@ const todayPlan = curriculum[curriculumDay];
 const todayLanguage = languageDecks[curriculumDay];
 const todayMoneyMath = moneyMathDecks[curriculumDay];
 const todayBusinessPractice = businessPracticeDecks[curriculumDay];
+const todayPronounPractice = pronounPracticeDecks[curriculumDay];
 
 const title = document.querySelector("#page-title");
 const todayLabel = document.querySelector("#todayLabel");
@@ -793,6 +811,23 @@ function sendTestSync() {
     answer: "If you see this row, sync is connected.",
     completedAt
   }, "Test sync sent. Check the Daily Adventure Log tab.");
+}
+
+function logLearningAttempt(gameName, titleText, promptText, selectedAnswer, correctAnswer, isCorrect) {
+  const result = isCorrect ? "Correct" : "Try again";
+  sendSyncPayload({
+    date: todayKey,
+    childName: state.name,
+    mood: state.mood,
+    curriculumDay: curriculumDay + 1,
+    plan: todayPlan.name,
+    section: "Learning Game Attempt",
+    round: "",
+    title: `${gameName}: ${titleText}`,
+    prompt: promptText,
+    answer: `Selected: ${selectedAnswer} | Correct: ${correctAnswer} | Result: ${result}`,
+    completedAt: new Date().toISOString()
+  }, "Learning game attempt sent to the private Sheet.");
 }
 
 async function copyTextToClipboard(text) {
@@ -1182,6 +1217,7 @@ function renderMiniGames() {
   const pattern = todayPlan.mini.pattern;
   const moneyMathQuestions = todayMoneyMath;
   const businessPractice = todayBusinessPractice;
+  const pronounPractice = todayPronounPractice;
 
   miniGames.innerHTML = `
     <article class="mini-game" data-mini-game="sort">
@@ -1248,6 +1284,20 @@ function renderMiniGames() {
         )).join("")}
       </div>
       <p class="mini-feedback" aria-live="polite">Choose the best business action.</p>
+    </article>
+
+    <article class="mini-game" data-mini-game="pronouns">
+      <div class="mini-game-header">
+        <span>Family Words</span>
+        <strong>${pronounPractice.title}</strong>
+      </div>
+      <p>${pronounPractice.prompt}</p>
+      <div class="tile-grid">
+        ${pronounPractice.choices.map((choice) => (
+          `<button class="tile pronoun-choice" data-pronoun-correct="${choice === pronounPractice.answer}">${choice}</button>`
+        )).join("")}
+      </div>
+      <p class="mini-feedback" aria-live="polite">Choose the family word.</p>
     </article>
   `;
 
@@ -1472,7 +1522,9 @@ function attachMiniGameHandlers() {
       const game = tile.closest(".mini-game");
       const feedback = game.querySelector(".mini-feedback");
       const isCorrect = tile.dataset.sortCorrect === "true";
+      const correctAnswer = todayPlan.mini.sort.correct.join(" or ");
 
+      logLearningAttempt("Sort", todayPlan.mini.sort.title, todayPlan.mini.sort.prompt, tile.textContent, correctAnswer, isCorrect);
       if (isCorrect) {
         tile.classList.add("selected", "correct");
         sortPicks.add(tile.textContent);
@@ -1495,6 +1547,7 @@ function attachMiniGameHandlers() {
       const feedback = game.querySelector(".mini-feedback");
       const isCorrect = tile.dataset.pattern === todayPlan.mini.pattern.answer;
 
+      logLearningAttempt("Pattern", todayPlan.mini.pattern.title, "Choose the next color.", tile.textContent, capitalize(todayPlan.mini.pattern.answer), isCorrect);
       game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
       feedback.textContent = isCorrect
@@ -1510,8 +1563,10 @@ function attachMiniGameHandlers() {
       const feedback = game.querySelector(".mini-feedback");
       const question = tile.closest(".money-question");
       const questionIndex = Number(tile.dataset.moneyQuestionIndex);
+      const currentQuestion = todayMoneyMath[questionIndex];
       const isCorrect = tile.dataset.moneyMathCorrect === "true";
 
+      logLearningAttempt("Money Math", currentQuestion.title, currentQuestion.prompt, tile.textContent, currentQuestion.answer, isCorrect);
       question.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
       if (isCorrect) {
@@ -1522,7 +1577,7 @@ function attachMiniGameHandlers() {
       feedback.textContent = isCorrect
         ? answeredCount === todayMoneyMath.length
           ? "Nice money math. You answered all 3."
-          : `Correct. ${todayMoneyMath[questionIndex].answer} is right.`
+          : `Correct. ${currentQuestion.answer} is right.`
         : "Good try. Count the dollars again.";
       speak(feedback.textContent);
     });
@@ -1534,11 +1589,28 @@ function attachMiniGameHandlers() {
       const feedback = game.querySelector(".mini-feedback");
       const isCorrect = tile.dataset.businessCorrect === "true";
 
+      logLearningAttempt("Business", todayBusinessPractice.title, todayBusinessPractice.prompt, tile.textContent, todayBusinessPractice.answer, isCorrect);
       game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
       feedback.textContent = isCorrect
         ? "Good business choice."
         : "Good try. Pick the kind business action.";
+      speak(feedback.textContent);
+    });
+  });
+
+  document.querySelectorAll("[data-mini-game='pronouns'] .tile").forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const game = tile.closest(".mini-game");
+      const feedback = game.querySelector(".mini-feedback");
+      const isCorrect = tile.dataset.pronounCorrect === "true";
+
+      logLearningAttempt("Family Words", todayPronounPractice.title, todayPronounPractice.prompt, tile.textContent, todayPronounPractice.answer, isCorrect);
+      game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
+      tile.classList.add(isCorrect ? "correct" : "wrong");
+      feedback.textContent = isCorrect
+        ? "Good family word."
+        : "Good try. Think about who the person is to Zamaan.";
       speak(feedback.textContent);
     });
   });

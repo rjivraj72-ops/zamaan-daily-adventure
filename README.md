@@ -1,6 +1,6 @@
 # Daily Adventure
 
-A simple daily learning app with memory games, life-skill sequencing, Spanish cards, travel-themed Talk Time prompts with sentence helpers, money math, granola sales/marketing business practice, rewards, and a 14-day progress calendar.
+A simple daily learning app with memory games, life-skill sequencing, Spanish cards, travel-themed Talk Time prompts with sentence helpers, money math, granola sales/marketing business practice, family words/pronouns practice, rewards, and a 14-day progress calendar.
 
 Default PIN: `1234`
 
@@ -23,6 +23,7 @@ Caregiver settings include **Test sync** and **Last synced**:
 - **Test sync** sends a clearly labeled test row to `Daily Adventure Log`.
 - **Last synced** shows the most recent time the app sent data from that device.
 - Test sync rows are ignored by the dashboard analysis.
+- Extra Learning Game attempts are logged separately so caregivers can see practice patterns without inflating daily completion.
 
 The Apps Script also creates and refreshes these analysis tabs:
 
@@ -30,6 +31,10 @@ The Apps Script also creates and refreshes these analysis tabs:
 - `Daily Summary`
 - `Section Summary`
 - `Recent Talk Time`
+- `Learning Attempts`
+- `Gemini Prompt`
+
+Use `Gemini Prompt` by copying the prompt into Gemini when you want a parent-friendly progress analysis.
 
 If you update `google-apps-script.js` after the first setup, paste the new script into Apps Script and redeploy the web app. After redeploying, open the Web App URL once in your browser to refresh the dashboard from existing rows.
 
