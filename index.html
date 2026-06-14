@@ -139,8 +139,16 @@
             <strong id="sentence-helper-title">Try a sentence</strong>
             <ul id="sentenceExamples"></ul>
           </div>
+          <div class="answer-style" aria-labelledby="answer-style-title">
+            <strong id="answer-style-title">How do you want to answer?</strong>
+            <div class="answer-style-buttons" role="group" aria-label="Answer style">
+              <button class="answer-style-button selected" type="button" data-answer-style="first">I / my answer</button>
+              <button class="answer-style-button" type="button" data-answer-style="third">Zamaan answer</button>
+            </div>
+            <p id="answerStyleHint">Example: I went to Paris with Mom.</p>
+          </div>
           <label class="answer-label" for="talkAnswer">My answer</label>
-          <textarea id="talkAnswer" rows="4" placeholder="Try 1 or 2 sentences, or say it out loud to someone nearby."></textarea>
+          <textarea id="talkAnswer" rows="4" placeholder="Try 1 or 2 sentences. Example: I went to Paris with Mom."></textarea>
           <button class="complete-button" data-complete-talk>Done</button>
           <p class="feedback" aria-live="polite"></p>
         </article>

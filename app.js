@@ -561,10 +561,32 @@ const pronounPracticeDecks = [
 ];
 
 const sentenceFrames = [
-  "Who + What: I was with ___. We ___.",
-  "Where + When: I went to ___ in the morning / afternoon / evening.",
-  "How + Why: I felt ___. I felt that way because ___."
+  {
+    first: "Who + What: I was with ___. We ___.",
+    third: "Who + What: Zamaan was with ___. They ___."
+  },
+  {
+    first: "Where + When: I went to ___ in the morning / afternoon / evening.",
+    third: "Where + When: Zamaan went to ___ in the morning / afternoon / evening."
+  },
+  {
+    first: "How + Why: I felt ___. I felt that way because ___.",
+    third: "How + Why: Zamaan felt ___. He felt that way because ___."
+  }
 ];
+
+const answerStyleHints = {
+  first: {
+    label: "I / my answer",
+    hint: "Example: I went to Paris with Mom.",
+    placeholder: "Try 1 or 2 sentences. Example: I went to Paris with Mom."
+  },
+  third: {
+    label: "Zamaan answer",
+    hint: "Example: Zamaan went to Paris with Mom.",
+    placeholder: "Try 1 or 2 sentences. Example: Zamaan went to Paris with Mom."
+  }
+};
 
 const todayPlan = curriculum[curriculumDay];
 const todayLanguage = languageDecks[curriculumDay];
@@ -582,6 +604,8 @@ const activities = [...document.querySelectorAll(".activity")];
 const talkPrompt = document.querySelector("#talkPrompt");
 const talkAnswer = document.querySelector("#talkAnswer");
 const sentenceExamples = document.querySelector("#sentenceExamples");
+const answerStyleButtons = [...document.querySelectorAll("[data-answer-style]")];
+const answerStyleHint = document.querySelector("#answerStyleHint");
 const languagePrompt = document.querySelector("#languagePrompt");
 const languageWord = document.querySelector("#languageWord");
 const languageChoices = document.querySelector(".language-choices");
@@ -615,6 +639,7 @@ const testSync = document.querySelector("#testSync");
 let memoryPicks = [];
 let sequenceStep = 1;
 let enteredPin = "";
+let selectedAnswerStyle = "first";
 const sortPicks = new Set();
 
 function save() {
@@ -1195,13 +1220,34 @@ function renderTalkRound() {
   talkPrompt.textContent = state.completed.includes("talk")
     ? "You finished all Talk Time rounds for today."
     : prompt;
-  if (sentenceExamples) {
-    sentenceExamples.innerHTML = state.completed.includes("talk")
-      ? ""
-      : sentenceFrames.map((frame) => `<li>${frame}</li>`).join("");
-  }
+  updateAnswerStyleUi();
   talkAnswer.value = "";
   activity.querySelector(".feedback").textContent = "";
+}
+
+function updateAnswerStyleUi() {
+  const isTalkDone = state.completed.includes("talk");
+  const style = answerStyleHints[selectedAnswerStyle] || answerStyleHints.first;
+
+  answerStyleButtons.forEach((button) => {
+    const isSelected = button.dataset.answerStyle === selectedAnswerStyle;
+    button.classList.toggle("selected", isSelected);
+    button.setAttribute("aria-pressed", String(isSelected));
+  });
+
+  if (answerStyleHint) {
+    answerStyleHint.textContent = style.hint;
+  }
+
+  if (talkAnswer) {
+    talkAnswer.placeholder = style.placeholder;
+  }
+
+  if (sentenceExamples) {
+    sentenceExamples.innerHTML = isTalkDone
+      ? ""
+      : sentenceFrames.map((frame) => `<li>${frame[selectedAnswerStyle]}</li>`).join("");
+  }
 }
 
 function renderDailyRounds() {
@@ -1625,6 +1671,7 @@ document.querySelector("[data-complete-talk]").addEventListener("click", () => {
 
   const answer = talkAnswer.value.trim();
   const prompt = talkPrompt.textContent;
+  const answerStyle = answerStyleHints[selectedAnswerStyle] || answerStyleHints.first;
   const isLast = state.rounds.talk + 1 >= maxRounds.talk;
   const message = answer
     ? isLast ? "Thank you for sharing. Talk Time is complete." : "Thank you for sharing. New question is ready."
@@ -1632,10 +1679,22 @@ document.querySelector("[data-complete-talk]").addEventListener("click", () => {
   document.querySelector('[data-activity="talk"] .feedback').textContent = message;
   completeRound("talk", message, {
     title: "Talk Time",
-    prompt,
-    answer: answer || "Said out loud or skipped typing."
+    prompt: `${prompt} Answer style: ${answerStyle.label}.`,
+    answer: answer
+      ? `Style: ${answerStyle.label} | Answer: ${answer}`
+      : `Style: ${answerStyle.label} | Said out loud or skipped typing.`
   });
   window.setTimeout(renderDailyRounds, 500);
+});
+
+answerStyleButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    selectedAnswerStyle = button.dataset.answerStyle || "first";
+    updateAnswerStyleUi();
+    speak(selectedAnswerStyle === "third"
+      ? "Zamaan answer."
+      : "I and my answer.");
+  });
 });
 
 caregiverToggle.addEventListener("click", () => {

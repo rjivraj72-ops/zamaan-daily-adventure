@@ -558,6 +558,48 @@ body.locked .app-shell {
   line-height: 1.35;
 }
 
+.answer-style {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(199, 91, 117, 0.28);
+  border-radius: var(--radius-small);
+  background: linear-gradient(180deg, #fff, var(--coral-soft));
+}
+
+.answer-style strong {
+  color: var(--coral);
+  font-size: 0.95rem;
+}
+
+.answer-style-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.answer-style-button {
+  min-height: 48px;
+  border: 1px solid rgba(199, 91, 117, 0.28);
+  border-radius: var(--radius-small);
+  background: #fff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.answer-style-button.selected {
+  border-color: var(--coral);
+  background: linear-gradient(180deg, #fff, var(--coral-soft));
+  color: #733245;
+}
+
+.answer-style p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .feedback {
   min-height: 32px;
   margin: 18px 0 0;
