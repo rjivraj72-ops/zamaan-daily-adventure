@@ -121,9 +121,9 @@ const curriculum = [
     }
   ],
     talk: [
-    "What is one thing you want to do today?",
-    "Who is someone you would like to talk to?",
-    "What made you smile today?"
+    "What do you remember about Paris?",
+    "Who did you travel with in Paris?",
+    "How did you feel when you saw the Eiffel Tower?"
     ],
     mini: {
       sort: { title: "Food or not food?", prompt: "Tap the things you can eat.", instruction: "Find 2 food choices.", correct: ["Apple", "Soup"], wrong: ["Chair", "Shoes"], success: "You found both foods." },
@@ -143,7 +143,7 @@ const curriculum = [
       { title: "Clean table", prompt: "Tap the steps in the right order.", steps: ["Move dishes", "Wipe the table", "Put cloth away"] },
       { title: "Water a plant", prompt: "Tap the steps in the right order.", steps: ["Fill watering can", "Pour water on soil", "Put can away"] }
     ],
-    talk: ["What chore do you like helping with?", "What room feels cozy to you?", "Who helps you at home?"],
+    talk: ["What did you like about Monaco?", "Where did you walk or visit in Monaco?", "How did Monaco feel different from home?"],
     mini: {
       sort: { title: "Cleaning items", prompt: "Tap the things used for cleaning.", instruction: "Find 2 cleaning choices.", correct: ["Broom", "Soap"], wrong: ["Banana", "Hat"], success: "You found the cleaning items." },
       pattern: { title: "What comes next?", sequence: ["green", "green", "blue", "green"], answer: "green", choices: ["Green", "Blue", "Red"] },
@@ -162,7 +162,7 @@ const curriculum = [
       { title: "Visit library", prompt: "Tap the steps in the right order.", steps: ["Choose a book", "Check it out", "Take it home"] },
       { title: "Buy a drink", prompt: "Tap the steps in the right order.", steps: ["Choose drink", "Pay cashier", "Say thank you"] }
     ],
-    talk: ["Where would you like to go today?", "What do you like at the library?", "Who do you see in your community?"],
+    talk: ["What do you remember about Venice?", "Where did you see water or boats in Venice?", "Who was with you in Venice?"],
     mini: {
       sort: { title: "Community places", prompt: "Tap the places you can visit.", instruction: "Find 2 places.", correct: ["Library", "Park"], wrong: ["Fork", "Pillow"], success: "You found the places." },
       pattern: { title: "What comes next?", sequence: ["red", "blue", "blue", "red"], answer: "blue", choices: ["Blue", "Red", "Green"] },
@@ -181,7 +181,7 @@ const curriculum = [
       { title: "Take a walk", prompt: "Tap the steps in the right order.", steps: ["Put on shoes", "Check weather", "Walk safely"] },
       { title: "Drink water", prompt: "Tap the steps in the right order.", steps: ["Get a cup", "Fill with water", "Take a drink"] }
     ],
-    talk: ["What healthy food do you like?", "How does your body feel today?", "What helps you relax?"],
+    talk: ["What did you enjoy in Sorrento?", "What did you see near the water in Sorrento?", "How did you feel during that trip?"],
     mini: {
       sort: { title: "Healthy choices", prompt: "Tap the healthy choices.", instruction: "Find 2 healthy choices.", correct: ["Water", "Walk"], wrong: ["Too much candy", "No sleep"], success: "You found healthy choices." },
       pattern: { title: "What comes next?", sequence: ["blue", "green", "blue", "green"], answer: "blue", choices: ["Blue", "Green", "Red"] },
@@ -200,7 +200,7 @@ const curriculum = [
       { title: "Set table", prompt: "Tap the steps in the right order.", steps: ["Put down plate", "Add fork or spoon", "Add napkin"] },
       { title: "Clean a spill", prompt: "Tap the steps in the right order.", steps: ["Get towel", "Wipe spill", "Throw towel in laundry"] }
     ],
-    talk: ["What snack do you enjoy?", "What kitchen job can you help with?", "What food smells good to you?"],
+    talk: ["What do you remember about Lisbon?", "Where did you walk or explore in Lisbon?", "What food or snack did you enjoy while traveling?"],
     mini: {
       sort: { title: "Kitchen items", prompt: "Tap the things used in the kitchen.", instruction: "Find 2 kitchen choices.", correct: ["Spoon", "Plate"], wrong: ["Sock", "Book"], success: "You found kitchen items." },
       pattern: { title: "What comes next?", sequence: ["red", "red", "blue", "red"], answer: "red", choices: ["Red", "Blue", "Green"] },
@@ -219,7 +219,7 @@ const curriculum = [
       { title: "Car safety", prompt: "Tap the steps in the right order.", steps: ["Sit in seat", "Buckle seat belt", "Keep belt on"] },
       { title: "If lost", prompt: "Tap the steps in the right order.", steps: ["Stay calm", "Find safe helper", "Call family"] }
     ],
-    talk: ["What does a stop sign mean?", "Who can help if you feel lost?", "What makes you feel safe?"],
+    talk: ["What did you like about the Algarve?", "When did you go to the beach or see the water?", "How can you stay safe when traveling?"],
     mini: {
       sort: { title: "Safe choices", prompt: "Tap the safe choices.", instruction: "Find 2 safe choices.", correct: ["Wear seat belt", "Use crosswalk"], wrong: ["Run in street", "Touch hot stove"], success: "You found safe choices." },
       pattern: { title: "What comes next?", sequence: ["green", "red", "green", "red"], answer: "green", choices: ["Green", "Red", "Blue"] },
@@ -238,7 +238,7 @@ const curriculum = [
       { title: "Say sorry", prompt: "Tap the steps in the right order.", steps: ["Look at person", "Say I am sorry", "Try again kindly"] },
       { title: "Share feelings", prompt: "Tap the steps in the right order.", steps: ["Choose feeling", "Use calm words", "Listen to response"] }
     ],
-    talk: ["How are you feeling right now?", "What helps when you feel upset?", "Who makes you feel happy?"],
+    talk: ["What do you remember about Cordoba?", "What did you see that was beautiful in Cordoba?", "Who helped make the trip fun?"],
     mini: {
       sort: { title: "Feeling words", prompt: "Tap the feeling words.", instruction: "Find 2 feelings.", correct: ["Happy", "Calm"], wrong: ["Table", "Shoe"], success: "You found feeling words." },
       pattern: { title: "What comes next?", sequence: ["blue", "blue", "red", "blue"], answer: "blue", choices: ["Blue", "Red", "Green"] },
@@ -257,7 +257,7 @@ const curriculum = [
       { title: "Sunny day", prompt: "Tap the steps in the right order.", steps: ["Check sun", "Put on sunscreen", "Wear hat"] },
       { title: "Cold day", prompt: "Tap the steps in the right order.", steps: ["Check temperature", "Put on coat", "Wear gloves"] }
     ],
-    talk: ["What is the weather today?", "What do you wear when it rains?", "Do you like sunny days or cloudy days?"],
+    talk: ["What do you remember about Granada?", "Where did you visit in Granada?", "How did the weather feel when you traveled?"],
     mini: {
       sort: { title: "Rainy day items", prompt: "Tap the rainy day items.", instruction: "Find 2 rainy choices.", correct: ["Umbrella", "Raincoat"], wrong: ["Sunscreen", "Sandals"], success: "You found rainy day items." },
       pattern: { title: "What comes next?", sequence: ["red", "green", "red", "green"], answer: "red", choices: ["Red", "Green", "Blue"] },
@@ -276,7 +276,7 @@ const curriculum = [
       { title: "Take turns", prompt: "Tap the steps in the right order.", steps: ["Wait your turn", "Play your turn", "Let friend go next"] },
       { title: "Call a friend", prompt: "Tap the steps in the right order.", steps: ["Choose contact", "Say hello", "Have a short talk"] }
     ],
-    talk: ["Who is a good friend?", "What is something kind you can say?", "What game do you like playing with others?"],
+    talk: ["What did you like about Barcelona?", "Who did you spend time with in Barcelona?", "What kind thing can you say to someone you travel with?"],
     mini: {
       sort: { title: "Kind actions", prompt: "Tap the kind actions.", instruction: "Find 2 kind choices.", correct: ["Share", "Listen"], wrong: ["Yell", "Push"], success: "You found kind actions." },
       pattern: { title: "What comes next?", sequence: ["green", "blue", "green", "blue"], answer: "green", choices: ["Green", "Blue", "Red"] },
@@ -295,7 +295,7 @@ const curriculum = [
       { title: "Stretch", prompt: "Tap the steps in the right order.", steps: ["Stand still", "Reach arms up", "Relax body"] },
       { title: "Dance break", prompt: "Tap the steps in the right order.", steps: ["Choose music", "Make space", "Dance safely"] }
     ],
-    talk: ["What movement do you enjoy?", "What song makes you move?", "How do you feel after exercise?"],
+    talk: ["What city made you want to walk or move around?", "What music or sounds do you remember from your trips?", "How does your body feel after walking on vacation?"],
     mini: {
       sort: { title: "Movement words", prompt: "Tap the movement words.", instruction: "Find 2 movement choices.", correct: ["Walk", "Dance"], wrong: ["Sleep", "Chair"], success: "You found movement words." },
       pattern: { title: "What comes next?", sequence: ["blue", "red", "green", "blue"], answer: "red", choices: ["Red", "Blue", "Green"] },
@@ -314,7 +314,7 @@ const curriculum = [
       { title: "Pay cashier", prompt: "Tap the steps in the right order.", steps: ["Wait in line", "Pay cashier", "Take receipt"] },
       { title: "Put groceries away", prompt: "Tap the steps in the right order.", steps: ["Bring bags inside", "Put cold food away", "Put bags away"] }
     ],
-    talk: ["What do you like buying at the store?", "What does a cashier do?", "What is one thing on a grocery list?"],
+    talk: ["What did you buy or look at while traveling?", "What is one souvenir or item you remember?", "How do you say thank you when someone helps you on a trip?"],
     mini: {
       sort: { title: "Store items", prompt: "Tap the things you might buy at a store.", instruction: "Find 2 store items.", correct: ["Milk", "Soap"], wrong: ["Cloud", "Doorbell"], success: "You found store items." },
       pattern: { title: "What comes next?", sequence: ["red", "blue", "red", "blue"], answer: "red", choices: ["Red", "Blue", "Green"] },
@@ -333,7 +333,7 @@ const curriculum = [
       { title: "Bedtime routine", prompt: "Tap the steps in the right order.", steps: ["Put on pajamas", "Brush teeth", "Get in bed"] },
       { title: "Get to appointment", prompt: "Tap the steps in the right order.", steps: ["Check time", "Get ready", "Leave on time"] }
     ],
-    talk: ["What do you do in the morning?", "What helps you know the time?", "What is part of bedtime?"],
+    talk: ["What do you do in the morning when you travel?", "When do you like to explore a city: morning, afternoon, or evening?", "What helps you get ready for a travel day?"],
     mini: {
       sort: { title: "Morning or night", prompt: "Tap the morning activities.", instruction: "Find 2 morning choices.", correct: ["Breakfast", "Get dressed"], wrong: ["Pajamas", "Bedtime"], success: "You found morning activities." },
       pattern: { title: "What comes next?", sequence: ["green", "red", "red", "green"], answer: "red", choices: ["Red", "Green", "Blue"] },
@@ -352,7 +352,7 @@ const curriculum = [
       { title: "Take shower", prompt: "Tap the steps in the right order.", steps: ["Turn on water", "Wash body", "Dry with towel"] },
       { title: "Choose clothes", prompt: "Tap the steps in the right order.", steps: ["Check weather", "Pick clean clothes", "Get dressed"] }
     ],
-    talk: ["What helps you feel clean?", "What clothes do you like wearing?", "What personal-care job can you do by yourself?"],
+    talk: ["What do you pack for a trip?", "What clothes do you like wearing when you travel?", "How do you get ready before leaving the hotel?"],
     mini: {
       sort: { title: "Bathroom items", prompt: "Tap the bathroom items.", instruction: "Find 2 bathroom choices.", correct: ["Soap", "Towel"], wrong: ["Fork", "Remote"], success: "You found bathroom items." },
       pattern: { title: "What comes next?", sequence: ["blue", "green", "green", "blue"], answer: "green", choices: ["Green", "Blue", "Red"] },
@@ -371,7 +371,7 @@ const curriculum = [
       { title: "Paint a picture", prompt: "Tap the steps in the right order.", steps: ["Get paper", "Choose colors", "Paint picture"] },
       { title: "Watch movie", prompt: "Tap the steps in the right order.", steps: ["Choose movie", "Sit comfortably", "Press play"] }
     ],
-    talk: ["What hobby do you enjoy?", "What music do you like?", "What would you like to make?"],
+    talk: ["Which trip would you like to talk about today?", "What place would you like to visit again?", "Where would you like to travel next?"],
     mini: {
       sort: { title: "Hobby items", prompt: "Tap the hobby items.", instruction: "Find 2 hobby choices.", correct: ["Puzzle", "Paint"], wrong: ["Toothpaste", "Umbrella"], success: "You found hobby items." },
       pattern: { title: "What comes next?", sequence: ["red", "green", "blue", "red"], answer: "green", choices: ["Green", "Red", "Blue"] },
