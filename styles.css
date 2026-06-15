@@ -221,6 +221,31 @@ body.locked .app-shell {
   position: relative;
 }
 
+.app-nav {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.app-nav a {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+}
+
+.app-nav a.active {
+  color: var(--ink);
+  background: var(--accent-soft);
+}
+
 .app-mark {
   width: 64px;
   height: 64px;
@@ -1183,6 +1208,17 @@ button:focus-visible {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.ai-fallback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-weight: 800;
+}
+
+.ai-fallback-actions a {
+  color: var(--accent);
 }
 
 .ai-prompt-panel textarea {
