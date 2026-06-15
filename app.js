@@ -1301,8 +1301,8 @@ function renderParentView(data) {
       </div>
       <div class="ai-actions">
         <button id="copyWeeklyPrompt" class="secondary-button" type="button">Copy weekly AI prompt</button>
-        <button id="openChatGpt" class="secondary-button" type="button">Open ChatGPT</button>
-        <button id="openGemini" class="secondary-button" type="button">Open Gemini</button>
+        <a class="button-link secondary-button ai-open-link" href="https://chatgpt.com/" target="_blank" rel="noopener" data-ai-target="chatgpt">Open ChatGPT</a>
+        <a class="button-link secondary-button ai-open-link" href="https://gemini.google.com/app" target="_blank" rel="noopener" data-ai-target="gemini">Open Gemini</a>
       </div>
       <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
     </div>
@@ -1399,20 +1399,12 @@ async function copyWeeklyPromptText(successMessage) {
   }
 }
 
-async function openAiAssistant(target) {
-  const copied = await copyWeeklyPromptText(
+function copyPromptForAiAssistant(target) {
+  copyWeeklyPromptText(
     target === "gemini"
       ? "Weekly AI prompt copied. Gemini is opening now."
       : "Weekly AI prompt copied. ChatGPT is opening now."
   );
-
-  if (!copied) return;
-
-  const url = target === "gemini"
-    ? "https://gemini.google.com/app"
-    : "https://chatgpt.com/";
-
-  window.open(url, "_blank", "noopener");
 }
 
 function escapeHtml(value) {
@@ -2087,11 +2079,16 @@ if (parentViewResults) {
     if (event.target?.id === "copyWeeklyPrompt") {
       copyWeeklyPrompt();
     }
-    if (event.target?.id === "openChatGpt") {
-      openAiAssistant("chatgpt");
-    }
-    if (event.target?.id === "openGemini") {
-      openAiAssistant("gemini");
+    const aiLink = event.target?.closest?.("[data-ai-target]");
+    if (aiLink) {
+      if (!latestParentViewData) {
+        event.preventDefault();
+        if (parentViewStatus) {
+          parentViewStatus.textContent = "Load parent view first, then open ChatGPT or Gemini.";
+        }
+        return;
+      }
+      copyPromptForAiAssistant(aiLink.dataset.aiTarget);
     }
   });
 }
