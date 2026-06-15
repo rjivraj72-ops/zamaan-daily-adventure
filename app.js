@@ -588,9 +588,66 @@ const answerStyleHints = {
   }
 };
 
+function getDifficultyLevel() {
+  const savedLevel = Number(localStorage.getItem("dailyAdventureDifficulty") || "2");
+  return [1, 2, 3].includes(savedLevel) ? savedLevel : 2;
+}
+
+function saveDifficultyLevel(level) {
+  const normalizedLevel = [1, 2, 3].includes(Number(level)) ? String(level) : "2";
+  localStorage.setItem("dailyAdventureDifficulty", normalizedLevel);
+}
+
+function getDifficultyLabel() {
+  const level = getDifficultyLevel();
+  if (level === 1) return "Level 1 - more support";
+  if (level === 3) return "Level 3 - more challenge";
+  return "Level 2 - current level";
+}
+
+function getPlanLabel() {
+  return `${todayPlan.name} · ${getDifficultyLabel()}`;
+}
+
+function getMoneyMathForDifficulty(baseDeck, level, dayIndex) {
+  if (level === 1) {
+    const simpleDecks = [
+      [
+        { title: "One more dollar", prompt: "You have $1 and get $1 more. How much money?", answer: "$2", choices: ["$1", "$2", "$3"] },
+        { title: "Small change", prompt: "You have $3. You spend $1. How much is left?", answer: "$2", choices: ["$1", "$2", "$3"] },
+        { title: "Two snacks", prompt: "One snack costs $1. Two snacks cost how much?", answer: "$2", choices: ["$1", "$2", "$3"] }
+      ],
+      [
+        { title: "Count dollars", prompt: "$2 plus $1 equals how much?", answer: "$3", choices: ["$2", "$3", "$4"] },
+        { title: "Pay exact", prompt: "The item costs $2. Which money pays exactly $2?", answer: "$2", choices: ["$1", "$2", "$5"] },
+        { title: "Money left", prompt: "You have $4. You spend $2. How much is left?", answer: "$2", choices: ["$1", "$2", "$3"] }
+      ]
+    ];
+    return simpleDecks[dayIndex % simpleDecks.length];
+  }
+
+  if (level === 3) {
+    const challengeDecks = [
+      [
+        { title: "Granola order", prompt: "A buyer orders 2 cases at $6 each. How much total?", answer: "$12", choices: ["$10", "$12", "$14"] },
+        { title: "Buyer change", prompt: "The sample pack costs $7. The buyer pays $20. How much change?", answer: "$13", choices: ["$11", "$13", "$15"] },
+        { title: "Two-step sale", prompt: "You sell one bag for $5 and two bars for $3 each. How much total?", answer: "$11", choices: ["$8", "$11", "$13"] }
+      ],
+      [
+        { title: "Marketing budget", prompt: "You have $15. You spend $6 on flyers. How much is left?", answer: "$9", choices: ["$7", "$9", "$11"] },
+        { title: "Repeat order", prompt: "A cafe buys 3 boxes at $4 each. How much total?", answer: "$12", choices: ["$10", "$12", "$16"] },
+        { title: "Savings goal", prompt: "You saved $8 and need $15. How much more do you need?", answer: "$7", choices: ["$5", "$7", "$9"] }
+      ]
+    ];
+    return challengeDecks[dayIndex % challengeDecks.length];
+  }
+
+  return baseDeck;
+}
+
 const todayPlan = curriculum[curriculumDay];
 const todayLanguage = languageDecks[curriculumDay];
-const todayMoneyMath = moneyMathDecks[curriculumDay];
+const todayMoneyMath = getMoneyMathForDifficulty(moneyMathDecks[curriculumDay], getDifficultyLevel(), curriculumDay);
 const todayBusinessPractice = businessPracticeDecks[curriculumDay];
 const todayPronounPractice = pronounPracticeDecks[curriculumDay];
 
@@ -612,6 +669,7 @@ const languageChoices = document.querySelector(".language-choices");
 const caregiverToggle = document.querySelector(".caregiver-toggle");
 const caregiverPanel = document.querySelector("#caregiver-panel");
 const nameInput = document.querySelector("#nameInput");
+const difficultyInput = document.querySelector("#difficultyInput");
 const promptInput = document.querySelector("#promptInput");
 const messageInput = document.querySelector("#messageInput");
 const pinInput = document.querySelector("#pinInput");
@@ -833,7 +891,7 @@ function sendTestSync() {
     childName: state.name,
     mood: state.mood,
     curriculumDay: curriculumDay + 1,
-    plan: todayPlan.name,
+    plan: getPlanLabel(),
     section: "Sync Test",
     round: "",
     title: "Caregiver Sync Test",
@@ -893,7 +951,7 @@ function logLearningAttempt(gameName, titleText, promptText, selectedAnswer, cor
     childName: state.name,
     mood: state.mood,
     curriculumDay: curriculumDay + 1,
-    plan: todayPlan.name,
+    plan: getPlanLabel(),
     section: "Learning Game Attempt",
     round: "",
     title: `${gameName}: ${titleText}`,
@@ -978,7 +1036,7 @@ function syncActivityLog(entry) {
     childName: state.name,
     mood: state.mood,
     curriculumDay: curriculumDay + 1,
-    plan: todayPlan.name,
+    plan: getPlanLabel(),
     section: labelFor(entry.section),
     round: entry.round,
     title: entry.title,
@@ -1115,10 +1173,13 @@ function updateGreeting() {
   }
   const intro = document.querySelector(".intro");
   if (intro) {
-    intro.textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. Four short sections plus extra learning games.`;
+    intro.textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. ${getDifficultyLabel()}. Four short sections plus extra learning games.`;
   }
   if (nameInput) {
     nameInput.value = state.name;
+  }
+  if (difficultyInput) {
+    difficultyInput.value = String(getDifficultyLevel());
   }
   if (promptInput) {
     promptInput.value = state.talkPrompt;
@@ -1176,7 +1237,7 @@ function renderCaregiverReport() {
   const logs = getTodayLogs();
   const doneRounds = getRoundTotal();
   const mood = state.mood ? ` Mood: ${state.mood}.` : "";
-  reportSummary.textContent = `${doneRounds} of ${totalRounds} rounds completed. Day ${curriculumDay + 1}: ${todayPlan.name}.${mood}`;
+  reportSummary.textContent = `${doneRounds} of ${totalRounds} rounds completed. Day ${curriculumDay + 1}: ${getPlanLabel()}.${mood}`;
 
   if (!logs.length) {
     reportList.innerHTML = "";
@@ -1777,7 +1838,7 @@ function updateHistory() {
     completed: getRoundTotal() === totalRounds,
     rounds: getRoundTotal(),
     mood: state.mood,
-    plan: todayPlan.name,
+    plan: getPlanLabel(),
     day: curriculumDay + 1,
     updatedAt: new Date().toISOString()
   };
@@ -2028,6 +2089,9 @@ const saveSettings = document.querySelector("#saveSettings");
 if (saveSettings) {
   saveSettings.addEventListener("click", () => {
     state.name = nameInput.value.trim() || "Zamaan";
+    if (difficultyInput) {
+      saveDifficultyLevel(difficultyInput.value);
+    }
     state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
     state.message = messageInput.value.trim() || defaultState.message;
     saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");

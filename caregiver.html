@@ -58,6 +58,27 @@
       </section>
 
       <section class="caregiver-panel" id="caregiver-panel">
+        <section class="parent-view" aria-labelledby="parent-view-title">
+          <h3 id="parent-view-title">Parent view</h3>
+          <p>Load Zamaan's latest shared progress from the private Google Sheet.</p>
+          <button id="loadParentView" class="secondary-button" type="button">Load parent view</button>
+          <p class="sync-status" id="parentViewStatus">Parent view has not loaded yet.</p>
+          <div class="parent-view-results" id="parentViewResults"></div>
+        </section>
+
+        <section class="learning-settings" aria-labelledby="learning-settings-title">
+          <h2 id="learning-settings-title">Learning settings</h2>
+          <label>
+            Difficulty level
+            <select id="difficultyInput">
+              <option value="1">Level 1 - more support</option>
+              <option value="2">Level 2 - current level</option>
+              <option value="3">Level 3 - more challenge</option>
+            </select>
+          </label>
+          <p>Difficulty changes the challenge level, not the number of daily rounds.</p>
+        </section>
+
         <h2>Personalize tomorrow</h2>
         <label>
           Name shown in greeting
@@ -107,13 +128,6 @@
           <p class="sync-note">Only send setup links or codes to family. They connect the phone to your private Sheet.</p>
           <p class="sync-status" id="lastSyncStatus">Last synced: never</p>
           <p class="sync-status" id="syncStatus">Sync is not set up yet.</p>
-        </section>
-        <section class="parent-view" aria-labelledby="parent-view-title">
-          <h3 id="parent-view-title">Parent view</h3>
-          <p>Load Zamaan's latest shared progress from the private Google Sheet.</p>
-          <button id="loadParentView" class="secondary-button" type="button">Load parent view</button>
-          <p class="sync-status" id="parentViewStatus">Parent view has not loaded yet.</p>
-          <div class="parent-view-results" id="parentViewResults"></div>
         </section>
         <button id="saveSettings">Save settings</button>
         <button id="lockApp" class="secondary-button">Lock caregiver page</button>

@@ -23,6 +23,7 @@ Caregiver settings include **Test sync** and **Last synced**:
 - **Test sync** sends a clearly labeled test row to `Daily Adventure Log`.
 - **Last synced** shows the most recent time the app sent data from that device.
 - **Parent view** loads a short shared Google Sheet dashboard inside the app: today, 7-day progress, top needs-practice areas, recent Talk Time, and learning-game accuracy.
+- **Difficulty level** changes the challenge level without increasing the number of daily rounds.
 - **Copy weekly AI prompt** prepares a parent-friendly prompt you can paste into your ChatGPT project for a weekly summary.
 - **Open ChatGPT app** copies the weekly prompt first, then tries to open the native iOS ChatGPT app. A web fallback link is shown below the button.
 - Test sync rows are ignored by the dashboard analysis.

@@ -46,7 +46,8 @@ body.locked {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -643,7 +644,8 @@ body.locked .app-shell {
 }
 
 textarea,
-input {
+input,
+select {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: var(--radius-small);
@@ -891,6 +893,7 @@ input {
 
 textarea:focus,
 input:focus,
+select:focus,
 button:focus-visible {
   outline: 4px solid rgba(25, 116, 102, 0.14);
   border-color: var(--accent);
@@ -1023,7 +1026,8 @@ button:focus-visible {
 
 .caregiver-report,
 .sync-settings,
-.parent-view {
+.parent-view,
+.learning-settings {
   display: grid;
   gap: 10px;
   padding: 16px;
@@ -1034,14 +1038,16 @@ button:focus-visible {
 
 .caregiver-report h3,
 .sync-settings h3,
-.parent-view h3 {
+.parent-view h3,
+.learning-settings h2 {
   margin: 0;
   font-size: 1.15rem;
 }
 
 .caregiver-report p,
 .sync-settings p,
-.parent-view p {
+.parent-view p,
+.learning-settings p {
   margin: 0;
   color: var(--muted);
   line-height: 1.4;
