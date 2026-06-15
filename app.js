@@ -1275,9 +1275,13 @@ function renderParentView(data) {
     <div class="ai-prompt-panel">
       <div>
         <h4>Weekly AI Summary</h4>
-        <p>Copy this prompt, then paste it into ChatGPT or Gemini for a parent-friendly weekly review.</p>
+        <p>Copy this prompt, then open ChatGPT or Gemini for a parent-friendly weekly review.</p>
       </div>
-      <button id="copyWeeklyPrompt" class="secondary-button" type="button">Copy weekly AI prompt</button>
+      <div class="ai-actions">
+        <button id="copyWeeklyPrompt" class="secondary-button" type="button">Copy weekly AI prompt</button>
+        <button id="openChatGpt" class="secondary-button" type="button">Open ChatGPT</button>
+        <button id="openGemini" class="secondary-button" type="button">Open Gemini</button>
+      </div>
       <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
     </div>
   `;
@@ -1342,11 +1346,15 @@ function formatPromptList(items, formatter) {
 }
 
 async function copyWeeklyPrompt() {
+  return copyWeeklyPromptText("Weekly AI prompt copied. Paste it into ChatGPT or Gemini.");
+}
+
+async function copyWeeklyPromptText(successMessage) {
   if (!latestParentViewData) {
     if (parentViewStatus) {
       parentViewStatus.textContent = "Load parent view first, then copy the weekly AI prompt.";
     }
-    return;
+    return false;
   }
 
   const prompt = buildWeeklyAiPrompt(latestParentViewData);
@@ -1358,13 +1366,31 @@ async function copyWeeklyPrompt() {
   try {
     await copyTextToClipboard(prompt);
     if (parentViewStatus) {
-      parentViewStatus.textContent = "Weekly AI prompt copied. Paste it into ChatGPT or Gemini.";
+      parentViewStatus.textContent = successMessage;
     }
+    return true;
   } catch {
     if (parentViewStatus) {
       parentViewStatus.textContent = "Prompt is ready below. Select it and copy it manually.";
     }
+    return false;
   }
+}
+
+async function openAiAssistant(target) {
+  const copied = await copyWeeklyPromptText(
+    target === "gemini"
+      ? "Weekly AI prompt copied. Gemini is opening now."
+      : "Weekly AI prompt copied. ChatGPT is opening now."
+  );
+
+  if (!copied) return;
+
+  const url = target === "gemini"
+    ? "https://gemini.google.com/app"
+    : "https://chatgpt.com/";
+
+  window.open(url, "_blank", "noopener");
 }
 
 function escapeHtml(value) {
@@ -1997,6 +2023,12 @@ if (parentViewResults) {
   parentViewResults.addEventListener("click", (event) => {
     if (event.target?.id === "copyWeeklyPrompt") {
       copyWeeklyPrompt();
+    }
+    if (event.target?.id === "openChatGpt") {
+      openAiAssistant("chatgpt");
+    }
+    if (event.target?.id === "openGemini") {
+      openAiAssistant("gemini");
     }
   });
 }

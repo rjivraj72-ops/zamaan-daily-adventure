@@ -1126,6 +1126,12 @@ button:focus-visible {
   line-height: 1.35;
 }
 
+.ai-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .ai-prompt-panel textarea {
   min-height: 120px;
   font-size: 0.9rem;
@@ -1272,6 +1278,10 @@ button:focus-visible {
 
   .parent-days {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .ai-actions {
+    grid-template-columns: 1fr;
   }
 
   .mini-game {

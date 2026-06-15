@@ -24,6 +24,7 @@ Caregiver settings include **Test sync** and **Last synced**:
 - **Last synced** shows the most recent time the app sent data from that device.
 - **Parent view** loads a short shared Google Sheet dashboard inside the app: today, 7-day progress, top needs-practice areas, recent Talk Time, and learning-game accuracy.
 - **Copy weekly AI prompt** prepares a parent-friendly prompt you can paste into ChatGPT or Gemini for a weekly summary.
+- **Open ChatGPT** and **Open Gemini** copy the weekly prompt first, then open the AI assistant so you can paste it.
 - Test sync rows are ignored by the dashboard analysis.
 - Extra Learning Game attempts are logged separately so caregivers can see practice patterns without inflating daily completion.
 
