@@ -643,6 +643,7 @@ let memoryPicks = [];
 let sequenceStep = 1;
 let enteredPin = "";
 let selectedAnswerStyle = "first";
+let latestParentViewData = null;
 const sortPicks = new Set();
 
 function save() {
@@ -872,6 +873,7 @@ async function loadParentViewData() {
       throw new Error(data.error || "Parent view did not load.");
     }
 
+    latestParentViewData = data;
     renderParentView(data);
     if (parentViewStatus) {
       parentViewStatus.textContent = `Loaded ${formatShortDateTime(data.updatedAt)}.`;
@@ -1183,9 +1185,10 @@ function renderParentView(data) {
   if (!parentViewResults) return;
 
   const today = data.today;
+  const weeklyTrend = data.weeklyTrend || {};
   const todayHtml = today
     ? `
-      <article class="parent-card highlight">
+      <article class="parent-card parent-card-large highlight">
         <small>Today</small>
         <strong>${escapeHtml(today.rounds)} of ${totalRounds} rounds · ${escapeHtml(today.status)}</strong>
         <span>Mood: ${escapeHtml(today.mood || "Not picked yet")}</span>
@@ -1194,7 +1197,7 @@ function renderParentView(data) {
       </article>
     `
     : `
-      <article class="parent-card highlight">
+      <article class="parent-card parent-card-large highlight">
         <small>Today</small>
         <strong>No shared Sheet data for today yet.</strong>
         <span>Once Zamaan completes a round on a synced device, it will appear here.</span>
@@ -1203,15 +1206,15 @@ function renderParentView(data) {
 
   const dailyHtml = (data.recentDaily || []).length
     ? data.recentDaily.map((day) => `
-      <article class="parent-list-item">
-        <strong>${escapeHtml(day.date)} · ${escapeHtml(day.status)}</strong>
-        <span>${escapeHtml(day.rounds)} of ${totalRounds} rounds, ${escapeHtml(day.completion)} complete</span>
-      </article>
+      <span class="parent-day ${day.status === "Complete" ? "complete" : "started"}">
+        <strong>${escapeHtml(day.date.slice(5))}</strong>
+        <small>${escapeHtml(day.rounds)}/${totalRounds}</small>
+      </span>
     `).join("")
     : `<p class="parent-empty">No recent daily summaries yet.</p>`;
 
   const talkHtml = (data.recentTalk || []).length
-    ? data.recentTalk.map((item) => `
+    ? data.recentTalk.slice(0, 2).map((item) => `
       <article class="parent-list-item">
         <strong>${escapeHtml(item.date)} · ${escapeHtml(item.responseType)}</strong>
         <span>${escapeHtml(item.prompt)}</span>
@@ -1221,7 +1224,7 @@ function renderParentView(data) {
     : `<p class="parent-empty">No Talk Time answers yet.</p>`;
 
   const attemptsHtml = (data.learningAttempts || []).length
-    ? data.learningAttempts.map((item) => `
+    ? data.learningAttempts.slice(0, 4).map((item) => `
       <article class="parent-list-item">
         <strong>${escapeHtml(item.game)}</strong>
         <span>${escapeHtml(item.correct)} correct out of ${escapeHtml(item.attempts)} attempts · ${escapeHtml(item.accuracy)}</span>
@@ -1229,14 +1232,21 @@ function renderParentView(data) {
     `).join("")
     : `<p class="parent-empty">No extra learning-game attempts yet.</p>`;
 
+  const needsPracticeHtml = (data.needsPractice || []).map((item) => `
+    <article class="practice-item">
+      <strong>${escapeHtml(item.title)}</strong>
+      <span>${escapeHtml(item.detail)}</span>
+    </article>
+  `).join("");
+
   parentViewResults.innerHTML = `
     <div class="parent-summary-grid">
       ${todayHtml}
       <article class="parent-card">
-        <small>Overall</small>
-        <strong>${escapeHtml(data.dashboard.completedDays)} complete days</strong>
-        <span>${escapeHtml(data.dashboard.totalRounds)} total rounds</span>
-        <span>${escapeHtml(data.dashboard.completionRate)} completion rate</span>
+        <small>Last 7 days</small>
+        <strong>${escapeHtml(weeklyTrend.completeDays || 0)} complete days</strong>
+        <span>${escapeHtml(weeklyTrend.rounds || 0)} rounds completed</span>
+        <span>${escapeHtml(weeklyTrend.talkAnswers || 0)} recent Talk Time answers</span>
       </article>
       <article class="parent-card">
         <small>Learning games</small>
@@ -1244,19 +1254,117 @@ function renderParentView(data) {
         <span>${escapeHtml(data.dashboard.correctAttempts)} correct out of ${escapeHtml(data.dashboard.totalAttempts)} attempts</span>
       </article>
     </div>
+    <div class="parent-list practice-list">
+      <h4>Needs Practice</h4>
+      ${needsPracticeHtml}
+    </div>
     <div class="parent-list">
-      <h4>Last 7 Days</h4>
+      <h4>7-Day Check</h4>
+      <div class="parent-days">
       ${dailyHtml}
+      </div>
     </div>
     <div class="parent-list">
       <h4>Recent Talk Time</h4>
       ${talkHtml}
     </div>
     <div class="parent-list">
-      <h4>Learning Game Attempts</h4>
+      <h4>Learning Games</h4>
       ${attemptsHtml}
     </div>
+    <div class="ai-prompt-panel">
+      <div>
+        <h4>Weekly AI Summary</h4>
+        <p>Copy this prompt, then paste it into ChatGPT or Gemini for a parent-friendly weekly review.</p>
+      </div>
+      <button id="copyWeeklyPrompt" class="secondary-button" type="button">Copy weekly AI prompt</button>
+      <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
+    </div>
   `;
+}
+
+function buildWeeklyAiPrompt(data) {
+  const dashboard = data.dashboard || {};
+  const weeklyTrend = data.weeklyTrend || {};
+  const today = data.today;
+  const needsPractice = data.needsPractice || [];
+  const recentDaily = data.recentDaily || [];
+  const recentTalk = data.recentTalk || [];
+  const learningAttempts = data.learningAttempts || [];
+
+  return [
+    "You are helping Zamaan's mom and dad understand his Daily Adventure learning progress.",
+    "Please use a warm, practical parent-friendly tone. Do not diagnose. Focus on patterns, encouragement, and simple next steps.",
+    "",
+    "Please provide:",
+    "1. A short weekly progress summary.",
+    "2. Three things Zamaan is doing well.",
+    "3. Two areas that need practice.",
+    "4. Patterns in Talk Time, money math, Spanish, and family words/pronouns if the data shows them.",
+    "5. Two simple activities for next week.",
+    "",
+    "Dashboard:",
+    `- Total rounds completed: ${dashboard.totalRounds || 0}`,
+    `- Completed days overall: ${dashboard.completedDays || 0}`,
+    `- Overall completion rate: ${dashboard.completionRate || "0%"}`,
+    `- Learning game attempts: ${dashboard.totalAttempts || 0}`,
+    `- Learning game correct: ${dashboard.correctAttempts || 0}`,
+    `- Learning game accuracy: ${dashboard.attemptAccuracy || "0%"}`,
+    "",
+    "Last 7 days:",
+    `- Days with activity: ${weeklyTrend.daysUsed || 0}`,
+    `- Complete days: ${weeklyTrend.completeDays || 0}`,
+    `- Rounds completed: ${weeklyTrend.rounds || 0}`,
+    `- Recent Talk Time answers: ${weeklyTrend.talkAnswers || 0}`,
+    "",
+    "Today:",
+    today
+      ? `- ${today.date}: ${today.rounds} of ${totalRounds} rounds, ${today.status}, mood ${today.mood || "not picked"}, plan ${today.plan || "Daily Adventure"}`
+      : "- No synced data for today yet.",
+    "",
+    "Needs practice shown in the app:",
+    formatPromptList(needsPractice, (item) => `- ${item.title}: ${item.detail}`),
+    "",
+    "Recent daily detail:",
+    formatPromptList(recentDaily, (day) => `- ${day.date}: ${day.rounds} of ${totalRounds} rounds, ${day.status}, ${day.completion} complete`),
+    "",
+    "Recent Talk Time:",
+    formatPromptList(recentTalk, (item) => `- ${item.date}: Prompt: ${item.prompt} | Answer: ${item.answer || "No typed answer"} | Type: ${item.responseType}`),
+    "",
+    "Learning game attempts:",
+    formatPromptList(learningAttempts, (item) => `- ${item.game}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`)
+  ].join("\n");
+}
+
+function formatPromptList(items, formatter) {
+  if (!items.length) return "- No data yet.";
+  return items.map(formatter).join("\n");
+}
+
+async function copyWeeklyPrompt() {
+  if (!latestParentViewData) {
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Load parent view first, then copy the weekly AI prompt.";
+    }
+    return;
+  }
+
+  const prompt = buildWeeklyAiPrompt(latestParentViewData);
+  const preview = document.querySelector("#weeklyPromptPreview");
+  if (preview) {
+    preview.value = prompt;
+  }
+
+  try {
+    await copyTextToClipboard(prompt);
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Weekly AI prompt copied. Paste it into ChatGPT or Gemini.";
+    }
+  } catch {
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Prompt is ready below. Select it and copy it manually.";
+    }
+  }
 }
 
 function escapeHtml(value) {
@@ -1883,6 +1991,14 @@ if (testSync) {
 
 if (loadParentView) {
   loadParentView.addEventListener("click", loadParentViewData);
+}
+
+if (parentViewResults) {
+  parentViewResults.addEventListener("click", (event) => {
+    if (event.target?.id === "copyWeeklyPrompt") {
+      copyWeeklyPrompt();
+    }
+  });
 }
 
 lockApp.addEventListener("click", () => {

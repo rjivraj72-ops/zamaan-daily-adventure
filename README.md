@@ -22,7 +22,8 @@ Caregiver settings include **Test sync** and **Last synced**:
 
 - **Test sync** sends a clearly labeled test row to `Daily Adventure Log`.
 - **Last synced** shows the most recent time the app sent data from that device.
-- **Parent view** loads the shared Google Sheet summary inside the app, so mom and dad can check progress from their own phones.
+- **Parent view** loads a short shared Google Sheet dashboard inside the app: today, 7-day progress, top needs-practice areas, recent Talk Time, and learning-game accuracy.
+- **Copy weekly AI prompt** prepares a parent-friendly prompt you can paste into ChatGPT or Gemini for a weekly summary.
 - Test sync rows are ignored by the dashboard analysis.
 - Extra Learning Game attempts are logged separately so caregivers can see practice patterns without inflating daily completion.
 

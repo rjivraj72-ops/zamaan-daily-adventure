@@ -326,6 +326,24 @@ function buildParentView_(analysis) {
     moneyMath: row[12],
     lastCompleted: formatPromptValue_(row[13])
   }));
+  const recentTalk = analysis.talkRows.slice(0, 2).map((row) => ({
+    timestamp: formatPromptValue_(row[0]),
+    date: row[1],
+    prompt: row[3],
+    answer: row[4],
+    responseType: row[5],
+    answerLength: row[6]
+  }));
+  const learningAttempts = analysis.attemptRows.map((row) => ({
+    game: row[0],
+    attempts: row[1],
+    correct: row[2],
+    accuracy: row[3],
+    lastPrompt: row[4],
+    lastAnswer: row[5],
+    lastAttempt: formatPromptValue_(row[6])
+  }));
+  const needsPractice = buildNeedsPractice_(recentDaily, recentTalk, learningAttempts);
 
   return {
     ok: true,
@@ -355,25 +373,62 @@ function buildParentView_(analysis) {
       moneyMath: todayRow[12],
       lastCompleted: formatPromptValue_(todayRow[13])
     } : null,
+    weeklyTrend: {
+      daysUsed: recentDaily.length,
+      completeDays: recentDaily.filter((day) => day.status === "Complete").length,
+      rounds: recentDaily.reduce((total, day) => total + Number(day.rounds || 0), 0),
+      talkAnswers: recentTalk.length
+    },
+    needsPractice,
     recentDaily,
-    recentTalk: analysis.talkRows.slice(0, 5).map((row) => ({
-      timestamp: formatPromptValue_(row[0]),
-      date: row[1],
-      prompt: row[3],
-      answer: row[4],
-      responseType: row[5],
-      answerLength: row[6]
-    })),
-    learningAttempts: analysis.attemptRows.map((row) => ({
-      game: row[0],
-      attempts: row[1],
-      correct: row[2],
-      accuracy: row[3],
-      lastPrompt: row[4],
-      lastAnswer: row[5],
-      lastAttempt: formatPromptValue_(row[6])
-    }))
+    recentTalk,
+    learningAttempts
   };
+}
+
+function buildNeedsPractice_(recentDaily, recentTalk, learningAttempts) {
+  const items = [];
+  const latestDay = recentDaily[0];
+
+  if (latestDay && Number(latestDay.rounds || 0) < EXPECTED_DAILY_ROUNDS) {
+    items.push({
+      title: "Finish all daily rounds",
+      detail: `${latestDay.rounds} of ${EXPECTED_DAILY_ROUNDS} rounds completed today.`
+    });
+  }
+
+  learningAttempts.forEach((item) => {
+    const attempts = Number(item.attempts || 0);
+    const correct = Number(item.correct || 0);
+    const accuracy = attempts ? Math.round((correct / attempts) * 100) : 0;
+
+    if (attempts >= 2 && accuracy < 70) {
+      items.push({
+        title: item.game,
+        detail: `${correct} correct out of ${attempts} attempts.`
+      });
+    }
+  });
+
+  const shortTalkAnswers = recentTalk.filter((item) => {
+    return item.responseType !== "Blank" && Number(item.answerLength || 0) > 0 && Number(item.answerLength || 0) < 45;
+  }).length;
+
+  if (recentTalk.length && shortTalkAnswers === recentTalk.length) {
+    items.push({
+      title: "Talk Time sentences",
+      detail: "Recent typed answers are short. Practice 1 or 2 full sentences."
+    });
+  }
+
+  if (!items.length) {
+    items.push({
+      title: "Keep the routine going",
+      detail: "No clear practice gap yet. Keep building several days of data."
+    });
+  }
+
+  return items.slice(0, 2);
 }
 
 function writeDailySummary_(sheet, rows) {
