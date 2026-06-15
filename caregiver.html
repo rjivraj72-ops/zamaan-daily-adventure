@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Caregiver - Daily Adventure</title>
+    <meta name="theme-color" content="#247c6d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Daily Adventure">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="caregiver-page">
+    <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">
+      <div class="pin-card">
+        <img class="app-icon" src="icons/app-icon-192.png" alt="" aria-hidden="true">
+        <p class="eyebrow">Daily Adventure</p>
+        <h1 id="pin-title">Enter your PIN</h1>
+        <p class="pin-help">Use the family PIN to open the Caregiver page.</p>
+        <div class="pin-display" id="pinDisplay" aria-label="PIN entry">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="pin-pad" aria-label="Number pad">
+          <button class="pin-key" data-pin-key="1">1</button>
+          <button class="pin-key" data-pin-key="2">2</button>
+          <button class="pin-key" data-pin-key="3">3</button>
+          <button class="pin-key" data-pin-key="4">4</button>
+          <button class="pin-key" data-pin-key="5">5</button>
+          <button class="pin-key" data-pin-key="6">6</button>
+          <button class="pin-key" data-pin-key="7">7</button>
+          <button class="pin-key" data-pin-key="8">8</button>
+          <button class="pin-key" data-pin-key="9">9</button>
+          <button class="pin-key secondary" data-pin-clear>Clear</button>
+          <button class="pin-key" data-pin-key="0">0</button>
+          <button class="pin-key secondary" data-pin-back>Back</button>
+        </div>
+        <p class="pin-message" id="pinMessage" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <main class="app-shell caregiver-shell">
+      <section class="caregiver-hero" aria-labelledby="caregiver-title">
+        <div>
+          <a class="back-link" href="index.html">Back to Zamaan's adventure</a>
+          <p class="eyebrow">Caregiver</p>
+          <h1 id="caregiver-title">Parent dashboard and settings</h1>
+          <p>Review progress, manage sync, and prepare a weekly AI summary for ChatGPT or Gemini.</p>
+        </div>
+      </section>
+
+      <section class="caregiver-panel" id="caregiver-panel">
+        <h2>Personalize tomorrow</h2>
+        <label>
+          Name shown in greeting
+          <input id="nameInput" type="text" value="Zamaan">
+        </label>
+        <label>
+          Talk Time prompt
+          <input id="promptInput" type="text" value="What is one thing you want to do today?">
+        </label>
+        <label>
+          Encouraging message
+          <input id="messageInput" type="text" value="Great job. You finished today's adventure.">
+        </label>
+        <label>
+          App PIN
+          <input id="pinInput" type="password" inputmode="numeric" maxlength="8" value="1234">
+        </label>
+        <section class="caregiver-report" aria-labelledby="report-title">
+          <h3 id="report-title">Today's details</h3>
+          <p id="reportSummary">No rounds completed yet.</p>
+          <div class="report-list" id="reportList"></div>
+        </section>
+        <section class="sync-settings" aria-labelledby="sync-title">
+          <h3 id="sync-title">Google Sheet sync</h3>
+          <p>Optional. Add a private Sheet web app link to send completed rounds to mom and dad.</p>
+          <label>
+            Sync web app URL
+            <input id="syncUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+          </label>
+          <label>
+            Family code
+            <input id="familyCodeInput" type="password" placeholder="Private family code">
+          </label>
+          <div class="sync-actions">
+            <button id="shareSyncSetup" type="button">Send iPhone setup link</button>
+            <button id="copySyncSetup" class="secondary-button" type="button">Copy setup link</button>
+          </div>
+          <label>
+            Home Screen setup code
+            <textarea id="syncSetupCode" rows="3" placeholder="Paste setup code here if the Home Screen app lost sync settings."></textarea>
+          </label>
+          <div class="sync-actions">
+            <button id="copySyncCode" class="secondary-button" type="button">Copy setup code</button>
+            <button id="importSyncCode" class="secondary-button" type="button">Import setup code</button>
+          </div>
+          <button id="testSync" class="secondary-button" type="button">Test sync</button>
+          <p class="sync-note">Only send setup links or codes to family. They connect the phone to your private Sheet.</p>
+          <p class="sync-status" id="lastSyncStatus">Last synced: never</p>
+          <p class="sync-status" id="syncStatus">Sync is not set up yet.</p>
+        </section>
+        <section class="parent-view" aria-labelledby="parent-view-title">
+          <h3 id="parent-view-title">Parent view</h3>
+          <p>Load Zamaan's latest shared progress from the private Google Sheet.</p>
+          <button id="loadParentView" class="secondary-button" type="button">Load parent view</button>
+          <p class="sync-status" id="parentViewStatus">Parent view has not loaded yet.</p>
+          <div class="parent-view-results" id="parentViewResults"></div>
+        </section>
+        <button id="saveSettings">Save settings</button>
+        <button id="lockApp" class="secondary-button">Lock caregiver page</button>
+        <button id="resetProgress" class="secondary-button">Reset today's progress</button>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

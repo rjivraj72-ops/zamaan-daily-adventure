@@ -52,6 +52,7 @@ On iPhone, Safari and the Home Screen app may keep separate settings. If sync se
 This folder is ready to publish with GitHub Pages. Put these files at the root of a GitHub repository:
 
 - `index.html`
+- `caregiver.html`
 - `styles.css`
 - `app.js`
 

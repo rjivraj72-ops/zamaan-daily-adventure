@@ -919,6 +919,52 @@ button:focus-visible {
   margin-top: 18px;
 }
 
+.caregiver-link-panel,
+.caregiver-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  border: 1px solid rgba(8, 120, 101, 0.16);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #fff, var(--accent-soft));
+  box-shadow: var(--shadow-soft);
+}
+
+.caregiver-link-panel h2,
+.caregiver-link-panel p,
+.caregiver-hero h1,
+.caregiver-hero p {
+  margin: 0;
+}
+
+.caregiver-link-panel p,
+.caregiver-hero p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.caregiver-shell {
+  max-width: 980px;
+}
+
+.back-link {
+  display: inline-flex;
+  margin-bottom: 12px;
+  color: var(--accent);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .caregiver-toggle {
   width: 100%;
   border-color: rgba(8, 120, 101, 0.2);
@@ -1214,6 +1260,12 @@ button:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .caregiver-link-panel,
+  .caregiver-hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .calendar-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
   }
@@ -1236,7 +1288,9 @@ button:focus-visible {
   .activity,
   .game-shelf,
   .calendar-panel,
-  .reward {
+  .reward,
+  .caregiver-link-panel,
+  .caregiver-hero {
     padding: 18px;
   }
 

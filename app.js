@@ -638,6 +638,7 @@ const testSync = document.querySelector("#testSync");
 const loadParentView = document.querySelector("#loadParentView");
 const parentViewStatus = document.querySelector("#parentViewStatus");
 const parentViewResults = document.querySelector("#parentViewResults");
+const hasDailyPage = Boolean(document.querySelector("[data-complete-talk]"));
 
 let memoryPicks = [];
 let sequenceStep = 1;
@@ -1025,7 +1026,9 @@ function saveAppPin(pin) {
 function showPinGate() {
   enteredPin = "";
   updatePinDisplay();
-  pinMessage.textContent = "";
+  if (pinMessage) {
+    pinMessage.textContent = "";
+  }
   document.body.classList.add("locked");
 }
 
@@ -1033,7 +1036,9 @@ function unlockApp() {
   sessionStorage.setItem("dailyAdventureUnlocked", "true");
   document.body.classList.remove("locked");
   const welcomeMessage = `Welcome, ${state.name}. Ready for today's adventure?`;
-  celebration.textContent = welcomeMessage;
+  if (celebration) {
+    celebration.textContent = welcomeMessage;
+  }
   speak(welcomeMessage);
 }
 
@@ -1049,7 +1054,9 @@ function checkPin() {
     return;
   }
 
-  pinMessage.textContent = "Try again.";
+  if (pinMessage) {
+    pinMessage.textContent = "Try again.";
+  }
   speak("Try again.");
   enteredPin = "";
   updatePinDisplay();
@@ -1103,12 +1110,25 @@ function nextActivityId() {
 }
 
 function updateGreeting() {
-  title.textContent = `Hi, ${state.name}. Ready for today's adventure?`;
-  document.querySelector(".intro").textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. Four short sections plus extra learning games.`;
-  nameInput.value = state.name;
-  promptInput.value = state.talkPrompt;
-  messageInput.value = state.message;
-  pinInput.value = getAppPin();
+  if (title) {
+    title.textContent = `Hi, ${state.name}. Ready for today's adventure?`;
+  }
+  const intro = document.querySelector(".intro");
+  if (intro) {
+    intro.textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. Four short sections plus extra learning games.`;
+  }
+  if (nameInput) {
+    nameInput.value = state.name;
+  }
+  if (promptInput) {
+    promptInput.value = state.talkPrompt;
+  }
+  if (messageInput) {
+    messageInput.value = state.message;
+  }
+  if (pinInput) {
+    pinInput.value = getAppPin();
+  }
   if (syncUrlInput) {
     syncUrlInput.value = getSyncConfig().url;
   }
@@ -1119,6 +1139,8 @@ function updateGreeting() {
 }
 
 function updateProgress() {
+  if (!progressCount || !progressBar || !celebration) return;
+
   const doneRounds = getRoundTotal();
   const doneSections = state.completed.length;
   progressCount.textContent = `${doneRounds} of ${totalRounds} rounds`;
@@ -1423,9 +1445,12 @@ function labelFor(id) {
 }
 
 function renderBrainRound() {
+  if (!memoryGame) return;
+
   const round = Math.min(state.rounds.brain, maxRounds.brain - 1);
   const deck = todayPlan.brain[round];
   const activity = document.querySelector('[data-activity="brain"]');
+  if (!activity) return;
 
   activity.querySelector("h2").textContent = state.completed.includes("brain") ? "Memory complete" : deck.title;
   activity.querySelector(".prompt").textContent = state.completed.includes("brain")
@@ -1443,6 +1468,7 @@ function renderLifeRound() {
   const round = Math.min(state.rounds.life, maxRounds.life - 1);
   const deck = todayPlan.life[round];
   const activity = document.querySelector('[data-activity="life"]');
+  if (!activity || !sequenceGame) return;
   const shuffledSteps = [deck.steps[0], deck.steps[2], deck.steps[1]];
 
   activity.querySelector("h2").textContent = state.completed.includes("life") ? "Life skills complete" : deck.title;
@@ -1482,11 +1508,14 @@ function renderLanguageRound() {
 }
 
 function renderTalkRound() {
+  if (!talkPrompt || !talkAnswer) return;
+
   const round = Math.min(state.rounds.talk, maxRounds.talk - 1);
   const prompt = round === 0 && state.talkPrompt !== defaultState.talkPrompt
     ? state.talkPrompt
     : todayPlan.talk[round];
   const activity = document.querySelector('[data-activity="talk"]');
+  if (!activity) return;
 
   activity.querySelector("h2").textContent = state.completed.includes("talk") ? "Talk Time complete" : "Share an answer";
   talkPrompt.textContent = state.completed.includes("talk")
@@ -1523,6 +1552,8 @@ function updateAnswerStyleUi() {
 }
 
 function renderDailyRounds() {
+  if (!hasDailyPage) return;
+
   renderBrainRound();
   renderLifeRound();
   renderLanguageRound();
@@ -1531,6 +1562,8 @@ function renderDailyRounds() {
 }
 
 function renderMiniGames() {
+  if (!miniGames) return;
+
   const sortChoices = [...todayPlan.mini.sort.correct, ...todayPlan.mini.sort.wrong];
   const pattern = todayPlan.mini.pattern;
   const moneyMathQuestions = todayMoneyMath;
@@ -1789,11 +1822,13 @@ function renderCalendar() {
   }).join("");
 }
 
-todayLabel.textContent = `${new Intl.DateTimeFormat(undefined, {
-  weekday: "long",
-  month: "short",
-  day: "numeric"
-}).format(new Date())} · Day ${curriculumDay + 1} of 14`;
+if (todayLabel) {
+  todayLabel.textContent = `${new Intl.DateTimeFormat(undefined, {
+    weekday: "long",
+    month: "short",
+    day: "numeric"
+  }).format(new Date())} · Day ${curriculumDay + 1} of 14`;
+}
 
 document.querySelectorAll(".mood-button").forEach((button) => {
   button.classList.toggle("selected", button.dataset.mood === state.mood);
@@ -1811,7 +1846,9 @@ document.querySelectorAll("[data-pin-key]").forEach((button) => {
   button.addEventListener("click", () => {
     if (enteredPin.length >= 8) return;
     enteredPin += button.dataset.pinKey;
-    pinMessage.textContent = "";
+    if (pinMessage) {
+      pinMessage.textContent = "";
+    }
     updatePinDisplay();
 
     if (enteredPin.length === getAppPin().length) {
@@ -1820,17 +1857,27 @@ document.querySelectorAll("[data-pin-key]").forEach((button) => {
   });
 });
 
-document.querySelector("[data-pin-clear]").addEventListener("click", () => {
-  enteredPin = "";
-  pinMessage.textContent = "";
-  updatePinDisplay();
-});
+const pinClear = document.querySelector("[data-pin-clear]");
+if (pinClear) {
+  pinClear.addEventListener("click", () => {
+    enteredPin = "";
+    if (pinMessage) {
+      pinMessage.textContent = "";
+    }
+    updatePinDisplay();
+  });
+}
 
-document.querySelector("[data-pin-back]").addEventListener("click", () => {
-  enteredPin = enteredPin.slice(0, -1);
-  pinMessage.textContent = "";
-  updatePinDisplay();
-});
+const pinBack = document.querySelector("[data-pin-back]");
+if (pinBack) {
+  pinBack.addEventListener("click", () => {
+    enteredPin = enteredPin.slice(0, -1);
+    if (pinMessage) {
+      pinMessage.textContent = "";
+    }
+    updatePinDisplay();
+  });
+}
 
 function attachMiniGameHandlers() {
   sortPicks.clear();
@@ -1938,7 +1985,9 @@ function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-document.querySelector("[data-complete-talk]").addEventListener("click", () => {
+const completeTalkButton = document.querySelector("[data-complete-talk]");
+if (completeTalkButton) {
+  completeTalkButton.addEventListener("click", () => {
   if (state.completed.includes("talk")) return;
 
   const answer = talkAnswer.value.trim();
@@ -1957,7 +2006,8 @@ document.querySelector("[data-complete-talk]").addEventListener("click", () => {
       : `Style: ${answerStyle.label} | Said out loud or skipped typing.`
   });
   window.setTimeout(renderDailyRounds, 500);
-});
+  });
+}
 
 answerStyleButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -1969,27 +2019,40 @@ answerStyleButtons.forEach((button) => {
   });
 });
 
-caregiverToggle.addEventListener("click", () => {
-  const isOpen = caregiverToggle.getAttribute("aria-expanded") === "true";
-  caregiverToggle.setAttribute("aria-expanded", String(!isOpen));
-  caregiverPanel.hidden = isOpen;
-  if (isOpen === false) {
-    renderCaregiverReport();
-  }
-});
+if (caregiverToggle && caregiverPanel) {
+  caregiverToggle.addEventListener("click", () => {
+    const isOpen = caregiverToggle.getAttribute("aria-expanded") === "true";
+    caregiverToggle.setAttribute("aria-expanded", String(!isOpen));
+    caregiverPanel.hidden = isOpen;
+    if (isOpen === false) {
+      renderCaregiverReport();
+    }
+  });
+} else if (caregiverPanel) {
+  caregiverPanel.hidden = false;
+}
 
-document.querySelector("#saveSettings").addEventListener("click", () => {
-  state.name = nameInput.value.trim() || "Zamaan";
-  state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
-  state.message = messageInput.value.trim() || defaultState.message;
-  saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");
-  saveSyncConfig();
-  save();
-  updateGreeting();
-  renderTalkRound();
-  celebration.textContent = "Settings saved.";
-  speak("Settings saved.");
-});
+const saveSettings = document.querySelector("#saveSettings");
+if (saveSettings) {
+  saveSettings.addEventListener("click", () => {
+    state.name = nameInput.value.trim() || "Zamaan";
+    state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
+    state.message = messageInput.value.trim() || defaultState.message;
+    saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");
+    saveSyncConfig();
+    save();
+    updateGreeting();
+    renderTalkRound();
+    if (celebration) {
+      celebration.textContent = "Settings saved.";
+    }
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Settings saved.";
+    }
+    speak("Settings saved.");
+    renderCaregiverReport();
+  });
+}
 
 if (shareSyncSetup) {
   shareSyncSetup.addEventListener("click", () => {
@@ -2033,17 +2096,24 @@ if (parentViewResults) {
   });
 }
 
-lockApp.addEventListener("click", () => {
-  sessionStorage.removeItem("dailyAdventureUnlocked");
-  caregiverToggle.setAttribute("aria-expanded", "false");
-  caregiverPanel.hidden = true;
-  showPinGate();
-});
+if (lockApp) {
+  lockApp.addEventListener("click", () => {
+    sessionStorage.removeItem("dailyAdventureUnlocked");
+    if (caregiverToggle && caregiverPanel) {
+      caregiverToggle.setAttribute("aria-expanded", "false");
+      caregiverPanel.hidden = true;
+    }
+    showPinGate();
+  });
+}
 
-resetProgress.addEventListener("click", () => {
+if (resetProgress) {
+  resetProgress.addEventListener("click", () => {
   state.completed = [];
   state.rounds = { brain: 0, life: 0, language: 0, talk: 0 };
-  talkAnswer.value = "";
+  if (talkAnswer) {
+    talkAnswer.value = "";
+  }
   document.querySelectorAll(".feedback").forEach((feedback) => {
     feedback.textContent = "";
   });
@@ -2066,13 +2136,16 @@ resetProgress.addEventListener("click", () => {
   save();
   saveHistory();
   saveLogs();
-  renderDailyRounds();
-  renderMiniGames();
-  updateProgress();
+  if (hasDailyPage) {
+    renderDailyRounds();
+    renderMiniGames();
+    updateProgress();
+  }
   renderCalendar();
   renderCaregiverReport();
   speak("Today's progress has been reset.");
-});
+  });
+}
 
 function resetSequenceGame() {
   sequenceStep = 1;
@@ -2085,13 +2158,15 @@ function resetSequenceGame() {
 const syncSetupApplied = applyIncomingSyncSetup();
 
 updateGreeting();
-renderDailyRounds();
-renderMiniGames();
-updateProgress();
-updateHistory();
+if (hasDailyPage) {
+  renderDailyRounds();
+  renderMiniGames();
+  updateProgress();
+  updateHistory();
+}
 renderCaregiverReport();
 
-if (syncSetupApplied) {
+if (syncSetupApplied && celebration) {
   celebration.textContent = "Sync settings were added on this device.";
 }
 
