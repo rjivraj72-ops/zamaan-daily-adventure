@@ -945,6 +945,13 @@ button:focus-visible {
   line-height: 1.45;
 }
 
+.app-version {
+  display: inline-flex;
+  margin-top: 10px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
 .caregiver-shell {
   max-width: 980px;
 }

@@ -1297,12 +1297,12 @@ function renderParentView(data) {
     <div class="ai-prompt-panel">
       <div>
         <h4>Weekly AI Summary</h4>
-        <p>Copy this prompt, then open ChatGPT or Gemini for a parent-friendly weekly review.</p>
+        <p>Copy this prompt, then open the ChatGPT or Gemini app/web page for a parent-friendly weekly review.</p>
       </div>
       <div class="ai-actions">
         <button id="copyWeeklyPrompt" class="secondary-button" type="button">Copy weekly AI prompt</button>
-        <a class="button-link secondary-button ai-open-link" href="https://chatgpt.com/" target="_blank" rel="noopener" data-ai-target="chatgpt">Open ChatGPT</a>
-        <a class="button-link secondary-button ai-open-link" href="https://gemini.google.com/app" target="_blank" rel="noopener" data-ai-target="gemini">Open Gemini</a>
+        <a class="button-link secondary-button ai-open-link" href="https://chatgpt.com/" target="_blank" rel="noopener" data-ai-target="chatgpt">Open ChatGPT app/web</a>
+        <a class="button-link secondary-button ai-open-link" href="https://gemini.google.com/app" target="_blank" rel="noopener" data-ai-target="gemini">Open Gemini app/web</a>
       </div>
       <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
     </div>
@@ -1402,8 +1402,8 @@ async function copyWeeklyPromptText(successMessage) {
 function copyPromptForAiAssistant(target) {
   copyWeeklyPromptText(
     target === "gemini"
-      ? "Weekly AI prompt copied. Gemini is opening now."
-      : "Weekly AI prompt copied. ChatGPT is opening now."
+      ? "Weekly AI prompt copied. Gemini app/web is opening now."
+      : "Weekly AI prompt copied. ChatGPT app/web is opening now."
   );
 }
 
