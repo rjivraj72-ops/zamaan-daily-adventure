@@ -23,8 +23,8 @@ Caregiver settings include **Test sync** and **Last synced**:
 - **Test sync** sends a clearly labeled test row to `Daily Adventure Log`.
 - **Last synced** shows the most recent time the app sent data from that device.
 - **Parent view** loads a short shared Google Sheet dashboard inside the app: today, 7-day progress, top needs-practice areas, recent Talk Time, and learning-game accuracy.
-- **Copy weekly AI prompt** prepares a parent-friendly prompt you can paste into ChatGPT or Gemini for a weekly summary.
-- **Open ChatGPT app** and **Open Gemini app** copy the weekly prompt first, then try to open the native iOS app. Web fallback links are shown below those buttons.
+- **Copy weekly AI prompt** prepares a parent-friendly prompt you can paste into your ChatGPT project for a weekly summary.
+- **Open ChatGPT app** copies the weekly prompt first, then tries to open the native iOS ChatGPT app. A web fallback link is shown below the button.
 - Test sync rows are ignored by the dashboard analysis.
 - Extra Learning Game attempts are logged separately so caregivers can see practice patterns without inflating daily completion.
 
@@ -35,9 +35,9 @@ The Apps Script also creates and refreshes these analysis tabs:
 - `Section Summary`
 - `Recent Talk Time`
 - `Learning Attempts`
-- `Gemini Prompt`
+- `ChatGPT Prompt`
 
-Use `Gemini Prompt` by copying the prompt into Gemini when you want a parent-friendly progress analysis.
+Use `ChatGPT Prompt` by copying the prompt into your ChatGPT project when you want a parent-friendly progress analysis.
 
 If you update `google-apps-script.js` after the first setup, paste the new script into Apps Script and redeploy the web app. After redeploying, open the Web App URL once in your browser to refresh the dashboard from existing rows.
 

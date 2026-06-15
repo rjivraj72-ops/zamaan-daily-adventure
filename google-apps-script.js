@@ -5,7 +5,7 @@ const DAILY_SHEET_NAME = "Daily Summary";
 const SECTION_SHEET_NAME = "Section Summary";
 const TALK_SHEET_NAME = "Recent Talk Time";
 const ATTEMPTS_SHEET_NAME = "Learning Attempts";
-const GEMINI_PROMPT_SHEET_NAME = "Gemini Prompt";
+const CHATGPT_PROMPT_SHEET_NAME = "ChatGPT Prompt";
 const EXPECTED_DAILY_ROUNDS = 12;
 
 function doPost(e) {
@@ -102,7 +102,7 @@ function refreshAnalysisSheets_() {
   writeSectionSummary_(getOrCreateSheet_(spreadsheet, SECTION_SHEET_NAME), analysis.sectionRows);
   writeRecentTalk_(getOrCreateSheet_(spreadsheet, TALK_SHEET_NAME), analysis.talkRows);
   writeLearningAttempts_(getOrCreateSheet_(spreadsheet, ATTEMPTS_SHEET_NAME), analysis.attemptRows);
-  writeGeminiPrompt_(getOrCreateSheet_(spreadsheet, GEMINI_PROMPT_SHEET_NAME), analysis);
+  writeChatGptPrompt_(getOrCreateSheet_(spreadsheet, CHATGPT_PROMPT_SHEET_NAME), analysis);
 }
 
 function getLogRows_(sheet) {
@@ -474,12 +474,12 @@ function writeLearningAttempts_(sheet, rows) {
   sheet.getRange(2, 7, Math.max(rows.length, 1), 1).setNumberFormat("m/d/yyyy h:mm AM/PM");
 }
 
-function writeGeminiPrompt_(sheet, analysis) {
+function writeChatGptPrompt_(sheet, analysis) {
   sheet.clear();
-  const prompt = buildGeminiPrompt_(analysis);
+  const prompt = buildChatGptPrompt_(analysis);
   const values = [
-    ["Gemini Prompt"],
-    ["Copy the prompt below into Gemini when mom or dad wants a plain-English progress summary."],
+    ["ChatGPT Prompt"],
+    ["Copy the prompt below into your ChatGPT project when mom or dad wants a plain-English progress summary."],
     [prompt]
   ];
 
@@ -491,7 +491,7 @@ function writeGeminiPrompt_(sheet, analysis) {
   sheet.setRowHeight(3, 520);
 }
 
-function buildGeminiPrompt_(analysis) {
+function buildChatGptPrompt_(analysis) {
   const recentDailyRows = analysis.dailyRows.slice(-7);
   const recentTalkRows = analysis.talkRows.slice(0, 10);
   const attemptRows = analysis.attemptRows;
