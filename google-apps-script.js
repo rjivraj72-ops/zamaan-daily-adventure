@@ -263,6 +263,58 @@ function buildAnalysis_(rows) {
   }).length;
   const totalAttempts = learningAttemptRows.length;
   const correctAttempts = learningAttemptRows.filter((row) => String(row.answer || "").indexOf("Result: Correct") !== -1).length;
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  const currentWeekStart = new Date(today);
+  currentWeekStart.setDate(today.getDate() - 6);
+  currentWeekStart.setHours(0, 0, 0, 0);
+  const previousWeekStart = new Date(currentWeekStart);
+  previousWeekStart.setDate(currentWeekStart.getDate() - 7);
+  const previousWeekEnd = new Date(currentWeekStart);
+  previousWeekEnd.setMilliseconds(-1);
+
+  const inRange = (row, start, end) => {
+    const date = parseDateKey_(row.date);
+    return date && date >= start && date <= end;
+  };
+  const currentCompletionRows = completionRows.filter((row) => inRange(row, currentWeekStart, today));
+  const previousCompletionRows = completionRows.filter((row) => inRange(row, previousWeekStart, previousWeekEnd));
+  const currentAttemptRows = learningAttemptRows.filter((row) => inRange(row, currentWeekStart, today));
+  const previousAttemptRows = learningAttemptRows.filter((row) => inRange(row, previousWeekStart, previousWeekEnd));
+  const currentCorrect = currentAttemptRows.filter((row) => String(row.answer || "").indexOf("Result: Correct") !== -1).length;
+  const previousCorrect = previousAttemptRows.filter((row) => String(row.answer || "").indexOf("Result: Correct") !== -1).length;
+  const currentCompleteDays = dailyRows.filter((row) => {
+    const date = parseDateKey_(row[0]);
+    return date && date >= currentWeekStart && date <= today && row[7] === "Complete";
+  }).length;
+  const previousCompleteDays = dailyRows.filter((row) => {
+    const date = parseDateKey_(row[0]);
+    return date && date >= previousWeekStart && date <= previousWeekEnd && row[7] === "Complete";
+  }).length;
+
+  const skillMap = {};
+  currentAttemptRows.forEach((row) => {
+    const skill = String(row.title || "Learning Game").split(":")[0].trim();
+    const isCorrect = String(row.answer || "").indexOf("Result: Correct") !== -1;
+    if (!skillMap[skill]) skillMap[skill] = { skill, attempts: 0, correct: 0 };
+    skillMap[skill].attempts += 1;
+    skillMap[skill].correct += isCorrect ? 1 : 0;
+  });
+  const skillTrends = Object.values(skillMap).map((item) => ({
+    skill: item.skill,
+    attempts: item.attempts,
+    correct: item.correct,
+    accuracy: item.attempts ? `${Math.round((item.correct / item.attempts) * 100)}%` : "0%"
+  })).sort((a, b) => a.skill.localeCompare(b.skill));
+
+  const missedMap = {};
+  learningAttemptRows.slice(-100).forEach((row) => {
+    if (String(row.answer || "").indexOf("Result: Correct") !== -1) return;
+    const key = `${row.title}|${row.prompt}`;
+    if (!missedMap[key]) missedMap[key] = { skill: row.title, prompt: row.prompt, misses: 0 };
+    missedMap[key].misses += 1;
+  });
+  const missedQuestions = Object.values(missedMap).sort((a, b) => b.misses - a.misses).slice(0, 5);
 
   return {
     totalRounds,
@@ -277,7 +329,19 @@ function buildAnalysis_(rows) {
     dailyRows,
     sectionRows,
     talkRows: talkRows.slice(-25).reverse(),
-    attemptRows
+    attemptRows,
+    weeklyComparison: {
+      currentRounds: currentCompletionRows.length,
+      previousRounds: previousCompletionRows.length,
+      currentCompleteDays,
+      previousCompleteDays,
+      currentAttempts: currentAttemptRows.length,
+      previousAttempts: previousAttemptRows.length,
+      currentAccuracy: currentAttemptRows.length ? `${Math.round((currentCorrect / currentAttemptRows.length) * 100)}%` : "0%",
+      previousAccuracy: previousAttemptRows.length ? `${Math.round((previousCorrect / previousAttemptRows.length) * 100)}%` : "0%"
+    },
+    skillTrends,
+    missedQuestions
   };
 }
 
@@ -379,6 +443,9 @@ function buildParentView_(analysis) {
       rounds: recentDaily.reduce((total, day) => total + Number(day.rounds || 0), 0),
       talkAnswers: recentTalk.length
     },
+    weeklyComparison: analysis.weeklyComparison,
+    skillTrends: analysis.skillTrends,
+    missedQuestions: analysis.missedQuestions,
     needsPractice,
     recentDaily,
     recentTalk,

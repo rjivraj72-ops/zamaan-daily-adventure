@@ -55,6 +55,10 @@
           <p class="eyebrow">Daily Adventure</p>
           <h1 id="page-title">Hi, Zamaan. Ready for today's adventure?</h1>
           <p class="intro">Four short activities, plus learning games for memory, sorting, patterns, and everyday choices.</p>
+          <div class="learner-controls">
+            <span class="level-badge" id="levelBadge">Level 2</span>
+            <button class="sound-toggle secondary-button" id="soundToggle" type="button" aria-pressed="true">Sound on</button>
+          </div>
         </div>
         <div class="today-card" aria-label="Today's progress">
           <span id="todayLabel">Today</span>
@@ -63,6 +67,19 @@
             <span id="progressBar"></span>
           </div>
         </div>
+      </section>
+
+      <section class="movement-break" id="movementBreak" hidden aria-labelledby="movement-title">
+        <div>
+          <p class="eyebrow">Halfway Point</p>
+          <h2 id="movement-title">Ready for a movement break?</h2>
+          <p>Stand up, stretch, and move for two minutes. Then come back for the next round.</p>
+        </div>
+        <div class="movement-actions">
+          <button id="startMovementBreak" type="button">Start 2-minute break</button>
+          <button id="skipMovementBreak" class="secondary-button" type="button">Keep going</button>
+        </div>
+        <strong id="movementTimer" aria-live="polite"></strong>
       </section>
 
       <section class="check-in" aria-labelledby="checkin-title">
@@ -163,9 +180,10 @@
           <p class="eyebrow">Learning Games</p>
           <h2 id="games-title">Play a little more</h2>
           <p>Extra games can be used anytime, especially on a phone or tablet.</p>
+          <button id="toggleExtraGames" class="secondary-button" type="button" aria-expanded="false">Play more</button>
         </div>
 
-        <div class="mini-games">
+        <div class="mini-games" id="extraGames" hidden>
           <article class="mini-game" data-mini-game="sort">
             <div class="mini-game-header">
               <span>Sort</span>
@@ -262,6 +280,13 @@
           <span class="star" data-star="4"></span>
         </div>
         <p id="celebration">Finish an activity to earn a star.</p>
+      </section>
+
+      <section class="completion-panel" id="completionPanel" hidden aria-labelledby="completion-title">
+        <p class="eyebrow">Adventure Complete</p>
+        <h2 id="completion-title">Great work, Zamaan!</h2>
+        <strong>12 of 12 rounds completed</strong>
+        <p>Four stars earned. You stayed with it and finished today's adventure.</p>
       </section>
 
       <section class="calendar-panel" aria-labelledby="calendar-title">

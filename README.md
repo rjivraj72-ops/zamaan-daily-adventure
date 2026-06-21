@@ -2,6 +2,8 @@
 
 A simple daily learning app with memory games, life-skill sequencing, Spanish cards, travel-themed Talk Time prompts with first-person/third-person answer hints, money math, granola sales/marketing business practice, family words/pronouns practice, rewards, and a 14-day progress calendar.
 
+The learner view presents one required activity at a time, keeps extra games behind **Play more**, offers an optional halfway movement break, uses progressive retry hints, and supports a calmer system voice when available.
+
 Default PIN: `1234`
 
 The PIN is meant as a simple privacy and routine screen. It is not bank-grade security because this is a static web app.
@@ -23,6 +25,8 @@ Caregiver settings include **Test sync** and **Last synced**:
 - **Test sync** sends a clearly labeled test row to `Daily Adventure Log`.
 - **Last synced** shows the most recent time the app sent data from that device.
 - **Parent view** loads a short shared Google Sheet dashboard inside the app: today, 7-day progress, top needs-practice areas, recent Talk Time, and learning-game accuracy.
+- Parent View loads automatically when sync is configured and includes this-week/last-week comparisons, skill trends, and frequently missed questions.
+- **Parent note** is stored on the parent device and included in the copied ChatGPT weekly prompt.
 - **Difficulty level** changes the challenge level without increasing the number of daily rounds.
 - **Copy weekly AI prompt** prepares a parent-friendly prompt you can paste into your ChatGPT project for a weekly summary.
 - **Open ChatGPT app** copies the weekly prompt first, then tries to open the native iOS ChatGPT app. A web fallback link is shown below the button.

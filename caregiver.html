@@ -61,6 +61,10 @@
         <section class="parent-view" aria-labelledby="parent-view-title">
           <h3 id="parent-view-title">Parent view</h3>
           <p>Load Zamaan's latest shared progress from the private Google Sheet.</p>
+          <label>
+            Parent note for this week
+            <textarea id="parentNoteInput" rows="3" placeholder="Example: Needed help with his versus my."></textarea>
+          </label>
           <button id="loadParentView" class="secondary-button" type="button">Load parent view</button>
           <p class="sync-status" id="parentViewStatus">Parent view has not loaded yet.</p>
           <div class="parent-view-results" id="parentViewResults"></div>
@@ -101,8 +105,8 @@
           <p id="reportSummary">No rounds completed yet.</p>
           <div class="report-list" id="reportList"></div>
         </section>
-        <section class="sync-settings" aria-labelledby="sync-title">
-          <h3 id="sync-title">Google Sheet sync</h3>
+        <details class="sync-settings advanced-settings">
+          <summary id="sync-title">Advanced sync settings</summary>
           <p>Optional. Add a private Sheet web app link to send completed rounds to mom and dad.</p>
           <label>
             Sync web app URL
@@ -128,7 +132,7 @@
           <p class="sync-note">Only send setup links or codes to family. They connect the phone to your private Sheet.</p>
           <p class="sync-status" id="lastSyncStatus">Last synced: never</p>
           <p class="sync-status" id="syncStatus">Sync is not set up yet.</p>
-        </section>
+        </details>
         <button id="saveSettings">Save settings</button>
         <button id="lockApp" class="secondary-button">Lock caregiver page</button>
         <button id="resetProgress" class="secondary-button">Reset today's progress</button>

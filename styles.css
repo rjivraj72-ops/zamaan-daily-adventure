@@ -44,6 +44,10 @@ body.locked {
   overflow: hidden;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 button,
 input,
 textarea,
@@ -253,6 +257,30 @@ body.locked .app-shell {
   margin-bottom: 16px;
   border-radius: 16px;
   box-shadow: var(--shadow-soft);
+}
+
+.learner-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.sound-toggle {
+  min-height: 44px;
+  margin: 0;
 }
 
 .eyebrow,
@@ -661,6 +689,41 @@ select {
   padding: 24px;
 }
 
+.movement-break,
+.completion-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid rgba(8, 120, 101, 0.22);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #fff, var(--accent-soft));
+  box-shadow: var(--shadow-soft);
+}
+
+.movement-break h2,
+.movement-break p,
+.completion-panel h2,
+.completion-panel p {
+  margin: 0;
+}
+
+.movement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.completion-panel {
+  text-align: center;
+  border-color: rgba(230, 171, 57, 0.35);
+  background: linear-gradient(135deg, #fff, var(--gold-soft));
+}
+
+.completion-panel strong {
+  font-size: 1.35rem;
+}
+
 .game-shelf,
 .calendar-panel {
   box-shadow: var(--shadow-soft);
@@ -1036,6 +1099,13 @@ button:focus-visible {
   background: linear-gradient(180deg, #fff, var(--surface-soft));
 }
 
+.advanced-settings summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
 .caregiver-report h3,
 .sync-settings h3,
 .parent-view h3,
@@ -1240,6 +1310,43 @@ button:focus-visible {
   background: var(--surface-soft);
 }
 
+.weekly-comparison {
+  display: grid;
+  gap: 10px;
+}
+
+.weekly-comparison h4 {
+  margin: 0;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.comparison-grid article {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: #fff;
+}
+
+.comparison-grid small,
+.comparison-grid span {
+  color: var(--muted);
+}
+
+.comparison-grid strong {
+  font-size: 1.35rem;
+}
+
+.missed-item {
+  border-left: 5px solid var(--coral);
+}
+
 .report-item {
   display: grid;
   gap: 5px;
@@ -1376,6 +1483,10 @@ button:focus-visible {
   }
 
   .parent-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-grid {
     grid-template-columns: 1fr;
   }
 

@@ -696,6 +696,16 @@ const testSync = document.querySelector("#testSync");
 const loadParentView = document.querySelector("#loadParentView");
 const parentViewStatus = document.querySelector("#parentViewStatus");
 const parentViewResults = document.querySelector("#parentViewResults");
+const levelBadge = document.querySelector("#levelBadge");
+const soundToggle = document.querySelector("#soundToggle");
+const toggleExtraGames = document.querySelector("#toggleExtraGames");
+const extraGames = document.querySelector("#extraGames");
+const movementBreak = document.querySelector("#movementBreak");
+const startMovementBreak = document.querySelector("#startMovementBreak");
+const skipMovementBreak = document.querySelector("#skipMovementBreak");
+const movementTimer = document.querySelector("#movementTimer");
+const completionPanel = document.querySelector("#completionPanel");
+const parentNoteInput = document.querySelector("#parentNoteInput");
 const hasDailyPage = Boolean(document.querySelector("[data-complete-talk]"));
 
 let memoryPicks = [];
@@ -703,7 +713,9 @@ let sequenceStep = 1;
 let enteredPin = "";
 let selectedAnswerStyle = "first";
 let latestParentViewData = null;
+let movementInterval = null;
 const sortPicks = new Set();
+const retryCounts = new Map();
 
 function save() {
   localStorage.setItem("dailyAdventure", JSON.stringify(state));
@@ -715,6 +727,26 @@ function saveHistory() {
 
 function saveLogs() {
   localStorage.setItem("dailyAdventureLogs", JSON.stringify(activityLogs));
+}
+
+function isSoundEnabled() {
+  return localStorage.getItem("dailyAdventureSound") !== "off";
+}
+
+function saveSoundEnabled(enabled) {
+  localStorage.setItem("dailyAdventureSound", enabled ? "on" : "off");
+}
+
+function getRetryFeedback(key, hint, correctAnswer) {
+  const attempts = (retryCounts.get(key) || 0) + 1;
+  retryCounts.set(key, attempts);
+  if (attempts === 1) return "Good try. Try again.";
+  if (attempts === 2) return `Here is a hint: ${hint}`;
+  return `The answer is ${correctAnswer}. Tap it to continue.`;
+}
+
+function clearRetry(key) {
+  retryCounts.delete(key);
 }
 
 function getSyncConfig() {
@@ -1121,9 +1153,18 @@ function checkPin() {
 }
 
 function speak(text) {
-  if (!("speechSynthesis" in window)) return;
+  if (!isSoundEnabled() || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voices = window.speechSynthesis.getVoices();
+  const preferredNames = ["Samantha", "Ava", "Susan", "Karen", "Moira", "Daniel"];
+  utterance.voice = preferredNames
+    .map((name) => voices.find((voice) => voice.name.includes(name) && voice.lang.startsWith("en")))
+    .find(Boolean) || voices.find((voice) => voice.lang === "en-US" && voice.localService) || null;
+  utterance.rate = 0.92;
+  utterance.pitch = 1.03;
+  utterance.volume = 1;
+  window.speechSynthesis.speak(utterance);
 }
 
 function getRoundTotal() {
@@ -1158,6 +1199,10 @@ function completeRound(id, message, detail = {}) {
   updateProgress();
   updateHistory();
   renderCaregiverReport();
+  window.setTimeout(() => {
+    const activeActivity = document.querySelector(".activity.active:not([hidden])");
+    if (activeActivity) activeActivity.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 900);
   speak(getRoundTotal() === totalRounds
     ? `Congratulations, ${state.name}. You finished today's adventure.`
     : message);
@@ -1180,6 +1225,17 @@ function updateGreeting() {
   }
   if (difficultyInput) {
     difficultyInput.value = String(getDifficultyLevel());
+  }
+  if (levelBadge) {
+    levelBadge.textContent = `Level ${getDifficultyLevel()}`;
+  }
+  if (soundToggle) {
+    const enabled = isSoundEnabled();
+    soundToggle.textContent = enabled ? "Sound on" : "Sound off";
+    soundToggle.setAttribute("aria-pressed", String(enabled));
+  }
+  if (parentNoteInput) {
+    parentNoteInput.value = localStorage.getItem("dailyAdventureParentNote") || "";
   }
   if (promptInput) {
     promptInput.value = state.talkPrompt;
@@ -1204,6 +1260,7 @@ function updateProgress() {
 
   const doneRounds = getRoundTotal();
   const doneSections = state.completed.length;
+  const nextId = nextActivityId();
   progressCount.textContent = `${doneRounds} of ${totalRounds} rounds`;
   progressBar.style.width = `${(doneRounds / totalRounds) * 100}%`;
 
@@ -1218,7 +1275,8 @@ function updateProgress() {
     const isDone = state.completed.includes(id);
 
     activity.classList.toggle("done", isDone);
-    activity.classList.toggle("active", id === nextActivityId());
+    activity.classList.toggle("active", id === nextId);
+    activity.hidden = doneRounds === totalRounds || id !== nextId;
     type.textContent = isDone
       ? `${labelFor(id)} complete`
       : `${labelFor(id)} ${round} of ${maxRounds[id]}`;
@@ -1229,6 +1287,15 @@ function updateProgress() {
     : doneRounds > 0
       ? "Good progress. Another short round is ready."
       : "Finish rounds to earn stars and mark the calendar.";
+
+  if (completionPanel) {
+    completionPanel.hidden = doneRounds !== totalRounds;
+  }
+
+  if (movementBreak && doneRounds >= 6 && doneRounds < totalRounds) {
+    const wasHandled = sessionStorage.getItem(`dailyAdventureMovement-${todayKey}`) === "done";
+    movementBreak.hidden = wasHandled;
+  }
 }
 
 function renderCaregiverReport() {
@@ -1269,6 +1336,7 @@ function renderParentView(data) {
 
   const today = data.today;
   const weeklyTrend = data.weeklyTrend || {};
+  const comparison = data.weeklyComparison || {};
   const todayHtml = today
     ? `
       <article class="parent-card parent-card-large highlight">
@@ -1322,6 +1390,25 @@ function renderParentView(data) {
     </article>
   `).join("");
 
+  const skillTrendsHtml = (data.skillTrends || []).length
+    ? data.skillTrends.map((item) => `
+      <article class="parent-list-item">
+        <strong>${escapeHtml(item.skill)}</strong>
+        <span>${escapeHtml(item.correct)} correct out of ${escapeHtml(item.attempts)} attempts · ${escapeHtml(item.accuracy)}</span>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">No skill-level attempts in the last 7 days yet.</p>`;
+
+  const missedQuestionsHtml = (data.missedQuestions || []).length
+    ? data.missedQuestions.map((item) => `
+      <article class="parent-list-item missed-item">
+        <strong>${escapeHtml(item.skill)}</strong>
+        <span>${escapeHtml(item.prompt)}</span>
+        <small>${escapeHtml(item.misses)} missed attempt${Number(item.misses) === 1 ? "" : "s"}</small>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">No missed-question pattern yet.</p>`;
+
   parentViewResults.innerHTML = `
     <div class="parent-summary-grid">
       ${todayHtml}
@@ -1341,6 +1428,14 @@ function renderParentView(data) {
       <h4>Needs Practice</h4>
       ${needsPracticeHtml}
     </div>
+    <div class="weekly-comparison">
+      <h4>This Week vs Last Week</h4>
+      <div class="comparison-grid">
+        <article><small>Rounds</small><strong>${escapeHtml(comparison.currentRounds || 0)}</strong><span>Last week: ${escapeHtml(comparison.previousRounds || 0)}</span></article>
+        <article><small>Complete days</small><strong>${escapeHtml(comparison.currentCompleteDays || 0)}</strong><span>Last week: ${escapeHtml(comparison.previousCompleteDays || 0)}</span></article>
+        <article><small>Game accuracy</small><strong>${escapeHtml(comparison.currentAccuracy || "0%")}</strong><span>Last week: ${escapeHtml(comparison.previousAccuracy || "0%")}</span></article>
+      </div>
+    </div>
     <div class="parent-list">
       <h4>7-Day Check</h4>
       <div class="parent-days">
@@ -1354,6 +1449,14 @@ function renderParentView(data) {
     <div class="parent-list">
       <h4>Learning Games</h4>
       ${attemptsHtml}
+    </div>
+    <div class="parent-list">
+      <h4>Skill Trends</h4>
+      ${skillTrendsHtml}
+    </div>
+    <div class="parent-list">
+      <h4>Questions to Review</h4>
+      ${missedQuestionsHtml}
     </div>
     <div class="ai-prompt-panel">
       <div>
@@ -1380,6 +1483,10 @@ function buildWeeklyAiPrompt(data) {
   const recentDaily = data.recentDaily || [];
   const recentTalk = data.recentTalk || [];
   const learningAttempts = data.learningAttempts || [];
+  const comparison = data.weeklyComparison || {};
+  const skillTrends = data.skillTrends || [];
+  const missedQuestions = data.missedQuestions || [];
+  const parentNote = localStorage.getItem("dailyAdventureParentNote") || "No parent note added.";
 
   return [
     "You are helping Zamaan's mom and dad understand his Daily Adventure learning progress.",
@@ -1405,6 +1512,11 @@ function buildWeeklyAiPrompt(data) {
     `- Complete days: ${weeklyTrend.completeDays || 0}`,
     `- Rounds completed: ${weeklyTrend.rounds || 0}`,
     `- Recent Talk Time answers: ${weeklyTrend.talkAnswers || 0}`,
+    `- Previous week rounds: ${comparison.previousRounds || 0}`,
+    `- Previous week game accuracy: ${comparison.previousAccuracy || "0%"}`,
+    "",
+    "Parent note:",
+    `- ${parentNote}`,
     "",
     "Today:",
     today
@@ -1421,7 +1533,13 @@ function buildWeeklyAiPrompt(data) {
     formatPromptList(recentTalk, (item) => `- ${item.date}: Prompt: ${item.prompt} | Answer: ${item.answer || "No typed answer"} | Type: ${item.responseType}`),
     "",
     "Learning game attempts:",
-    formatPromptList(learningAttempts, (item) => `- ${item.game}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`)
+    formatPromptList(learningAttempts, (item) => `- ${item.game}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`),
+    "",
+    "Skill trends this week:",
+    formatPromptList(skillTrends, (item) => `- ${item.skill}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`),
+    "",
+    "Frequently missed questions:",
+    formatPromptList(missedQuestions, (item) => `- ${item.skill}: ${item.prompt} | Misses: ${item.misses}`)
   ].join("\n");
 }
 
@@ -1729,12 +1847,13 @@ function attachRoundHandlers() {
 
       const [first, second] = memoryPicks;
       const isMatch = first.dataset.pair === second.dataset.pair;
+      const roundIndex = Math.min(state.rounds.brain, maxRounds.brain - 1);
+      const deck = todayPlan.brain[roundIndex];
 
       if (isMatch) {
+        clearRetry(`memory-${roundIndex}`);
         first.classList.add("matched");
         second.classList.add("matched");
-        const roundIndex = Math.min(state.rounds.brain, maxRounds.brain - 1);
-        const deck = todayPlan.brain[roundIndex];
         const isLast = state.rounds.brain + 1 >= maxRounds.brain;
         const message = isLast ? "Memory section complete." : "That's a pair. New cards are ready.";
         feedback.textContent = message;
@@ -1746,8 +1865,13 @@ function attachRoundHandlers() {
       } else {
         first.classList.add("wrong");
         second.classList.add("wrong");
-        feedback.textContent = "Good try. Those are different. Try again.";
-        speak("Good try. Those are different. Try again.");
+        const pairs = {};
+        deck.cards.forEach((item) => {
+          pairs[item.pair] = [...(pairs[item.pair] || []), item.text];
+        });
+        const answer = Object.values(pairs)[0].join(" and ");
+        feedback.textContent = getRetryFeedback(`memory-${roundIndex}`, "Look for two things that are used together.", answer);
+        speak(feedback.textContent);
         window.setTimeout(() => {
           first.classList.remove("selected", "wrong");
           second.classList.remove("selected", "wrong");
@@ -1765,17 +1889,18 @@ function attachRoundHandlers() {
       const activity = button.closest(".activity");
       const feedback = activity.querySelector(".feedback");
       const order = Number(button.dataset.order);
+      const roundIndex = Math.min(state.rounds.life, maxRounds.life - 1);
+      const deck = todayPlan.life[roundIndex];
 
       if (button.classList.contains("selected")) return;
 
       if (order === sequenceStep) {
+        clearRetry(`life-${roundIndex}`);
         button.classList.add("selected");
         button.dataset.picked = String(sequenceStep);
         sequenceStep += 1;
 
         if (sequenceStep > 3) {
-          const roundIndex = Math.min(state.rounds.life, maxRounds.life - 1);
-          const deck = todayPlan.life[roundIndex];
           const isLast = state.rounds.life + 1 >= maxRounds.life;
           const message = isLast ? "Life skills section complete." : "You put the steps in order. New steps are ready.";
           feedback.textContent = message;
@@ -1792,8 +1917,8 @@ function attachRoundHandlers() {
       }
 
       button.classList.add("wrong");
-      feedback.textContent = "Good try. Start with step 1.";
-      speak("Good try. Start with step 1.");
+      feedback.textContent = getRetryFeedback(`life-${roundIndex}`, `Start with: ${deck.steps[0]}.`, deck.steps[sequenceStep - 1]);
+      speak(feedback.textContent);
       window.setTimeout(resetSequenceGame, 800);
     });
   });
@@ -1814,11 +1939,12 @@ function attachRoundHandlers() {
 
       if (!isCorrect) {
         button.classList.add("wrong");
-        feedback.textContent = "Good try. Try another word.";
-        speak("Good try. Try another word.");
+        feedback.textContent = getRetryFeedback(`language-${roundIndex}`, `It starts with ${deck.spanish.charAt(0).toUpperCase()}.`, deck.spanish);
+        speak(feedback.textContent);
         return;
       }
 
+      clearRetry(`language-${roundIndex}`);
       button.classList.add("correct");
       const isLast = state.rounds.language + 1 >= maxRounds.language;
       const message = isLast ? "Spanish cards complete." : "Correct. New Spanish card is ready.";
@@ -1944,6 +2070,7 @@ function attachMiniGameHandlers() {
 
       logLearningAttempt("Sort", todayPlan.mini.sort.title, todayPlan.mini.sort.prompt, tile.textContent, correctAnswer, isCorrect);
       if (isCorrect) {
+        clearRetry("sort");
         tile.classList.add("selected", "correct");
         sortPicks.add(tile.textContent);
         feedback.textContent = sortPicks.size === todayPlan.mini.sort.correct.length
@@ -1952,8 +2079,8 @@ function attachMiniGameHandlers() {
         speak(feedback.textContent);
       } else {
         tile.classList.add("wrong");
-        feedback.textContent = "Good try. Pick a different one.";
-        speak("Good try. Pick a different one.");
+        feedback.textContent = getRetryFeedback("sort", "Think about what the question is asking you to group.", correctAnswer);
+        speak(feedback.textContent);
         window.setTimeout(() => tile.classList.remove("wrong"), 700);
       }
     });
@@ -1968,9 +2095,10 @@ function attachMiniGameHandlers() {
       logLearningAttempt("Pattern", todayPlan.mini.pattern.title, "Choose the next color.", tile.textContent, capitalize(todayPlan.mini.pattern.answer), isCorrect);
       game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
+      if (isCorrect) clearRetry("pattern");
       feedback.textContent = isCorrect
         ? `Yes. ${capitalize(todayPlan.mini.pattern.answer)} comes next.`
-        : "Good try. Look at the pattern again.";
+        : getRetryFeedback("pattern", "Look at which colors repeat.", capitalize(todayPlan.mini.pattern.answer));
       speak(feedback.textContent);
     });
   });
@@ -1988,6 +2116,7 @@ function attachMiniGameHandlers() {
       question.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
       if (isCorrect) {
+        clearRetry(`money-${questionIndex}`);
         question.dataset.answered = "true";
       }
 
@@ -1996,7 +2125,7 @@ function attachMiniGameHandlers() {
         ? answeredCount === todayMoneyMath.length
           ? "Nice money math. You answered all 3."
           : `Correct. ${currentQuestion.answer} is right.`
-        : "Good try. Count the dollars again.";
+        : getRetryFeedback(`money-${questionIndex}`, "Count the dollars one step at a time.", currentQuestion.answer);
       speak(feedback.textContent);
     });
   });
@@ -2010,9 +2139,10 @@ function attachMiniGameHandlers() {
       logLearningAttempt("Business", todayBusinessPractice.title, todayBusinessPractice.prompt, tile.textContent, todayBusinessPractice.answer, isCorrect);
       game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
+      if (isCorrect) clearRetry("business");
       feedback.textContent = isCorrect
         ? "Good business choice."
-        : "Good try. Pick the kind business action.";
+        : getRetryFeedback("business", "Think about the helpful action for a buyer or customer.", todayBusinessPractice.answer);
       speak(feedback.textContent);
     });
   });
@@ -2026,9 +2156,10 @@ function attachMiniGameHandlers() {
       logLearningAttempt("Family Words", todayPronounPractice.title, todayPronounPractice.prompt, tile.textContent, todayPronounPractice.answer, isCorrect);
       game.querySelectorAll(".tile").forEach((item) => item.classList.remove("correct", "wrong"));
       tile.classList.add(isCorrect ? "correct" : "wrong");
+      if (isCorrect) clearRetry("family-words");
       feedback.textContent = isCorrect
         ? "Good family word."
-        : "Good try. Think about who the person is to Zamaan.";
+        : getRetryFeedback("family-words", "Think about who the person is to Zamaan.", todayPronounPractice.answer);
       speak(feedback.textContent);
     });
   });
@@ -2036,6 +2167,59 @@ function attachMiniGameHandlers() {
 
 function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+if (soundToggle) {
+  soundToggle.addEventListener("click", () => {
+    const enabled = !isSoundEnabled();
+    saveSoundEnabled(enabled);
+    soundToggle.textContent = enabled ? "Sound on" : "Sound off";
+    soundToggle.setAttribute("aria-pressed", String(enabled));
+    if (enabled) speak("Sound is on.");
+  });
+}
+
+if (toggleExtraGames && extraGames) {
+  toggleExtraGames.addEventListener("click", () => {
+    const willOpen = extraGames.hidden;
+    extraGames.hidden = !willOpen;
+    toggleExtraGames.textContent = willOpen ? "Hide extra games" : "Play more";
+    toggleExtraGames.setAttribute("aria-expanded", String(willOpen));
+  });
+}
+
+function finishMovementBreak(message) {
+  if (movementInterval) window.clearInterval(movementInterval);
+  movementInterval = null;
+  sessionStorage.setItem(`dailyAdventureMovement-${todayKey}`, "done");
+  if (movementBreak) movementBreak.hidden = true;
+  if (movementTimer) movementTimer.textContent = "";
+  speak(message);
+}
+
+if (startMovementBreak) {
+  startMovementBreak.addEventListener("click", () => {
+    let secondsLeft = 120;
+    startMovementBreak.disabled = true;
+    if (movementTimer) movementTimer.textContent = "2:00 remaining";
+    speak("Movement break started. Stand up, stretch, and move.");
+    movementInterval = window.setInterval(() => {
+      secondsLeft -= 1;
+      const minutes = Math.floor(secondsLeft / 60);
+      const seconds = String(secondsLeft % 60).padStart(2, "0");
+      if (movementTimer) movementTimer.textContent = `${minutes}:${seconds} remaining`;
+      if (secondsLeft <= 0) {
+        startMovementBreak.disabled = false;
+        finishMovementBreak("Nice movement break. Ready for the next round.");
+      }
+    }, 1000);
+  });
+}
+
+if (skipMovementBreak) {
+  skipMovementBreak.addEventListener("click", () => {
+    finishMovementBreak("Okay. Keep going with your adventure.");
+  });
 }
 
 const completeTalkButton = document.querySelector("[data-complete-talk]");
@@ -2091,6 +2275,9 @@ if (saveSettings) {
     state.name = nameInput.value.trim() || "Zamaan";
     if (difficultyInput) {
       saveDifficultyLevel(difficultyInput.value);
+    }
+    if (parentNoteInput) {
+      localStorage.setItem("dailyAdventureParentNote", parentNoteInput.value.trim());
     }
     state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
     state.message = messageInput.value.trim() || defaultState.message;
@@ -2226,6 +2413,13 @@ if (hasDailyPage) {
   updateHistory();
 }
 renderCaregiverReport();
+
+if (loadParentView) {
+  const { url, familyCode } = getSyncConfig();
+  if (url && familyCode) {
+    loadParentViewData();
+  }
+}
 
 if (syncSetupApplied && celebration) {
   celebration.textContent = "Sync settings were added on this device.";
