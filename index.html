@@ -63,10 +63,19 @@
         <div class="today-card" aria-label="Today's progress">
           <span id="todayLabel">Today</span>
           <strong id="progressCount">0 of 3 done</strong>
+          <p id="roundsLeftLabel">12 rounds left today</p>
           <div class="progress-track" aria-hidden="true">
             <span id="progressBar"></span>
           </div>
         </div>
+      </section>
+
+      <section class="today-path" aria-labelledby="path-title">
+        <div>
+          <p class="eyebrow">Today's Path</p>
+          <h2 id="path-title">Finish one step at a time</h2>
+        </div>
+        <div class="path-steps" id="todayPath" aria-label="Daily section path"></div>
       </section>
 
       <section class="movement-break" id="movementBreak" hidden aria-labelledby="movement-title">
@@ -179,7 +188,7 @@
         <div class="section-heading">
           <p class="eyebrow">Learning Games</p>
           <h2 id="games-title">Play a little more</h2>
-          <p>Extra games can be used anytime, especially on a phone or tablet.</p>
+          <p id="gamesDescription">Finish today's 12 rounds first. Then extra games unlock as a reward.</p>
           <button id="toggleExtraGames" class="secondary-button" type="button" aria-expanded="false">Play more</button>
         </div>
 

@@ -2,7 +2,7 @@
 
 A simple daily learning app with memory games, life-skill sequencing, Spanish cards, travel-themed Talk Time prompts with first-person/third-person answer hints, money math, granola sales/marketing business practice, family words/pronouns practice, rewards, and a 14-day progress calendar.
 
-The learner view presents one required activity at a time, keeps extra games behind **Play more**, offers an optional halfway movement break, uses progressive retry hints, and supports a calmer system voice when available.
+The learner view presents one required activity at a time, shows a clear daily path, keeps extra games locked until the 12 daily rounds are finished when Focus Mode is on, offers an optional halfway movement break, uses progressive retry hints, and supports a calmer system voice when available.
 
 Default PIN: `1234`
 
@@ -28,10 +28,11 @@ Caregiver settings include **Test sync** and **Last synced**:
 - Parent View loads automatically when sync is configured and includes this-week/last-week comparisons, skill trends, and frequently missed questions.
 - **Parent note** is stored on the parent device and included in the copied ChatGPT weekly prompt.
 - **Difficulty level** changes the challenge level without increasing the number of daily rounds.
+- **Focus Mode** keeps extra games locked until Zamaan finishes the 12 daily rounds.
 - **Copy weekly AI prompt** prepares a parent-friendly prompt you can paste into your ChatGPT project for a weekly summary.
 - **Open ChatGPT app** copies the weekly prompt first, then tries to open the native iOS ChatGPT app. A web fallback link is shown below the button.
 - Test sync rows are ignored by the dashboard analysis.
-- Extra Learning Game attempts are logged separately so caregivers can see practice patterns without inflating daily completion.
+- Extra Learning Game attempts and Spanish card attempts are logged separately so caregivers can see practice patterns without inflating daily completion.
 
 The Apps Script also creates and refreshes these analysis tabs:
 

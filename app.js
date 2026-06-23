@@ -598,6 +598,14 @@ function saveDifficultyLevel(level) {
   localStorage.setItem("dailyAdventureDifficulty", normalizedLevel);
 }
 
+function isFocusModeEnabled() {
+  return localStorage.getItem("dailyAdventureFocusMode") !== "off";
+}
+
+function saveFocusMode(enabled) {
+  localStorage.setItem("dailyAdventureFocusMode", enabled ? "on" : "off");
+}
+
 function getDifficultyLabel() {
   const level = getDifficultyLevel();
   if (level === 1) return "Level 1 - more support";
@@ -655,6 +663,8 @@ const title = document.querySelector("#page-title");
 const todayLabel = document.querySelector("#todayLabel");
 const progressCount = document.querySelector("#progressCount");
 const progressBar = document.querySelector("#progressBar");
+const roundsLeftLabel = document.querySelector("#roundsLeftLabel");
+const todayPath = document.querySelector("#todayPath");
 const celebration = document.querySelector("#celebration");
 const stars = [...document.querySelectorAll(".star")];
 const activities = [...document.querySelectorAll(".activity")];
@@ -670,6 +680,7 @@ const caregiverToggle = document.querySelector(".caregiver-toggle");
 const caregiverPanel = document.querySelector("#caregiver-panel");
 const nameInput = document.querySelector("#nameInput");
 const difficultyInput = document.querySelector("#difficultyInput");
+const focusModeInput = document.querySelector("#focusModeInput");
 const promptInput = document.querySelector("#promptInput");
 const messageInput = document.querySelector("#messageInput");
 const pinInput = document.querySelector("#pinInput");
@@ -700,6 +711,7 @@ const levelBadge = document.querySelector("#levelBadge");
 const soundToggle = document.querySelector("#soundToggle");
 const toggleExtraGames = document.querySelector("#toggleExtraGames");
 const extraGames = document.querySelector("#extraGames");
+const gamesDescription = document.querySelector("#gamesDescription");
 const movementBreak = document.querySelector("#movementBreak");
 const startMovementBreak = document.querySelector("#startMovementBreak");
 const skipMovementBreak = document.querySelector("#skipMovementBreak");
@@ -743,6 +755,10 @@ function getRetryFeedback(key, hint, correctAnswer) {
   if (attempts === 1) return "Good try. Try again.";
   if (attempts === 2) return `Here is a hint: ${hint}`;
   return `The answer is ${correctAnswer}. Tap it to continue.`;
+}
+
+function getRetryAttemptCount(key) {
+  return retryCounts.get(key) || 0;
 }
 
 function clearRetry(key) {
@@ -976,8 +992,13 @@ async function loadParentViewData() {
   }
 }
 
-function logLearningAttempt(gameName, titleText, promptText, selectedAnswer, correctAnswer, isCorrect) {
+function logLearningAttempt(gameName, titleText, promptText, selectedAnswer, correctAnswer, isCorrect, detail = {}) {
   const result = isCorrect ? "Correct" : "Try again";
+  const notes = [];
+  if (detail.attempts) notes.push(`Attempts: ${detail.attempts}`);
+  if (detail.hintShown) notes.push("Hint shown: yes");
+  if (detail.answerShown) notes.push("Answer shown: yes");
+  if (detail.card) notes.push(`Card: ${detail.card}`);
   sendSyncPayload({
     date: todayKey,
     childName: state.name,
@@ -988,7 +1009,12 @@ function logLearningAttempt(gameName, titleText, promptText, selectedAnswer, cor
     round: "",
     title: `${gameName}: ${titleText}`,
     prompt: promptText,
-    answer: `Selected: ${selectedAnswer} | Correct: ${correctAnswer} | Result: ${result}`,
+    answer: [
+      `Selected: ${selectedAnswer}`,
+      `Correct: ${correctAnswer}`,
+      `Result: ${result}`,
+      ...notes
+    ].join(" | "),
     completedAt: new Date().toISOString()
   }, "Learning game attempt sent to the private Sheet.");
 }
@@ -1203,9 +1229,12 @@ function completeRound(id, message, detail = {}) {
     const activeActivity = document.querySelector(".activity.active:not([hidden])");
     if (activeActivity) activeActivity.scrollIntoView({ behavior: "smooth", block: "start" });
   }, 900);
-  speak(getRoundTotal() === totalRounds
+  const doneRounds = getRoundTotal();
+  const roundsLeft = Math.max(totalRounds - doneRounds, 0);
+  const progressMessage = roundsLeft > 0 ? `${message} ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left.` : message;
+  speak(doneRounds === totalRounds
     ? `Congratulations, ${state.name}. You finished today's adventure.`
-    : message);
+    : progressMessage);
 }
 
 function nextActivityId() {
@@ -1218,13 +1247,16 @@ function updateGreeting() {
   }
   const intro = document.querySelector(".intro");
   if (intro) {
-    intro.textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. ${getDifficultyLabel()}. Four short sections plus extra learning games.`;
+    intro.textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. ${getDifficultyLabel()}. Finish the four short sections, then unlock extra learning games.`;
   }
   if (nameInput) {
     nameInput.value = state.name;
   }
   if (difficultyInput) {
     difficultyInput.value = String(getDifficultyLevel());
+  }
+  if (focusModeInput) {
+    focusModeInput.checked = isFocusModeEnabled();
   }
   if (levelBadge) {
     levelBadge.textContent = `Level ${getDifficultyLevel()}`;
@@ -1255,14 +1287,74 @@ function updateGreeting() {
   updateSyncStatus();
 }
 
+function renderTodayPath(nextId) {
+  if (!todayPath) return;
+
+  const doneRounds = getRoundTotal();
+  todayPath.innerHTML = sectionIds.map((id, index) => {
+    const isDone = state.completed.includes(id);
+    const isCurrent = id === nextId && doneRounds < totalRounds;
+    const round = Math.min(state.rounds[id] + 1, maxRounds[id]);
+    const status = isDone ? "Done" : isCurrent ? `Round ${round} of ${maxRounds[id]}` : "Next";
+    const classes = ["path-step"];
+    if (isDone) classes.push("done");
+    if (isCurrent) classes.push("current");
+
+    return `
+      <div class="${classes.join(" ")}">
+        <span>${index + 1}</span>
+        <strong>${labelFor(id)}</strong>
+        <small>${status}</small>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateExtraGamesAccess(doneRounds) {
+  if (!toggleExtraGames || !extraGames) return;
+
+  const focusMode = isFocusModeEnabled();
+  const dailyComplete = doneRounds === totalRounds;
+  const locked = focusMode && !dailyComplete;
+
+  toggleExtraGames.disabled = locked;
+  toggleExtraGames.setAttribute("aria-disabled", String(locked));
+
+  if (locked) {
+    const roundsLeft = totalRounds - doneRounds;
+    extraGames.hidden = true;
+    toggleExtraGames.textContent = "Finish daily rounds first";
+    toggleExtraGames.setAttribute("aria-expanded", "false");
+    if (gamesDescription) {
+      gamesDescription.textContent = `Stay with today's path. ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left, then extra games unlock.`;
+    }
+    return;
+  }
+
+  toggleExtraGames.textContent = extraGames.hidden ? "Play more" : "Hide extra games";
+  if (gamesDescription) {
+    gamesDescription.textContent = dailyComplete
+      ? "Great work finishing today's 12 rounds. Extra games are unlocked."
+      : "Extra games are available because Focus Mode is off.";
+  }
+}
+
 function updateProgress() {
   if (!progressCount || !progressBar || !celebration) return;
 
   const doneRounds = getRoundTotal();
   const doneSections = state.completed.length;
   const nextId = nextActivityId();
+  const roundsLeft = Math.max(totalRounds - doneRounds, 0);
   progressCount.textContent = `${doneRounds} of ${totalRounds} rounds`;
+  if (roundsLeftLabel) {
+    roundsLeftLabel.textContent = roundsLeft === 0
+      ? "Daily adventure complete"
+      : `${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left today`;
+  }
   progressBar.style.width = `${(doneRounds / totalRounds) * 100}%`;
+  renderTodayPath(nextId);
+  updateExtraGamesAccess(doneRounds);
 
   stars.forEach((star, index) => {
     star.classList.toggle("earned", index < doneSections);
@@ -1279,14 +1371,14 @@ function updateProgress() {
     activity.hidden = doneRounds === totalRounds || id !== nextId;
     type.textContent = isDone
       ? `${labelFor(id)} complete`
-      : `${labelFor(id)} ${round} of ${maxRounds[id]}`;
+      : `${labelFor(id)} round ${round} of ${maxRounds[id]}`;
   });
 
   celebration.textContent = doneRounds === totalRounds
     ? `Congratulations, ${state.name}. ${state.message}`
     : doneRounds > 0
-      ? "Good progress. Another short round is ready."
-      : "Finish rounds to earn stars and mark the calendar.";
+      ? `Good progress. ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left today.`
+      : "Start with Memory. Finish rounds to earn stars and mark the calendar.";
 
   if (completionPanel) {
     completionPanel.hidden = doneRounds !== totalRounds;
@@ -1855,7 +1947,7 @@ function attachRoundHandlers() {
         first.classList.add("matched");
         second.classList.add("matched");
         const isLast = state.rounds.brain + 1 >= maxRounds.brain;
-        const message = isLast ? "Memory section complete." : "That's a pair. New cards are ready.";
+        const message = isLast ? "Memory section finished." : "That's a pair. New cards are ready.";
         feedback.textContent = message;
         completeRound("brain", message, {
           title: deck.title,
@@ -1902,7 +1994,7 @@ function attachRoundHandlers() {
 
         if (sequenceStep > 3) {
           const isLast = state.rounds.life + 1 >= maxRounds.life;
-          const message = isLast ? "Life skills section complete." : "You put the steps in order. New steps are ready.";
+          const message = isLast ? "Life skills section finished." : "You put the steps in order. New steps are ready.";
           feedback.textContent = message;
           completeRound("life", message, {
             title: deck.title,
@@ -1931,6 +2023,7 @@ function attachRoundHandlers() {
       const feedback = activity.querySelector(".feedback");
       const roundIndex = Math.min(state.rounds.language, maxRounds.language - 1);
       const deck = todayLanguage[roundIndex];
+      const retryKey = `language-${roundIndex}`;
       const isCorrect = button.dataset.languageChoice === deck.spanish;
 
       activity.querySelectorAll(".language-choice").forEach((choice) => {
@@ -1939,15 +2032,29 @@ function attachRoundHandlers() {
 
       if (!isCorrect) {
         button.classList.add("wrong");
-        feedback.textContent = getRetryFeedback(`language-${roundIndex}`, `It starts with ${deck.spanish.charAt(0).toUpperCase()}.`, deck.spanish);
+        feedback.textContent = getRetryFeedback(retryKey, `It starts with ${deck.spanish.charAt(0).toUpperCase()}.`, deck.spanish);
+        const attempts = getRetryAttemptCount(retryKey);
+        logLearningAttempt("Spanish Cards", deck.english, `Which Spanish word means ${deck.english.toLowerCase()}?`, button.dataset.languageChoice, deck.spanish, false, {
+          attempts,
+          hintShown: attempts >= 2,
+          answerShown: attempts >= 3,
+          card: `${deck.english} = ${deck.spanish}`
+        });
         speak(feedback.textContent);
         return;
       }
 
-      clearRetry(`language-${roundIndex}`);
+      const attempts = getRetryAttemptCount(retryKey) + 1;
+      logLearningAttempt("Spanish Cards", deck.english, `Which Spanish word means ${deck.english.toLowerCase()}?`, button.dataset.languageChoice, deck.spanish, true, {
+        attempts,
+        hintShown: attempts > 2,
+        answerShown: attempts > 3,
+        card: `${deck.english} = ${deck.spanish}`
+      });
+      clearRetry(retryKey);
       button.classList.add("correct");
       const isLast = state.rounds.language + 1 >= maxRounds.language;
-      const message = isLast ? "Spanish cards complete." : "Correct. New Spanish card is ready.";
+      const message = isLast ? "Spanish cards finished." : "Correct. New Spanish card is ready.";
       feedback.textContent = `${deck.english} means ${deck.spanish}.`;
       completeRound("language", message, {
         title: "Spanish Card",
@@ -2181,6 +2288,7 @@ if (soundToggle) {
 
 if (toggleExtraGames && extraGames) {
   toggleExtraGames.addEventListener("click", () => {
+    if (toggleExtraGames.disabled) return;
     const willOpen = extraGames.hidden;
     extraGames.hidden = !willOpen;
     toggleExtraGames.textContent = willOpen ? "Hide extra games" : "Play more";
@@ -2232,8 +2340,8 @@ if (completeTalkButton) {
   const answerStyle = answerStyleHints[selectedAnswerStyle] || answerStyleHints.first;
   const isLast = state.rounds.talk + 1 >= maxRounds.talk;
   const message = answer
-    ? isLast ? "Thank you for sharing. Talk Time is complete." : "Thank you for sharing. New question is ready."
-    : isLast ? "Talk Time is complete." : "New Talk Time question is ready.";
+    ? isLast ? "Thank you for sharing. Talk Time is finished." : "Thank you for sharing. New question is ready."
+    : isLast ? "Talk Time is finished." : "New Talk Time question is ready.";
   document.querySelector('[data-activity="talk"] .feedback').textContent = message;
   completeRound("talk", message, {
     title: "Talk Time",
@@ -2276,6 +2384,9 @@ if (saveSettings) {
     if (difficultyInput) {
       saveDifficultyLevel(difficultyInput.value);
     }
+    if (focusModeInput) {
+      saveFocusMode(focusModeInput.checked);
+    }
     if (parentNoteInput) {
       localStorage.setItem("dailyAdventureParentNote", parentNoteInput.value.trim());
     }
@@ -2285,6 +2396,7 @@ if (saveSettings) {
     saveSyncConfig();
     save();
     updateGreeting();
+    updateProgress();
     renderTalkRound();
     if (celebration) {
       celebration.textContent = "Settings saved.";
