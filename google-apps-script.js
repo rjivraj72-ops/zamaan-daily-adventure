@@ -5,6 +5,7 @@ const DAILY_SHEET_NAME = "Daily Summary";
 const SECTION_SHEET_NAME = "Section Summary";
 const TALK_SHEET_NAME = "Recent Talk Time";
 const ATTEMPTS_SHEET_NAME = "Learning Attempts";
+const SKILL_MASTERY_SHEET_NAME = "skill_mastery";
 const CHATGPT_PROMPT_SHEET_NAME = "ChatGPT Prompt";
 const EXPECTED_DAILY_ROUNDS = 12;
 
@@ -102,6 +103,7 @@ function refreshAnalysisSheets_() {
   writeSectionSummary_(getOrCreateSheet_(spreadsheet, SECTION_SHEET_NAME), analysis.sectionRows);
   writeRecentTalk_(getOrCreateSheet_(spreadsheet, TALK_SHEET_NAME), analysis.talkRows);
   writeLearningAttempts_(getOrCreateSheet_(spreadsheet, ATTEMPTS_SHEET_NAME), analysis.attemptRows);
+  writeSkillMastery_(getOrCreateSheet_(spreadsheet, SKILL_MASTERY_SHEET_NAME), analysis.skillMasteryRows);
   writeChatGptPrompt_(getOrCreateSheet_(spreadsheet, CHATGPT_PROMPT_SHEET_NAME), analysis);
 }
 
@@ -315,6 +317,49 @@ function buildAnalysis_(rows) {
     missedMap[key].misses += 1;
   });
   const missedQuestions = Object.values(missedMap).sort((a, b) => b.misses - a.misses).slice(0, 5);
+  const skillMasteryItems = buildSkillMasteryItems_(learningAttemptRows);
+  const skillMasteryRows = skillMasteryItems.map((item) => [
+    item.skill_area,
+    item.question_key,
+    item.question_text,
+    item.attempts,
+    item.correct,
+    item.accuracy,
+    item.mastery_status,
+    item.last_practiced,
+    item.priority_score,
+    item.next_practice_activity
+  ]);
+  const practiceNext = skillMasteryItems
+    .filter((item) => item.mastery_status !== "Mastered")
+    .sort((a, b) => b.priority_score - a.priority_score)
+    .slice(0, 3)
+    .map((item) => ({
+      skillArea: item.skill_area,
+      questionKey: item.question_key,
+      questionText: item.question_text,
+      attempts: item.attempts,
+      correct: item.correct,
+      accuracy: `${item.accuracy}%`,
+      masteryStatus: item.mastery_status,
+      lastPracticed: formatPromptValue_(item.last_practiced),
+      priorityScore: item.priority_score,
+      nextPracticeActivity: item.next_practice_activity
+    }));
+  const masteryStrengths = skillMasteryItems
+    .filter((item) => item.mastery_status === "Strong" || item.mastery_status === "Mastered")
+    .sort((a, b) => b.accuracy - a.accuracy || b.attempts - a.attempts)
+    .slice(0, 5)
+    .map((item) => ({
+      skillArea: item.skill_area,
+      questionText: item.question_text,
+      attempts: item.attempts,
+      correct: item.correct,
+      accuracy: `${item.accuracy}%`,
+      masteryStatus: item.mastery_status,
+      lastPracticed: formatPromptValue_(item.last_practiced),
+      priorityScore: item.priority_score
+    }));
 
   return {
     totalRounds,
@@ -341,8 +386,135 @@ function buildAnalysis_(rows) {
       previousAccuracy: previousAttemptRows.length ? `${Math.round((previousCorrect / previousAttemptRows.length) * 100)}%` : "0%"
     },
     skillTrends,
-    missedQuestions
+    missedQuestions,
+    skillMasteryRows,
+    practiceNext,
+    masteryStrengths
   };
+}
+
+function buildSkillMasteryItems_(learningAttemptRows) {
+  const masteryMap = {};
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+
+  learningAttemptRows.forEach((row) => {
+    const skillArea = getSkillArea_(row.title);
+    const questionTitle = getQuestionTitle_(row.title);
+    const questionText = row.prompt || getQuestionTitle_(row.title) || "Learning question";
+    const questionKey = makeQuestionKey_(skillArea, questionText);
+    const isCorrect = String(row.answer || "").indexOf("Result: Correct") !== -1;
+    const practicedAt = getPracticeDate_(row);
+
+    if (!masteryMap[questionKey]) {
+      masteryMap[questionKey] = {
+        skill_area: skillArea,
+        question_title: questionTitle,
+        question_key: questionKey,
+        question_text: questionText,
+        attempts: 0,
+        correct: 0,
+        last_practiced: practicedAt,
+        lastWasMissed: false,
+        recentMisses: 0
+      };
+    }
+
+    const item = masteryMap[questionKey];
+    item.attempts += 1;
+    item.correct += isCorrect ? 1 : 0;
+    if (practicedAt && (!item.last_practiced || practicedAt > item.last_practiced)) {
+      item.last_practiced = practicedAt;
+      item.lastWasMissed = !isCorrect;
+    }
+    if (!isCorrect && practicedAt && daysBetween_(practicedAt, today) <= 3) {
+      item.recentMisses += 1;
+    }
+  });
+
+  return Object.values(masteryMap).map((item) => {
+    const accuracy = item.attempts ? Math.round((item.correct / item.attempts) * 100) : 0;
+    const masteryStatus = getMasteryStatus_(accuracy, item.attempts);
+    const daysSincePractice = item.last_practiced ? daysBetween_(item.last_practiced, today) : 99;
+    const priorityScore = getPriorityScore_(accuracy, item.attempts, item.recentMisses, daysSincePractice, masteryStatus);
+
+    return {
+      ...item,
+      accuracy,
+      mastery_status: masteryStatus,
+      priority_score: priorityScore,
+      next_practice_activity: getNextPracticeActivity_(item.skill_area, item.question_title, item.question_text)
+    };
+  }).sort((a, b) => b.priority_score - a.priority_score || a.skill_area.localeCompare(b.skill_area));
+}
+
+function getSkillArea_(title) {
+  return String(title || "Learning Game").split(":")[0].trim() || "Learning Game";
+}
+
+function getQuestionTitle_(title) {
+  const parts = String(title || "").split(":");
+  return parts.length > 1 ? parts.slice(1).join(":").trim() : String(title || "").trim();
+}
+
+function makeQuestionKey_(skillArea, questionText) {
+  const value = `${skillArea}-${questionText}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return value.slice(0, 90) || "learning-question";
+}
+
+function getPracticeDate_(row) {
+  if (Object.prototype.toString.call(row.timestamp) === "[object Date]") return row.timestamp;
+  const parsedDate = parseDateKey_(row.date);
+  return parsedDate || new Date();
+}
+
+function daysBetween_(earlier, later) {
+  const start = new Date(earlier);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(later);
+  end.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.floor((end - start) / 86400000));
+}
+
+function getMasteryStatus_(accuracy, attempts) {
+  if (accuracy >= 90 && attempts >= 5) return "Mastered";
+  if (accuracy >= 80) return "Strong";
+  if (accuracy >= 60) return "Practicing";
+  return "Learning";
+}
+
+function getPriorityScore_(accuracy, attempts, recentMisses, daysSincePractice, masteryStatus) {
+  const accuracyScore = Math.max(0, 100 - accuracy);
+  const lowAttemptScore = attempts < 5 ? (5 - attempts) * 8 : 0;
+  const recentMissScore = Math.min(recentMisses * 18, 36);
+  const staleScore = daysSincePractice >= 7 ? Math.min(30, 10 + ((daysSincePractice - 7) * 2)) : 0;
+  const statusScore = masteryStatus === "Learning" ? 25 : masteryStatus === "Practicing" ? 15 : masteryStatus === "Strong" ? 5 : -50;
+  return Math.max(0, Math.round(accuracyScore + lowAttemptScore + recentMissScore + staleScore + statusScore));
+}
+
+function getNextPracticeActivity_(skillArea, questionTitle, questionText) {
+  const skill = String(skillArea || "").toLowerCase();
+  const title = questionTitle || questionText || "this question";
+
+  if (skill.indexOf("family") !== -1) {
+    return `Look at a family photo and ask: "${questionText}" Then ask Zamaan to answer with "my" or "his" in a full sentence.`;
+  }
+  if (skill.indexOf("money") !== -1) {
+    return `Use real or play dollars for 2 minutes. Ask: "${questionText}" Let Zamaan count out the answer, then say the full sentence.`;
+  }
+  if (skill.indexOf("spanish") !== -1) {
+    return `Make 3 quick cards for this word. Say the English word, let Zamaan choose the Spanish word, then have him repeat both words.`;
+  }
+  if (skill.indexOf("business") !== -1) {
+    return `Role-play a short buyer conversation. Ask the question, let Zamaan choose the best answer, then practice saying it kindly.`;
+  }
+  if (skill.indexOf("pattern") !== -1) {
+    return `Use colored objects to copy the pattern, then ask Zamaan what comes next before tapping the answer.`;
+  }
+  if (skill.indexOf("sort") !== -1) {
+    return `Put 4 real objects or picture cards on the table and ask Zamaan to sort them into two simple groups.`;
+  }
+  return `Practice "${title}" once out loud, once with choices, and once again after a short break.`;
 }
 
 function writeDashboard_(sheet, analysis) {
@@ -361,7 +533,7 @@ function writeDashboard_(sheet, analysis) {
     ["Learning Game Correct", analysis.correctAttempts],
     ["Learning Game Accuracy", analysis.attemptAccuracy],
     ["", ""],
-    ["What to look for", "Use this as a quick caregiver view. Daily Summary shows consistency. Section Summary shows required practice. Learning Attempts shows extra-game attempts and accuracy. Recent Talk Time shows typed responses."]
+    ["What to look for", "Use this as a quick caregiver view. Daily Summary shows consistency. Section Summary shows required practice. Learning Attempts shows attempts and accuracy. skill_mastery shows mastery status and what to practice next."]
   ];
 
   sheet.getRange(1, 1, values.length, 2).setValues(values);
@@ -446,6 +618,8 @@ function buildParentView_(analysis) {
     weeklyComparison: analysis.weeklyComparison,
     skillTrends: analysis.skillTrends,
     missedQuestions: analysis.missedQuestions,
+    practiceNext: analysis.practiceNext,
+    masteryStrengths: analysis.masteryStrengths,
     needsPractice,
     recentDaily,
     recentTalk,
@@ -541,6 +715,29 @@ function writeLearningAttempts_(sheet, rows) {
   sheet.getRange(2, 7, Math.max(rows.length, 1), 1).setNumberFormat("m/d/yyyy h:mm AM/PM");
 }
 
+function writeSkillMastery_(sheet, rows) {
+  sheet.clear();
+  const headers = [
+    "skill_area",
+    "question_key",
+    "question_text",
+    "attempts",
+    "correct",
+    "accuracy",
+    "mastery_status",
+    "last_practiced",
+    "priority_score",
+    "next_practice_activity"
+  ];
+  writeTable_(sheet, headers, rows);
+  sheet.getRange(2, 6, Math.max(rows.length, 1), 1).setNumberFormat("0");
+  sheet.getRange(2, 8, Math.max(rows.length, 1), 1).setNumberFormat("m/d/yyyy h:mm AM/PM");
+  sheet.getRange(2, 10, Math.max(rows.length, 1), 1).setWrap(true);
+  sheet.setColumnWidths(1, 10, 160);
+  sheet.setColumnWidth(3, 320);
+  sheet.setColumnWidth(10, 420);
+}
+
 function writeChatGptPrompt_(sheet, analysis) {
   sheet.clear();
   const prompt = buildChatGptPrompt_(analysis);
@@ -562,19 +759,33 @@ function buildChatGptPrompt_(analysis) {
   const recentDailyRows = analysis.dailyRows.slice(-7);
   const recentTalkRows = analysis.talkRows.slice(0, 10);
   const attemptRows = analysis.attemptRows;
+  const strengthRows = (analysis.masteryStrengths || []).map((item) => [
+    item.skillArea,
+    item.questionText,
+    item.accuracy,
+    item.masteryStatus,
+    item.attempts
+  ]);
+  const practiceRows = (analysis.practiceNext || []).map((item) => [
+    item.skillArea,
+    item.questionText,
+    item.accuracy,
+    item.masteryStatus,
+    item.priorityScore,
+    item.nextPracticeActivity
+  ]);
 
   return [
     "You are helping mom and dad understand Zamaan's Daily Adventure progress.",
-    "Please use a warm, practical caregiver tone. Do not diagnose. Focus on patterns, encouragement, and next practice ideas.",
+    "Please use a warm, practical parent-friendly tone. Avoid diagnostic language. Focus on patterns, encouragement, and simple next steps.",
+    "Use Skill Mastery first when choosing strengths and practice areas. Practice areas should come from the highest priority_score items, considering mastery_status.",
     "",
     "Please provide:",
-    "1. Three things Zamaan is doing well.",
-    "2. Three areas to keep practicing.",
-    "3. Patterns in Family Words / pronouns.",
-    "4. Patterns in Money Math.",
-    "5. Patterns in Talk Time responses.",
-    "6. A short parent summary for this week.",
-    "7. Two gentle recommendations for tomorrow.",
+    "1. A short weekly progress summary.",
+    "2. Three strengths, using Strong or Mastered skill_mastery items when available.",
+    "3. Two practice areas, chosen from the highest priority_score skill_mastery items.",
+    "4. Patterns in Talk Time, Money Math, Spanish, and Family Words/Pronouns.",
+    "5. Top 2 home activities for next week, using next_practice_activity from the priority skills.",
     "",
     "Dashboard:",
     `- Total completed rounds: ${analysis.totalRounds}`,
@@ -591,6 +802,12 @@ function buildChatGptPrompt_(analysis) {
     "",
     "Learning Attempts:",
     formatPromptRows_(attemptRows, ["Game / Skill", "Attempts", "Correct", "Accuracy", "Last Prompt", "Last Answer", "Last Attempt"]),
+    "",
+    "Skill Mastery Strengths:",
+    formatPromptRows_(strengthRows, ["Skill", "Question", "Accuracy", "Mastery", "Attempts"]),
+    "",
+    "Skill Mastery Practice Priorities:",
+    formatPromptRows_(practiceRows, ["Skill", "Question", "Accuracy", "Mastery", "Priority", "Parent Activity"]),
     "",
     "Recent Talk Time:",
     formatPromptRows_(recentTalkRows, ["Timestamp", "Date", "Child", "Prompt", "Answer", "Response Type", "Answer Length"])

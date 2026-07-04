@@ -1347,6 +1347,48 @@ button:focus-visible {
   line-height: 1.35;
 }
 
+.practice-next-list {
+  padding: 12px;
+  border-radius: var(--radius-small);
+  border: 1px solid rgba(8, 120, 101, 0.22);
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+}
+
+.practice-next-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(8, 120, 101, 0.14);
+  border-radius: var(--radius-small);
+  background: #fff;
+}
+
+.practice-next-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.practice-next-card small {
+  color: var(--accent-strong);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.practice-next-card span,
+.practice-next-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.practice-next-card p {
+  padding: 10px;
+  border-radius: var(--radius-small);
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
 .parent-days {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));

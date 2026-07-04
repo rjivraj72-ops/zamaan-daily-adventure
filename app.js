@@ -1482,6 +1482,19 @@ function renderParentView(data) {
     </article>
   `).join("");
 
+  const practiceNextHtml = (data.practiceNext || []).length
+    ? data.practiceNext.slice(0, 3).map((item) => `
+      <article class="practice-next-card">
+        <div>
+          <small>${escapeHtml(item.masteryStatus)} · Priority ${escapeHtml(item.priorityScore)}</small>
+          <strong>${escapeHtml(item.skillArea)}: ${escapeHtml(item.questionText)}</strong>
+          <span>${escapeHtml(item.correct || 0)} correct out of ${escapeHtml(item.attempts || 0)} attempts · ${escapeHtml(item.accuracy || "0%")}</span>
+        </div>
+        <p>${escapeHtml(item.nextPracticeActivity)}</p>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">No priority practice yet. Complete a few learning games to build this list.</p>`;
+
   const skillTrendsHtml = (data.skillTrends || []).length
     ? data.skillTrends.map((item) => `
       <article class="parent-list-item">
@@ -1519,6 +1532,10 @@ function renderParentView(data) {
     <div class="parent-list practice-list">
       <h4>Needs Practice</h4>
       ${needsPracticeHtml}
+    </div>
+    <div class="parent-list practice-next-list">
+      <h4>What to Practice Next</h4>
+      ${practiceNextHtml}
     </div>
     <div class="weekly-comparison">
       <h4>This Week vs Last Week</h4>
@@ -1578,18 +1595,21 @@ function buildWeeklyAiPrompt(data) {
   const comparison = data.weeklyComparison || {};
   const skillTrends = data.skillTrends || [];
   const missedQuestions = data.missedQuestions || [];
+  const practiceNext = data.practiceNext || [];
+  const masteryStrengths = data.masteryStrengths || [];
   const parentNote = localStorage.getItem("dailyAdventureParentNote") || "No parent note added.";
 
   return [
     "You are helping Zamaan's mom and dad understand his Daily Adventure learning progress.",
-    "Please use a warm, practical parent-friendly tone. Do not diagnose. Focus on patterns, encouragement, and simple next steps.",
+    "Please use a warm, practical parent-friendly tone. Avoid diagnostic language. Focus on patterns, encouragement, and simple next steps.",
+    "Use Skill Mastery first when choosing strengths and practice areas. Practice areas should come from the highest priority_score items, considering mastery_status.",
     "",
     "Please provide:",
     "1. A short weekly progress summary.",
-    "2. Three things Zamaan is doing well.",
-    "3. Two areas that need practice.",
-    "4. Patterns in Talk Time, money math, Spanish, and family words/pronouns if the data shows them.",
-    "5. Two simple activities for next week.",
+    "2. Three strengths, using Strong or Mastered skill_mastery items when available.",
+    "3. Two practice areas, chosen from the highest priority_score skill_mastery items.",
+    "4. Patterns in Talk Time, Money Math, Spanish, and Family Words/Pronouns.",
+    "5. Top 2 home activities for next week, using next_practice_activity from the priority skills.",
     "",
     "Dashboard:",
     `- Total rounds completed: ${dashboard.totalRounds || 0}`,
@@ -1617,6 +1637,12 @@ function buildWeeklyAiPrompt(data) {
     "",
     "Needs practice shown in the app:",
     formatPromptList(needsPractice, (item) => `- ${item.title}: ${item.detail}`),
+    "",
+    "Skill Mastery Strengths:",
+    formatPromptList(masteryStrengths, (item) => `- ${item.skillArea}: ${item.questionText} | ${item.masteryStatus}, ${item.accuracy}, ${item.attempts} attempts`),
+    "",
+    "Skill Mastery Practice Priorities:",
+    formatPromptList(practiceNext, (item) => `- ${item.skillArea}: ${item.questionText} | ${item.masteryStatus}, ${item.accuracy}, priority ${item.priorityScore} | Parent activity: ${item.nextPracticeActivity}`),
     "",
     "Recent daily detail:",
     formatPromptList(recentDaily, (day) => `- ${day.date}: ${day.rounds} of ${totalRounds} rounds, ${day.status}, ${day.completion} complete`),

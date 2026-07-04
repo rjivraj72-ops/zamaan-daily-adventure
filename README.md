@@ -26,6 +26,7 @@ Caregiver settings include **Test sync** and **Last synced**:
 - **Last synced** shows the most recent time the app sent data from that device.
 - **Parent view** loads a short shared Google Sheet dashboard inside the app: today, 7-day progress, top needs-practice areas, recent Talk Time, and learning-game accuracy.
 - Parent View loads automatically when sync is configured and includes this-week/last-week comparisons, skill trends, and frequently missed questions.
+- **What to Practice Next** uses the `skill_mastery` table to show the top 3 parent-friendly practice priorities.
 - **Parent note** is stored on the parent device and included in the copied ChatGPT weekly prompt.
 - **Difficulty level** changes the challenge level without increasing the number of daily rounds.
 - **Focus Mode** keeps extra games locked until Zamaan finishes the 12 daily rounds.
@@ -41,6 +42,7 @@ The Apps Script also creates and refreshes these analysis tabs:
 - `Section Summary`
 - `Recent Talk Time`
 - `Learning Attempts`
+- `skill_mastery`
 - `ChatGPT Prompt`
 
 Use `ChatGPT Prompt` by copying the prompt into your ChatGPT project when you want a parent-friendly progress analysis.
