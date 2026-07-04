@@ -1091,30 +1091,31 @@ function getCompletedSectionNames() {
     .map(labelFor);
 }
 
-function getLatestTalkTimeSummary() {
-  const latestTalk = [...getTodayLogs()].reverse().find((entry) => entry.section === "talk");
-  if (!latestTalk) return null;
+function getTalkTimeSummaries() {
+  return getTodayLogs()
+    .filter((entry) => entry.section === "talk")
+    .map((entry) => {
+      const prompt = String(entry.prompt || "").replace(/\s*Answer style:.*$/i, "").trim();
+      const answer = String(entry.answer || "");
+      const typedMatch = answer.match(/Answer:\s*(.+)$/);
 
-  const prompt = String(latestTalk.prompt || "").replace(/\s*Answer style:.*$/i, "").trim();
-  const answer = String(latestTalk.answer || "");
-  const typedMatch = answer.match(/Answer:\s*(.+)$/);
-
-  if (typedMatch && typedMatch[1]) {
-    return {
-      prompt,
-      answer: typedMatch[1].trim()
-    };
-  }
-
-  return {
-    prompt,
-    answer: "I said my Talk Time answer out loud."
-  };
+      return {
+        prompt,
+        answer: typedMatch && typedMatch[1]
+          ? typedMatch[1].trim()
+          : "I said my Talk Time answer out loud."
+      };
+    });
 }
 
 function buildCompletionUpdateMessage() {
   const completedSections = getCompletedSectionNames();
-  const talkTimeSummary = getLatestTalkTimeSummary();
+  const talkTimeSummaries = getTalkTimeSummaries();
+  const talkTimeLines = talkTimeSummaries.flatMap((item, index) => [
+    `Talk Time ${index + 1}:`,
+    `Question: ${item.prompt}`,
+    `My answer: ${item.answer}`
+  ]);
   const mood = state.mood || "not picked";
   const dateLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
@@ -1130,10 +1131,9 @@ function buildCompletionUpdateMessage() {
     `Stars earned: ${state.completed.length} of 4`,
     `Mood: ${mood}`,
     `I practiced: ${completedSections.join(", ") || "my daily activities"}.`,
-    talkTimeSummary ? `` : null,
-    talkTimeSummary ? `My Talk Time:` : null,
-    talkTimeSummary ? `Question: ${talkTimeSummary.prompt}` : null,
-    talkTimeSummary ? `My answer: ${talkTimeSummary.answer}` : null,
+    talkTimeLines.length ? `` : null,
+    talkTimeLines.length ? `My Talk Time:` : null,
+    ...talkTimeLines,
     ``,
     `I did it!`,
     `Love, ${state.name}`
