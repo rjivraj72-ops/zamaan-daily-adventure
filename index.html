@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily Adventure</title>
+    <meta name="theme-color" content="#247c6d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Daily Adventure">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="daily-page">
+    <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">
+      <div class="pin-card">
+        <img class="app-icon" src="icons/app-icon-192.png" alt="" aria-hidden="true">
+        <p class="eyebrow">Daily Adventure</p>
+        <h1 id="pin-title">Enter your PIN</h1>
+        <p class="pin-help">Use the same kind of PIN screen you already know.</p>
+        <div class="pin-display" id="pinDisplay" aria-label="PIN entry">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="pin-pad" aria-label="Number pad">
+          <button class="pin-key" data-pin-key="1">1</button>
+          <button class="pin-key" data-pin-key="2">2</button>
+          <button class="pin-key" data-pin-key="3">3</button>
+          <button class="pin-key" data-pin-key="4">4</button>
+          <button class="pin-key" data-pin-key="5">5</button>
+          <button class="pin-key" data-pin-key="6">6</button>
+          <button class="pin-key" data-pin-key="7">7</button>
+          <button class="pin-key" data-pin-key="8">8</button>
+          <button class="pin-key" data-pin-key="9">9</button>
+          <button class="pin-key secondary" data-pin-clear>Clear</button>
+          <button class="pin-key" data-pin-key="0">0</button>
+          <button class="pin-key secondary" data-pin-back>Back</button>
+        </div>
+        <p class="pin-message" id="pinMessage" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <main class="app-shell">
+      <nav class="app-nav" aria-label="App sections">
+        <a class="active" href="index.html">Daily Adventure</a>
+        <a href="caregiver.html">Caregiver</a>
+      </nav>
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <img class="app-mark" src="icons/app-icon-192.png" alt="" aria-hidden="true">
+          <p class="eyebrow">Daily Adventure</p>
+          <h1 id="page-title">Hi, Zamaan. Ready for today's adventure?</h1>
+          <p class="intro">Four short activities, plus learning games for memory, sorting, patterns, and everyday choices.</p>
+          <div class="learner-controls">
+            <span class="level-badge" id="levelBadge">Level 2</span>
+            <button class="sound-toggle secondary-button" id="soundToggle" type="button" aria-pressed="true">Sound on</button>
+          </div>
+        </div>
+        <div class="today-card" aria-label="Today's progress">
+          <span id="todayLabel">Today</span>
+          <strong id="progressCount">0 of 3 done</strong>
+          <p id="roundsLeftLabel">12 rounds left today</p>
+          <div class="progress-track" aria-hidden="true">
+            <span id="progressBar"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="today-path" aria-labelledby="path-title">
+        <div>
+          <p class="eyebrow">Today's Path</p>
+          <h2 id="path-title">Finish one step at a time</h2>
+        </div>
+        <div class="path-steps" id="todayPath" aria-label="Daily section path"></div>
+      </section>
+
+      <section class="movement-break" id="movementBreak" hidden aria-labelledby="movement-title">
+        <div>
+          <p class="eyebrow">Halfway Point</p>
+          <h2 id="movement-title">Ready for a movement break?</h2>
+          <p>Stand up, stretch, and move for two minutes. Then come back for the next round.</p>
+        </div>
+        <div class="movement-actions">
+          <button id="startMovementBreak" type="button">Start 2-minute break</button>
+          <button id="skipMovementBreak" class="secondary-button" type="button">Keep going</button>
+        </div>
+        <strong id="movementTimer" aria-live="polite"></strong>
+      </section>
+
+      <section class="check-in" aria-labelledby="checkin-title">
+        <div>
+          <h2 id="checkin-title">How are you feeling?</h2>
+          <p>Pick one. This helps choose a good pace for today.</p>
+        </div>
+        <div class="mood-grid" role="list">
+          <button class="mood-button" data-mood="Happy">Happy</button>
+          <button class="mood-button" data-mood="Calm">Calm</button>
+          <button class="mood-button" data-mood="Tired">Tired</button>
+          <button class="mood-button" data-mood="Unsure">Unsure</button>
+        </div>
+      </section>
+
+      <section class="activity-layout" aria-label="Daily activities">
+        <article class="activity active" data-activity="brain">
+          <div class="activity-header">
+            <span class="activity-step">1</span>
+            <div>
+          <p class="activity-type">Memory Game</p>
+              <h2>Find the pair</h2>
+            </div>
+          </div>
+          <p class="prompt">Tap two cards that go together.</p>
+          <div class="memory-grid" data-memory-game>
+            <button class="game-card" data-pair="teeth">Toothbrush</button>
+            <button class="game-card" data-pair="toast">Bread</button>
+            <button class="game-card" data-pair="teeth">Toothpaste</button>
+            <button class="game-card" data-pair="toast">Toaster</button>
+          </div>
+          <p class="feedback" aria-live="polite"></p>
+        </article>
+
+        <article class="activity" data-activity="life">
+          <div class="activity-header">
+            <span class="activity-step">2</span>
+            <div>
+          <p class="activity-type">Life Skill</p>
+              <h2>Make toast</h2>
+            </div>
+          </div>
+          <p class="prompt">Tap the steps in the right order.</p>
+          <div class="sequence-list" data-sequence-game>
+            <button class="sequence-choice" data-order="1">Put bread in the toaster</button>
+            <button class="sequence-choice" data-order="3">Put toast on a plate</button>
+            <button class="sequence-choice" data-order="2">Wait for the toast</button>
+          </div>
+          <p class="feedback" aria-live="polite"></p>
+        </article>
+
+        <article class="activity" data-activity="language">
+          <div class="activity-header">
+            <span class="activity-step">3</span>
+            <div>
+          <p class="activity-type">Spanish Cards</p>
+              <h2>Learn a word</h2>
+            </div>
+          </div>
+          <p class="prompt" id="languagePrompt">Which Spanish word means water?</p>
+          <div class="language-card" data-language-game>
+            <strong class="language-word" id="languageWord">Water</strong>
+            <div class="language-choices"></div>
+          </div>
+          <p class="feedback" aria-live="polite"></p>
+        </article>
+
+        <article class="activity" data-activity="talk">
+          <div class="activity-header">
+            <span class="activity-step">4</span>
+            <div>
+          <p class="activity-type">Talk Time</p>
+              <h2>Share an answer</h2>
+            </div>
+          </div>
+          <p class="prompt" id="talkPrompt">What is one thing you want to do today?</p>
+          <div class="sentence-helper" aria-labelledby="sentence-helper-title">
+            <strong id="sentence-helper-title">Try a sentence</strong>
+            <ul id="sentenceExamples"></ul>
+          </div>
+          <div class="answer-style" aria-labelledby="answer-style-title">
+            <strong id="answer-style-title">How do you want to answer?</strong>
+            <div class="answer-style-buttons" role="group" aria-label="Answer style">
+              <button class="answer-style-button selected" type="button" data-answer-style="first">I / my answer</button>
+              <button class="answer-style-button" type="button" data-answer-style="third">Zamaan answer</button>
+            </div>
+            <p id="answerStyleHint">Example: I went to Paris with Mom.</p>
+          </div>
+          <label class="answer-label" for="talkAnswer">My answer</label>
+          <textarea id="talkAnswer" rows="4" placeholder="Try 1 or 2 sentences. Example: I went to Paris with Mom."></textarea>
+          <button class="complete-button" data-complete-talk>Done</button>
+          <p class="feedback" aria-live="polite"></p>
+        </article>
+      </section>
+
+      <section class="game-shelf" aria-labelledby="games-title">
+        <div class="section-heading">
+          <p class="eyebrow">Learning Games</p>
+          <h2 id="games-title">Play a little more</h2>
+          <p id="gamesDescription">Finish today's 12 rounds first. Then extra games unlock as a reward.</p>
+          <button id="toggleExtraGames" class="secondary-button" type="button" aria-expanded="false">Play more</button>
+        </div>
+
+        <div class="mini-games" id="extraGames" hidden>
+          <article class="mini-game" data-mini-game="sort">
+            <div class="mini-game-header">
+              <span>Sort</span>
+              <strong>Food or not food?</strong>
+            </div>
+            <p>Tap the things you can eat.</p>
+            <div class="tile-grid">
+              <button class="tile" data-sort-correct="true">Apple</button>
+              <button class="tile">Chair</button>
+              <button class="tile" data-sort-correct="true">Soup</button>
+              <button class="tile">Shoes</button>
+            </div>
+            <p class="mini-feedback" aria-live="polite">Find 2 food choices.</p>
+          </article>
+
+          <article class="mini-game" data-mini-game="pattern">
+            <div class="mini-game-header">
+              <span>Pattern</span>
+              <strong>What comes next?</strong>
+            </div>
+            <div class="pattern-row" aria-label="Blue red blue red pattern">
+              <span class="pattern-dot blue"></span>
+              <span class="pattern-dot red"></span>
+              <span class="pattern-dot blue"></span>
+              <span class="pattern-dot red"></span>
+              <span class="pattern-dot mystery">?</span>
+            </div>
+            <div class="tile-grid three">
+              <button class="tile color-choice" data-pattern="blue">Blue</button>
+              <button class="tile color-choice" data-pattern="red">Red</button>
+              <button class="tile color-choice" data-pattern="green">Green</button>
+            </div>
+            <p class="mini-feedback" aria-live="polite">Choose the next color.</p>
+          </article>
+
+          <article class="mini-game" data-mini-game="money-math">
+            <div class="mini-game-header">
+              <span>Money Math</span>
+              <strong>3 quick questions</strong>
+            </div>
+            <div class="money-math-list">
+              <div class="money-question">
+                <strong>1. Snack change</strong>
+                <p>You have $5. A snack costs $3. How much money is left?</p>
+                <div class="tile-grid three">
+                  <button class="tile money-math-choice">$1</button>
+                  <button class="tile money-math-choice">$2</button>
+                  <button class="tile money-math-choice">$4</button>
+                </div>
+              </div>
+            </div>
+            <p class="mini-feedback" aria-live="polite">Answer all 3 money questions.</p>
+          </article>
+
+          <article class="mini-game" data-mini-game="business">
+            <div class="mini-game-header">
+              <span>Business</span>
+              <strong>Our business</strong>
+            </div>
+            <p>Our co-packer makes the granola. What does our business focus on?</p>
+            <div class="tile-grid">
+              <button class="tile business-choice" data-business-correct="true">Sales and marketing</button>
+              <button class="tile business-choice">Building cars</button>
+              <button class="tile business-choice">Washing dishes</button>
+            </div>
+            <p class="mini-feedback" aria-live="polite">Choose the best business action.</p>
+          </article>
+
+          <article class="mini-game" data-mini-game="pronouns">
+            <div class="mini-game-header">
+              <span>Family Words</span>
+              <strong>Family and friends</strong>
+            </div>
+            <p>Keyaan, Marcus, Jasmine, Harold, Aaron, and David are people in Zamaan's life.</p>
+            <div class="tile-grid">
+              <button class="tile pronoun-choice" data-pronoun-correct="true">family and friends</button>
+              <button class="tile pronoun-choice">co-packers only</button>
+              <button class="tile pronoun-choice">places</button>
+            </div>
+            <p class="mini-feedback" aria-live="polite">Choose the family word.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="reward" aria-labelledby="reward-title">
+        <div>
+          <p class="eyebrow">Reward Garden</p>
+          <h2 id="reward-title">Today's stars</h2>
+        </div>
+        <div class="star-row" aria-label="Stars earned">
+          <span class="star" data-star="1"></span>
+          <span class="star" data-star="2"></span>
+          <span class="star" data-star="3"></span>
+          <span class="star" data-star="4"></span>
+        </div>
+        <p id="celebration">Finish an activity to earn a star.</p>
+      </section>
+
+      <section class="completion-panel" id="completionPanel" hidden aria-labelledby="completion-title">
+        <p class="eyebrow">Adventure Complete</p>
+        <h2 id="completion-title">Great work, Zamaan!</h2>
+        <strong>12 of 12 rounds completed</strong>
+        <p>Four stars earned. You stayed with it and finished today's adventure.</p>
+      </section>
+
+      <section class="calendar-panel" aria-labelledby="calendar-title">
+        <div class="section-heading">
+          <p class="eyebrow">Progress Calendar</p>
+          <h2 id="calendar-title">Last 14 days</h2>
+          <p>Completed days turn green. Started days show partial progress.</p>
+        </div>
+        <div class="calendar-grid" id="calendarGrid" aria-label="Two week progress calendar"></div>
+      </section>
+
+      <p class="app-version">Version: separate caregiver page</p>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
