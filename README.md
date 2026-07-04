@@ -4,6 +4,8 @@ A simple daily learning app with memory games, life-skill sequencing, Spanish ca
 
 The learner view presents one required activity at a time, shows a clear daily path, keeps extra games locked until the 12 daily rounds are finished when Focus Mode is on, offers an optional halfway movement break, uses progressive retry hints, and supports a calmer system voice when available.
 
+After the 12 daily rounds are complete, Zamaan can tap **Send Mom & Dad my update** to open WhatsApp with a ready-to-send completion summary. WhatsApp still asks him to choose/send the message, giving him ownership of the update.
+
 Default PIN: `1234`
 
 The PIN is meant as a simple privacy and routine screen. It is not bank-grade security because this is a static web app.

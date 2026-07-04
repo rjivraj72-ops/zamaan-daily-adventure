@@ -684,6 +684,7 @@ const focusModeInput = document.querySelector("#focusModeInput");
 const promptInput = document.querySelector("#promptInput");
 const messageInput = document.querySelector("#messageInput");
 const pinInput = document.querySelector("#pinInput");
+const whatsappPhoneInput = document.querySelector("#whatsappPhoneInput");
 const resetProgress = document.querySelector("#resetProgress");
 const lockApp = document.querySelector("#lockApp");
 const memoryGame = document.querySelector("[data-memory-game]");
@@ -717,6 +718,8 @@ const startMovementBreak = document.querySelector("#startMovementBreak");
 const skipMovementBreak = document.querySelector("#skipMovementBreak");
 const movementTimer = document.querySelector("#movementTimer");
 const completionPanel = document.querySelector("#completionPanel");
+const sendCompletionUpdate = document.querySelector("#sendCompletionUpdate");
+const shareCompletionUpdate = document.querySelector("#shareCompletionUpdate");
 const parentNoteInput = document.querySelector("#parentNoteInput");
 const hasDailyPage = Boolean(document.querySelector("[data-complete-talk]"));
 
@@ -747,6 +750,15 @@ function isSoundEnabled() {
 
 function saveSoundEnabled(enabled) {
   localStorage.setItem("dailyAdventureSound", enabled ? "on" : "off");
+}
+
+function getWhatsappPhone() {
+  return localStorage.getItem("dailyAdventureWhatsappPhone") || "";
+}
+
+function saveWhatsappPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  localStorage.setItem("dailyAdventureWhatsappPhone", digits);
 }
 
 function getRetryFeedback(key, hint, correctAnswer) {
@@ -1073,6 +1085,62 @@ function getTodayLogs() {
   return activityLogs[todayKey];
 }
 
+function getCompletedSectionNames() {
+  return sectionIds
+    .filter((id) => state.rounds[id] >= maxRounds[id])
+    .map(labelFor);
+}
+
+function buildCompletionUpdateMessage() {
+  const completedSections = getCompletedSectionNames();
+  const mood = state.mood || "not picked";
+  const dateLabel = new Intl.DateTimeFormat(undefined, {
+    weekday: "long",
+    month: "short",
+    day: "numeric"
+  }).format(new Date());
+
+  return [
+    `Hi Mom and Dad, I finished my Daily Adventure today.`,
+    ``,
+    `Date: ${dateLabel}`,
+    `I completed ${getRoundTotal()} of ${totalRounds} rounds.`,
+    `Stars earned: ${state.completed.length} of 4`,
+    `Mood: ${mood}`,
+    `I practiced: ${completedSections.join(", ") || "my daily activities"}.`,
+    ``,
+    `Great job, ${state.name}!`
+  ].join("\n");
+}
+
+async function shareCompletionMessage() {
+  const message = buildCompletionUpdateMessage();
+
+  if (navigator.share) {
+    await navigator.share({
+      title: "Daily Adventure update",
+      text: message
+    });
+    return;
+  }
+
+  await copyTextToClipboard(message);
+  if (celebration) {
+    celebration.textContent = "Update copied. Paste it into WhatsApp or Messages.";
+  }
+}
+
+function openWhatsappCompletionMessage() {
+  if (getRoundTotal() < totalRounds) return;
+
+  const message = encodeURIComponent(buildCompletionUpdateMessage());
+  const phone = getWhatsappPhone();
+  const whatsappUrl = phone
+    ? `whatsapp://send?phone=${phone}&text=${message}`
+    : `whatsapp://send?text=${message}`;
+  window.location.href = whatsappUrl;
+}
+
 function addActivityLog(entry) {
   const savedEntry = {
     ...entry,
@@ -1277,6 +1345,9 @@ function updateGreeting() {
   }
   if (pinInput) {
     pinInput.value = getAppPin();
+  }
+  if (whatsappPhoneInput) {
+    whatsappPhoneInput.value = getWhatsappPhone();
   }
   if (syncUrlInput) {
     syncUrlInput.value = getSyncConfig().url;
@@ -2356,6 +2427,24 @@ if (skipMovementBreak) {
   });
 }
 
+if (sendCompletionUpdate) {
+  sendCompletionUpdate.addEventListener("click", () => {
+    openWhatsappCompletionMessage();
+  });
+}
+
+if (shareCompletionUpdate) {
+  shareCompletionUpdate.addEventListener("click", async () => {
+    try {
+      await shareCompletionMessage();
+    } catch {
+      if (celebration) {
+        celebration.textContent = "Could not share just now. Try WhatsApp again.";
+      }
+    }
+  });
+}
+
 const completeTalkButton = document.querySelector("[data-complete-talk]");
 if (completeTalkButton) {
   completeTalkButton.addEventListener("click", () => {
@@ -2419,6 +2508,9 @@ if (saveSettings) {
     state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
     state.message = messageInput.value.trim() || defaultState.message;
     saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");
+    if (whatsappPhoneInput) {
+      saveWhatsappPhone(whatsappPhoneInput.value);
+    }
     saveSyncConfig();
     save();
     updateGreeting();
