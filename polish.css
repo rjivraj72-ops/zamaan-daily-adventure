@@ -1,49 +1,77 @@
-/* UI polish layer for Zamaan's Daily Adventure. Loaded after styles.css. */
+/* Production UI layer for Zamaan's Daily Adventure. Loaded after styles.css. */
 :root {
-  --bg: #f7faf8;
+  color-scheme: light;
+  --bg: #f6faf7;
   --surface: #ffffff;
-  --surface-soft: #eef8f4;
+  --surface-soft: #f0f7f3;
+  --surface-warm: #fff8e8;
   --ink: #10231f;
-  --muted: #61726e;
-  --line: #d7e5df;
-  --accent: #0a7c68;
-  --accent-strong: #075d50;
-  --accent-soft: #e0f4ee;
-  --blue: #2f6fae;
-  --blue-soft: #e9f2fb;
+  --muted: #5c6f69;
+  --line: #d9e7e0;
+  --accent: #087865;
+  --accent-strong: #07594d;
+  --accent-soft: #e1f3ee;
+  --blue: #2e6fb4;
+  --blue-soft: #e8f1fb;
   --coral: #bd5b74;
-  --coral-soft: #fdebf0;
-  --gold: #dea935;
-  --gold-soft: #fff4d8;
+  --coral-soft: #fdebf1;
+  --gold: #dca431;
+  --gold-soft: #fff3d4;
   --plum: #5f6fb1;
   --plum-soft: #edf0ff;
+  --wrong: #a63f3f;
   --radius: 8px;
   --radius-small: 8px;
-  --shadow: 0 18px 38px rgba(16, 47, 41, 0.1);
-  --shadow-soft: 0 8px 20px rgba(16, 47, 41, 0.08);
+  --shadow: 0 18px 44px rgba(16, 47, 41, 0.12);
+  --shadow-soft: 0 8px 22px rgba(16, 47, 41, 0.08);
+  --shadow-lift: 0 14px 30px rgba(16, 47, 41, 0.12);
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(10, 124, 104, 0.11), transparent 34rem),
-    linear-gradient(180deg, #fbfdfc 0%, #eef8f4 54%, #f7faf8 100%);
+    radial-gradient(circle at 12% -8%, rgba(8, 120, 101, 0.13), transparent 30rem),
+    radial-gradient(circle at 92% 4%, rgba(220, 164, 49, 0.16), transparent 26rem),
+    linear-gradient(180deg, #fbfdfc 0%, #eef8f4 50%, #f7faf8 100%);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(8, 120, 101, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 120, 101, 0.028) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 54%);
 }
 
 .app-shell {
-  width: min(1080px, calc(100% - 32px));
-  padding-top: 18px;
+  width: min(1100px, calc(100% - 32px));
+  padding-top: 16px;
+  padding-bottom: 56px;
 }
 
 .app-nav {
   position: sticky;
   top: 8px;
-  z-index: 4;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
   margin-bottom: 16px;
-  padding: 5px;
-  border-color: rgba(10, 124, 104, 0.16);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 10px 28px rgba(16, 47, 41, 0.08);
-  backdrop-filter: blur(12px);
+  padding: 6px;
+  border: 1px solid rgba(8, 120, 101, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 28px rgba(16, 47, 41, 0.09);
+  backdrop-filter: blur(14px);
 }
 
 .app-nav a {
@@ -51,123 +79,35 @@ body {
   display: grid;
   place-items: center;
   border-radius: 8px;
+  color: var(--muted);
+  font-weight: 900;
 }
 
 .app-nav a.active {
-  background: linear-gradient(180deg, #ffffff, var(--accent-soft));
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
   color: var(--accent-strong);
-  box-shadow: inset 0 0 0 1px rgba(10, 124, 104, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(8, 120, 101, 0.13);
 }
 
-.hero,
-.caregiver-hero {
-  border: 0;
+.pin-gate {
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(224, 244, 238, 0.88)),
-    radial-gradient(circle at 84% 18%, rgba(222, 169, 53, 0.22), transparent 16rem);
+    radial-gradient(circle at 50% 18%, rgba(8, 120, 101, 0.18), transparent 24rem),
+    linear-gradient(180deg, #fbfdfc, #eaf6f1);
+}
+
+.pin-card {
+  border: 0;
+  border-radius: 8px;
   box-shadow: var(--shadow);
 }
 
-.hero {
-  grid-template-columns: minmax(0, 1fr) 300px;
-  padding: 34px;
-}
-
-.hero::before,
-.activity::before,
-.mini-game::before {
-  height: 6px;
-}
-
-.app-mark,
-.app-icon {
+.app-icon,
+.app-mark {
   border-radius: 8px;
-  box-shadow: 0 12px 24px rgba(16, 47, 41, 0.14);
+  box-shadow: 0 10px 24px rgba(16, 47, 41, 0.16);
 }
 
-h1 {
-  font-size: clamp(2.25rem, 5vw, 4.4rem);
-  line-height: 1.01;
-}
-
-.hero .intro {
-  max-width: 620px;
-  font-size: 1.12rem;
-}
-
-.eyebrow,
-.activity-type,
-.mini-game-header span {
-  letter-spacing: 0.05em;
-}
-
-.learner-controls {
-  margin-top: 20px;
-}
-
-.level-badge,
-.sound-toggle,
-.secondary-button,
-.complete-button,
-#saveSettings,
-#sendCompletionUpdate,
-#shareSyncSetup {
-  min-height: 52px;
-}
-
-.level-badge {
-  border: 1px solid rgba(222, 169, 53, 0.36);
-  background: linear-gradient(180deg, #fff, var(--gold-soft));
-}
-
-.today-card {
-  padding: 22px;
-  border: 0;
-  background: linear-gradient(180deg, #ffffff, #e6f6f1);
-  box-shadow: 0 14px 28px rgba(10, 124, 104, 0.12);
-}
-
-.today-card strong {
-  font-size: 1.62rem;
-}
-
-.progress-track {
-  height: 16px;
-  background: #d4e7e0;
-}
-
-.today-path,
-.check-in,
-.reward,
-.game-shelf,
-.calendar-panel,
-.caregiver-report,
-.parent-view,
-.sync-settings,
-.learning-settings {
-  border-color: rgba(10, 124, 104, 0.14);
-  box-shadow: var(--shadow-soft);
-}
-
-.today-path {
-  padding: 22px;
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.path-step {
-  min-height: 104px;
-  border-color: rgba(16, 47, 41, 0.1);
-  box-shadow: 0 6px 14px rgba(16, 47, 41, 0.05);
-}
-
-.path-step.current {
-  transform: translateY(-2px);
-}
-
-.check-in {
-  background: #fff;
-}
-
+.pin-key,
 .mood-button,
 .choice,
 .game-card,
@@ -177,11 +117,13 @@ h1 {
 .caregiver-toggle,
 #saveSettings,
 .secondary-button,
-.pin-key {
+.secret-toggle {
   border-color: rgba(16, 47, 41, 0.12);
-  box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
+  border-radius: 8px;
+  box-shadow: 0 7px 18px rgba(16, 47, 41, 0.06);
 }
 
+.pin-key,
 .mood-button,
 .game-card,
 .sequence-choice,
@@ -189,17 +131,203 @@ h1 {
   background: linear-gradient(180deg, #fff, #f8fbfa);
 }
 
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: scale(0.985);
+}
+
+h1 {
+  font-size: clamp(2.35rem, 5vw, 4.35rem);
+  line-height: 1;
+}
+
+h2 {
+  letter-spacing: 0;
+}
+
+.eyebrow,
+.activity-type,
+.mini-game-header span {
+  letter-spacing: 0.05em;
+}
+
+.hero {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 28px;
+  overflow: hidden;
+  padding: 34px;
+  border: 0;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(230, 246, 241, 0.92)),
+    radial-gradient(circle at 85% 18%, rgba(220, 164, 49, 0.2), transparent 18rem);
+  box-shadow: var(--shadow);
+}
+
+.hero::before {
+  height: 8px;
+  background: linear-gradient(90deg, var(--accent), var(--gold), var(--coral));
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  bottom: -110px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(8, 120, 101, 0.09);
+}
+
+.hero .intro {
+  max-width: 650px;
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 1.12rem;
+  line-height: 1.48;
+}
+
+.learner-controls {
+  margin-top: 22px;
+}
+
+.level-badge,
+.sound-toggle {
+  min-height: 50px;
+}
+
+.level-badge {
+  border: 1px solid rgba(220, 164, 49, 0.38);
+  background: linear-gradient(180deg, #fff, var(--gold-soft));
+}
+
+.today-card {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff, #e5f5f0);
+  box-shadow: 0 16px 32px rgba(8, 120, 101, 0.14);
+}
+
+.today-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: var(--accent);
+}
+
+.today-card span {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.today-card strong {
+  margin-top: 12px;
+  font-size: 1.65rem;
+}
+
+.today-card p {
+  color: var(--accent-strong);
+}
+
+.progress-track {
+  height: 16px;
+  background: #d2e7df;
+}
+
+.progress-track span {
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+}
+
+.today-path,
+.check-in,
+.game-shelf,
+.calendar-panel,
+.reward,
+.movement-break,
+.completion-panel,
+.caregiver-report,
+.parent-view,
+.sync-settings,
+.learning-settings {
+  border-color: rgba(8, 120, 101, 0.14);
+  border-radius: 8px;
+  box-shadow: var(--shadow-soft);
+}
+
+.today-path {
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.path-steps {
+  gap: 12px;
+}
+
+.path-step {
+  min-height: 106px;
+  border-color: rgba(16, 47, 41, 0.1);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 7px 16px rgba(16, 47, 41, 0.05);
+}
+
+.path-step.current {
+  border-color: rgba(8, 120, 101, 0.34);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.path-step.done {
+  border-color: rgba(220, 164, 49, 0.36);
+}
+
+.check-in {
+  background: #fff;
+}
+
+.mood-grid {
+  gap: 10px;
+}
+
+.mood-button {
+  min-height: 66px;
+  font-size: 1.05rem;
+}
+
+.mood-button.selected {
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+  color: var(--accent-strong);
+}
+
+.activity-layout {
+  gap: 20px;
+}
+
 .activity {
-  min-height: 380px;
+  min-height: 390px;
   padding: 24px;
   border-color: rgba(16, 47, 41, 0.1);
-  background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 10px 24px rgba(16, 47, 41, 0.07);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 10px 26px rgba(16, 47, 41, 0.07);
+}
+
+.activity::before {
+  height: 7px;
 }
 
 .activity.active {
-  border-color: rgba(10, 124, 104, 0.28);
-  box-shadow: 0 18px 38px rgba(10, 124, 104, 0.13);
+  border-color: rgba(8, 120, 101, 0.32);
+  box-shadow: 0 20px 44px rgba(8, 120, 101, 0.14);
 }
 
 .activity-header {
@@ -207,44 +335,217 @@ h1 {
 }
 
 .activity-step {
-  width: 48px;
-  height: 48px;
-  flex-basis: 48px;
+  width: 50px;
+  height: 50px;
+  flex-basis: 50px;
   border-radius: 8px;
+  box-shadow: 0 9px 18px rgba(16, 47, 41, 0.14);
+}
+
+.activity h2 {
+  font-size: 1.75rem;
 }
 
 .prompt {
+  color: var(--muted);
   font-size: 1.12rem;
 }
 
-.game-card,
-.tile {
-  font-size: 1.08rem;
+.memory-grid,
+.language-choices,
+.sequence-list,
+.tile-grid {
+  gap: 12px;
+}
+
+.game-card {
+  min-height: 104px;
+  border-color: rgba(46, 111, 180, 0.18);
+  background: linear-gradient(180deg, #fff, var(--blue-soft));
+  font-size: 1.1rem;
+}
+
+.sequence-choice {
+  min-height: 70px;
 }
 
 .language-word {
-  min-height: 90px;
+  min-height: 92px;
+  border-radius: 8px;
   font-size: 2rem;
-}
-
-.feedback,
-.sync-status,
-.parent-empty {
-  border-color: rgba(10, 124, 104, 0.14);
-  background: #f2faf6;
 }
 
 .sentence-helper,
 .answer-style {
-  padding: 14px;
+  border-radius: 8px;
 }
 
 textarea,
 input,
 select {
-  min-height: 50px;
+  min-height: 52px;
   border-color: rgba(16, 47, 41, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+textarea {
+  line-height: 1.45;
+}
+
+.feedback,
+.sync-status,
+.parent-empty {
+  border-color: rgba(8, 120, 101, 0.14);
+  border-radius: 8px;
+  background: #f2faf6;
+}
+
+.complete-button,
+#saveSettings,
+#shareSyncSetup,
+#sendCompletionUpdate {
+  min-height: 56px;
+  border: 0;
+  background: linear-gradient(180deg, #0b8a74, #075d50);
+  color: #fff;
+  box-shadow: 0 13px 24px rgba(8, 120, 101, 0.22);
+}
+
+.secondary-button {
+  min-height: 54px;
+  color: var(--accent-strong);
+  background: linear-gradient(180deg, #fff, #f5fbf8);
+}
+
+.game-shelf,
+.calendar-panel,
+.reward {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.section-heading {
+  max-width: none;
+}
+
+.mini-games {
+  gap: 18px;
+}
+
+.mini-game {
+  min-height: 330px;
+  border-color: rgba(16, 47, 41, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
+}
+
+.mini-game::before {
+  height: 6px;
+}
+
+.tile {
+  min-height: 76px;
+  font-size: 1.04rem;
+}
+
+.reward {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 212, 0.98), rgba(225, 243, 238, 0.9)),
+    #fff;
+}
+
+.star {
+  filter: drop-shadow(0 7px 9px rgba(220, 164, 49, 0.16));
+}
+
+.completion-panel {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 212, 0.98), rgba(225, 243, 238, 0.92)),
+    #fff;
+}
+
+.calendar-day,
+.parent-card,
+.parent-list-item,
+.practice-next-card,
+.practice-item,
+.comparison-grid article {
+  border-color: rgba(16, 47, 41, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 5px 14px rgba(16, 47, 41, 0.045);
+}
+
+.calendar-day.done,
+.parent-day.complete {
+  border-color: rgba(8, 120, 101, 0.24);
+}
+
+.caregiver-shell {
+  max-width: 1080px;
+}
+
+.caregiver-hero {
+  padding: 32px;
+  border: 0;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(225, 243, 238, 0.92)),
+    radial-gradient(circle at 82% 12%, rgba(220, 164, 49, 0.16), transparent 18rem);
+  box-shadow: var(--shadow);
+}
+
+.caregiver-hero h1 {
+  margin-bottom: 8px;
+}
+
+.caregiver-panel {
+  gap: 18px;
+  margin-top: 16px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.priority-panel {
+  background:
+    linear-gradient(135deg, rgba(225, 243, 238, 0.92), rgba(255, 255, 255, 0.98)),
+    #fff;
+}
+
+.parent-view,
+.caregiver-report,
+.learning-settings,
+.sync-settings {
+  padding: 20px;
+}
+
+.parent-summary-grid {
+  gap: 12px;
+}
+
+.parent-card.highlight,
+.practice-next-list {
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+}
+
+.practice-list {
+  background: linear-gradient(180deg, #fff8e1, #fff);
+}
+
+.ai-prompt-panel {
+  border-color: rgba(46, 111, 180, 0.18);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff, var(--blue-soft));
+  box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
+}
+
+.caregiver-actions {
+  padding: 14px;
+  border: 1px solid rgba(16, 47, 41, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow-soft);
 }
 
 .secret-input-row {
@@ -259,119 +560,45 @@ select {
 }
 
 .secret-toggle {
-  min-height: 50px;
+  min-height: 52px;
   padding: 0 14px;
-  border: 1px solid rgba(16, 47, 41, 0.14);
-  border-radius: 8px;
-  background: linear-gradient(180deg, #fff, #f4faf7);
+  background: linear-gradient(180deg, #fff, #f5fbf8);
   color: var(--accent-strong);
   font-weight: 900;
-  box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
 }
 
-.complete-button,
-#saveSettings,
-#shareSyncSetup,
-#sendCompletionUpdate {
-  border: 0;
-  background: linear-gradient(180deg, #0b8a74, #075d50);
-  color: #fff;
-  box-shadow: 0 12px 22px rgba(10, 124, 104, 0.2);
-}
+@media (min-width: 861px) {
+  .activity-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-.secondary-button {
-  color: var(--accent-strong);
-  background: linear-gradient(180deg, #fff, #f4faf7);
-}
+  .activity.active {
+    grid-column: span 2;
+  }
 
-.game-shelf,
-.calendar-panel,
-.reward {
-  background: rgba(255, 255, 255, 0.96);
-}
-
-.mini-game {
-  min-height: 330px;
-  border-color: rgba(16, 47, 41, 0.1);
-  box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
-}
-
-.reward {
-  background:
-    linear-gradient(135deg, rgba(255, 244, 216, 0.95), rgba(224, 244, 238, 0.85)),
-    #fff;
-}
-
-.star {
-  filter: drop-shadow(0 8px 10px rgba(222, 169, 53, 0.15));
-}
-
-.completion-panel,
-.movement-break {
-  border: 0;
-  box-shadow: var(--shadow-soft);
-}
-
-.completion-panel {
-  background:
-    linear-gradient(135deg, rgba(255, 244, 216, 0.96), rgba(224, 244, 238, 0.9)),
-    #fff;
-}
-
-.calendar-day,
-.parent-card,
-.parent-list-item,
-.practice-next-card,
-.practice-item,
-.comparison-grid article {
-  border-color: rgba(16, 47, 41, 0.1);
-  box-shadow: 0 5px 12px rgba(16, 47, 41, 0.04);
-}
-
-.caregiver-shell {
-  max-width: 1040px;
-}
-
-.caregiver-hero {
-  padding: 30px;
-}
-
-.caregiver-hero h1 {
-  margin-bottom: 10px;
-}
-
-.caregiver-panel {
-  gap: 18px;
-  margin-top: 16px;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-}
-
-.priority-panel {
-  background:
-    linear-gradient(135deg, rgba(224, 244, 238, 0.92), rgba(255, 255, 255, 0.95)),
-    #fff;
-}
-
-.parent-view {
-  background: #fff;
-}
-
-.caregiver-actions {
-  padding: 14px;
-  border: 1px solid rgba(16, 47, 41, 0.1);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
+  .activity:not(.active) {
+    min-height: 270px;
+  }
 }
 
 @media (max-width: 860px) {
-  .hero {
+  .hero,
+  .today-path,
+  .check-in,
+  .reward {
     grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 26px;
   }
 
   .today-card {
     max-width: none;
+  }
+
+  .path-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -381,7 +608,8 @@ select {
   }
 
   .app-shell {
-    width: min(100% - 18px, 1080px);
+    width: min(100% - 18px, 1100px);
+    padding-top: 10px;
   }
 
   .app-nav {
@@ -390,16 +618,41 @@ select {
   }
 
   .hero,
-  .caregiver-hero {
-    padding: 22px;
+  .today-path,
+  .check-in,
+  .activity,
+  .game-shelf,
+  .calendar-panel,
+  .reward,
+  .caregiver-hero,
+  .caregiver-report,
+  .parent-view,
+  .learning-settings,
+  .sync-settings {
+    padding: 18px;
   }
 
   h1 {
     font-size: 2.2rem;
   }
 
+  .hero .intro {
+    font-size: 1rem;
+  }
+
   .today-card strong {
     font-size: 1.45rem;
+  }
+
+  .path-steps,
+  .mood-grid,
+  .memory-grid,
+  .tile-grid,
+  .tile-grid.three,
+  .completion-actions,
+  .caregiver-actions,
+  .secret-input-row {
+    grid-template-columns: 1fr;
   }
 
   .path-step {
@@ -408,7 +661,6 @@ select {
 
   .activity {
     min-height: auto;
-    padding: 20px;
   }
 
   .activity-step {
@@ -417,13 +669,23 @@ select {
     flex-basis: 44px;
   }
 
-  .completion-actions,
-  .caregiver-actions {
-    grid-template-columns: 1fr;
+  .mood-button,
+  .game-card,
+  .sequence-choice,
+  .tile,
+  .complete-button,
+  .secondary-button {
+    min-height: 62px;
   }
 
   .star {
     width: 46px;
     height: 46px;
+  }
+
+  .ai-actions,
+  .comparison-grid,
+  .parent-summary-grid {
+    grid-template-columns: 1fr;
   }
 }
