@@ -1,3 +1,15 @@
+function loadPolishedUi() {
+  if (document.querySelector('link[href="polish.css"]')) {
+    return;
+  }
+  const polishLink = document.createElement("link");
+  polishLink.rel = "stylesheet";
+  polishLink.href = "polish.css";
+  document.head.appendChild(polishLink);
+}
+
+loadPolishedUi();
+
 function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1091,31 +1103,30 @@ function getCompletedSectionNames() {
     .map(labelFor);
 }
 
-function getTalkTimeSummaries() {
-  return getTodayLogs()
-    .filter((entry) => entry.section === "talk")
-    .map((entry) => {
-      const prompt = String(entry.prompt || "").replace(/\s*Answer style:.*$/i, "").trim();
-      const answer = String(entry.answer || "");
-      const typedMatch = answer.match(/Answer:\s*(.+)$/);
+function getLatestTalkTimeSummary() {
+  const latestTalk = [...getTodayLogs()].reverse().find((entry) => entry.section === "talk");
+  if (!latestTalk) return null;
 
-      return {
-        prompt,
-        answer: typedMatch && typedMatch[1]
-          ? typedMatch[1].trim()
-          : "I said my Talk Time answer out loud."
-      };
-    });
+  const prompt = String(latestTalk.prompt || "").replace(/\s*Answer style:.*$/i, "").trim();
+  const answer = String(latestTalk.answer || "");
+  const typedMatch = answer.match(/Answer:\s*(.+)$/);
+
+  if (typedMatch && typedMatch[1]) {
+    return {
+      prompt,
+      answer: typedMatch[1].trim()
+    };
+  }
+
+  return {
+    prompt,
+    answer: "I said my Talk Time answer out loud."
+  };
 }
 
 function buildCompletionUpdateMessage() {
   const completedSections = getCompletedSectionNames();
-  const talkTimeSummaries = getTalkTimeSummaries();
-  const talkTimeLines = talkTimeSummaries.flatMap((item, index) => [
-    `Talk Time ${index + 1}:`,
-    `Question: ${item.prompt}`,
-    `My answer: ${item.answer}`
-  ]);
+  const talkTimeSummary = getLatestTalkTimeSummary();
   const mood = state.mood || "not picked";
   const dateLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
@@ -1131,53 +1142,14 @@ function buildCompletionUpdateMessage() {
     `Stars earned: ${state.completed.length} of 4`,
     `Mood: ${mood}`,
     `I practiced: ${completedSections.join(", ") || "my daily activities"}.`,
-    talkTimeLines.length ? `` : null,
-    talkTimeLines.length ? `My Talk Time:` : null,
-    ...talkTimeLines,
+    talkTimeSummary ? `` : null,
+    talkTimeSummary ? `My Talk Time:` : null,
+    talkTimeSummary ? `Question: ${talkTimeSummary.prompt}` : null,
+    talkTimeSummary ? `My answer: ${talkTimeSummary.answer}` : null,
     ``,
     `I did it!`,
     `Love, ${state.name}`
   ].filter((line) => line !== null).join("\n");
-}
-
-function polishCompletionActions() {
-  if (sendCompletionUpdate) {
-    sendCompletionUpdate.textContent = "Send my update to Mom & Dad";
-  }
-  if (shareCompletionUpdate) {
-    shareCompletionUpdate.textContent = "Share another way";
-  }
-  if (document.querySelector("#completionActionPolish")) return;
-
-  const style = document.createElement("style");
-  style.id = "completionActionPolish";
-  style.textContent = `
-    .completion-actions {
-      width: min(100%, 460px);
-      gap: 12px;
-    }
-
-    #sendCompletionUpdate,
-    #shareCompletionUpdate {
-      min-height: 64px;
-      margin-top: 0;
-      border-radius: 14px;
-      font-size: 1.02rem;
-      letter-spacing: 0;
-    }
-
-    #sendCompletionUpdate {
-      box-shadow: 0 12px 24px rgba(8, 120, 101, 0.18);
-    }
-
-    #shareCompletionUpdate {
-      border-color: rgba(8, 120, 101, 0.18);
-      background: #fff;
-      color: var(--accent-strong);
-      box-shadow: 0 6px 14px rgba(13, 48, 42, 0.07);
-    }
-  `;
-  document.head.appendChild(style);
 }
 
 async function shareCompletionMessage() {
@@ -2710,7 +2682,6 @@ if (hasDailyPage) {
   updateHistory();
 }
 renderCaregiverReport();
-polishCompletionActions();
 
 if (loadParentView) {
   const { url, familyCode } = getSyncConfig();
