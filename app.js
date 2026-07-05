@@ -10,6 +10,30 @@ function loadPolishedUi() {
 
 loadPolishedUi();
 
+const voicePrompts = {
+  welcome: "audio/welcome.mp3",
+  startPath: "audio/start-path.mp3",
+  beforeQuestion: "audio/before-question.mp3",
+  memoryGame: "audio/memory-game.mp3",
+  moneyMath: "audio/money-math.mp3",
+  spanishCards: "audio/spanish-cards.mp3",
+  talkTime: "audio/talk-time.mp3",
+  firstPersonReminder: "audio/first-person-reminder.mp3",
+  thirdPersonReminder: "audio/third-person-reminder.mp3",
+  familyWords: "audio/family-words.mp3",
+  correct: "audio/correct.mp3",
+  incorrect: "audio/incorrect.mp3",
+  keepGoing: "audio/keep-going.mp3",
+  halfwayDone: "audio/halfway-done.mp3",
+  almostDone: "audio/almost-done.mp3",
+  finished: "audio/finished.mp3",
+  sendUpdate: "audio/send-update.mp3",
+  extraGames: "audio/extra-games.mp3",
+  caregiverCompletion: "audio/caregiver-completion.mp3"
+};
+
+let currentVoicePrompt = null;
+
 function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -1103,30 +1127,31 @@ function getCompletedSectionNames() {
     .map(labelFor);
 }
 
-function getLatestTalkTimeSummary() {
-  const latestTalk = [...getTodayLogs()].reverse().find((entry) => entry.section === "talk");
-  if (!latestTalk) return null;
+function getTalkTimeSummaries() {
+  return getTodayLogs()
+    .filter((entry) => entry.section === "talk")
+    .map((entry) => {
+      const prompt = String(entry.prompt || "").replace(/\s*Answer style:.*$/i, "").trim();
+      const answer = String(entry.answer || "");
+      const typedMatch = answer.match(/Answer:\s*(.+)$/);
 
-  const prompt = String(latestTalk.prompt || "").replace(/\s*Answer style:.*$/i, "").trim();
-  const answer = String(latestTalk.answer || "");
-  const typedMatch = answer.match(/Answer:\s*(.+)$/);
-
-  if (typedMatch && typedMatch[1]) {
-    return {
-      prompt,
-      answer: typedMatch[1].trim()
-    };
-  }
-
-  return {
-    prompt,
-    answer: "I said my Talk Time answer out loud."
-  };
+      return {
+        prompt,
+        answer: typedMatch && typedMatch[1]
+          ? typedMatch[1].trim()
+          : "I said my Talk Time answer out loud."
+      };
+    });
 }
 
 function buildCompletionUpdateMessage() {
   const completedSections = getCompletedSectionNames();
-  const talkTimeSummary = getLatestTalkTimeSummary();
+  const talkTimeSummaries = getTalkTimeSummaries();
+  const talkTimeLines = talkTimeSummaries.flatMap((summary, index) => [
+    `Talk Time ${index + 1}:`,
+    `Question: ${summary.prompt}`,
+    `My answer: ${summary.answer}`
+  ]);
   const mood = state.mood || "not picked";
   const dateLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
@@ -1142,10 +1167,9 @@ function buildCompletionUpdateMessage() {
     `Stars earned: ${state.completed.length} of 4`,
     `Mood: ${mood}`,
     `I practiced: ${completedSections.join(", ") || "my daily activities"}.`,
-    talkTimeSummary ? `` : null,
-    talkTimeSummary ? `My Talk Time:` : null,
-    talkTimeSummary ? `Question: ${talkTimeSummary.prompt}` : null,
-    talkTimeSummary ? `My answer: ${talkTimeSummary.answer}` : null,
+    talkTimeLines.length ? `` : null,
+    talkTimeLines.length ? `My Talk Time:` : null,
+    ...talkTimeLines,
     ``,
     `I did it!`,
     `Love, ${state.name}`
@@ -1262,7 +1286,7 @@ function unlockApp() {
   if (celebration) {
     celebration.textContent = welcomeMessage;
   }
-  speak(welcomeMessage);
+  speak(welcomeMessage, "welcome");
 }
 
 function updatePinDisplay() {
@@ -1280,12 +1304,12 @@ function checkPin() {
   if (pinMessage) {
     pinMessage.textContent = "Try again.";
   }
-  speak("Try again.");
+  speak("Try again.", "incorrect");
   enteredPin = "";
   updatePinDisplay();
 }
 
-function speak(text) {
+function speakWithDeviceVoice(text) {
   if (!isSoundEnabled() || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
@@ -1298,6 +1322,30 @@ function speak(text) {
   utterance.pitch = 1.03;
   utterance.volume = 1;
   window.speechSynthesis.speak(utterance);
+}
+
+function speak(text, promptKey = "") {
+  if (!isSoundEnabled()) return;
+
+  const audioPath = voicePrompts[promptKey];
+  if (!audioPath) {
+    speakWithDeviceVoice(text);
+    return;
+  }
+
+  try {
+    if (currentVoicePrompt) {
+      currentVoicePrompt.pause();
+      currentVoicePrompt.currentTime = 0;
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    currentVoicePrompt = new Audio(audioPath);
+    currentVoicePrompt.play().catch(() => speakWithDeviceVoice(text));
+  } catch (error) {
+    speakWithDeviceVoice(text);
+  }
 }
 
 function getRoundTotal() {
@@ -1339,9 +1387,16 @@ function completeRound(id, message, detail = {}) {
   const doneRounds = getRoundTotal();
   const roundsLeft = Math.max(totalRounds - doneRounds, 0);
   const progressMessage = roundsLeft > 0 ? `${message} ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left.` : message;
+  const progressVoice = doneRounds === totalRounds
+    ? "finished"
+    : doneRounds === Math.floor(totalRounds / 2)
+      ? "halfwayDone"
+      : roundsLeft <= 2
+        ? "almostDone"
+        : detail.voiceKey || "correct";
   speak(doneRounds === totalRounds
     ? `Congratulations, ${state.name}. You finished today's adventure.`
-    : progressMessage);
+    : progressMessage, progressVoice);
 }
 
 function nextActivityId() {
@@ -2099,7 +2154,7 @@ function attachRoundHandlers() {
         });
         const answer = Object.values(pairs)[0].join(" and ");
         feedback.textContent = getRetryFeedback(`memory-${roundIndex}`, "Look for two things that are used together.", answer);
-        speak(feedback.textContent);
+        speak(feedback.textContent, "incorrect");
         window.setTimeout(() => {
           first.classList.remove("selected", "wrong");
           second.classList.remove("selected", "wrong");
@@ -2139,14 +2194,14 @@ function attachRoundHandlers() {
           window.setTimeout(renderDailyRounds, 700);
         } else {
           feedback.textContent = `Good. Now find step ${sequenceStep}.`;
-          speak(`Good. Now find step ${sequenceStep}.`);
+          speak(`Good. Now find step ${sequenceStep}.`, "keepGoing");
         }
         return;
       }
 
       button.classList.add("wrong");
       feedback.textContent = getRetryFeedback(`life-${roundIndex}`, `Start with: ${deck.steps[0]}.`, deck.steps[sequenceStep - 1]);
-      speak(feedback.textContent);
+      speak(feedback.textContent, "incorrect");
       window.setTimeout(resetSequenceGame, 800);
     });
   });
@@ -2176,7 +2231,7 @@ function attachRoundHandlers() {
           answerShown: attempts >= 3,
           card: `${deck.english} = ${deck.spanish}`
         });
-        speak(feedback.textContent);
+        speak(feedback.textContent, "incorrect");
         return;
       }
 
@@ -2260,7 +2315,7 @@ document.querySelectorAll(".mood-button").forEach((button) => {
     button.classList.add("selected");
     save();
     updateHistory();
-    speak(`You chose ${state.mood}.`);
+    speak(`You chose ${state.mood}.`, "startPath");
   });
 });
 
@@ -2319,11 +2374,11 @@ function attachMiniGameHandlers() {
         feedback.textContent = sortPicks.size === todayPlan.mini.sort.correct.length
           ? todayPlan.mini.sort.success
           : "Yes. Find one more.";
-        speak(feedback.textContent);
+        speak(feedback.textContent, "correct");
       } else {
         tile.classList.add("wrong");
         feedback.textContent = getRetryFeedback("sort", "Think about what the question is asking you to group.", correctAnswer);
-        speak(feedback.textContent);
+        speak(feedback.textContent, "incorrect");
         window.setTimeout(() => tile.classList.remove("wrong"), 700);
       }
     });
@@ -2342,7 +2397,7 @@ function attachMiniGameHandlers() {
       feedback.textContent = isCorrect
         ? `Yes. ${capitalize(todayPlan.mini.pattern.answer)} comes next.`
         : getRetryFeedback("pattern", "Look at which colors repeat.", capitalize(todayPlan.mini.pattern.answer));
-      speak(feedback.textContent);
+      speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
     });
   });
 
@@ -2369,7 +2424,7 @@ function attachMiniGameHandlers() {
           ? "Nice money math. You answered all 3."
           : `Correct. ${currentQuestion.answer} is right.`
         : getRetryFeedback(`money-${questionIndex}`, "Count the dollars one step at a time.", currentQuestion.answer);
-      speak(feedback.textContent);
+      speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
     });
   });
 
@@ -2386,7 +2441,7 @@ function attachMiniGameHandlers() {
       feedback.textContent = isCorrect
         ? "Good business choice."
         : getRetryFeedback("business", "Think about the helpful action for a buyer or customer.", todayBusinessPractice.answer);
-      speak(feedback.textContent);
+      speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
     });
   });
 
@@ -2403,7 +2458,7 @@ function attachMiniGameHandlers() {
       feedback.textContent = isCorrect
         ? "Good family word."
         : getRetryFeedback("family-words", "Think about who the person is to Zamaan.", todayPronounPractice.answer);
-      speak(feedback.textContent);
+      speak(feedback.textContent, isCorrect ? "familyWords" : "incorrect");
     });
   });
 }
@@ -2418,7 +2473,7 @@ if (soundToggle) {
     saveSoundEnabled(enabled);
     soundToggle.textContent = enabled ? "Sound on" : "Sound off";
     soundToggle.setAttribute("aria-pressed", String(enabled));
-    if (enabled) speak("Sound is on.");
+    if (enabled) speak("Sound is on.", "keepGoing");
   });
 }
 
@@ -2429,6 +2484,7 @@ if (toggleExtraGames && extraGames) {
     extraGames.hidden = !willOpen;
     toggleExtraGames.textContent = willOpen ? "Hide extra games" : "Play more";
     toggleExtraGames.setAttribute("aria-expanded", String(willOpen));
+    if (willOpen) speak("Nice work. Your extra games are ready now.", "extraGames");
   });
 }
 
@@ -2438,7 +2494,7 @@ function finishMovementBreak(message) {
   sessionStorage.setItem(`dailyAdventureMovement-${todayKey}`, "done");
   if (movementBreak) movementBreak.hidden = true;
   if (movementTimer) movementTimer.textContent = "";
-  speak(message);
+  speak(message, "keepGoing");
 }
 
 if (startMovementBreak) {
@@ -2446,7 +2502,7 @@ if (startMovementBreak) {
     let secondsLeft = 120;
     startMovementBreak.disabled = true;
     if (movementTimer) movementTimer.textContent = "2:00 remaining";
-    speak("Movement break started. Stand up, stretch, and move.");
+    speak("Movement break started. Stand up, stretch, and move.", "keepGoing");
     movementInterval = window.setInterval(() => {
       secondsLeft -= 1;
       const minutes = Math.floor(secondsLeft / 60);
@@ -2468,6 +2524,7 @@ if (skipMovementBreak) {
 
 if (sendCompletionUpdate) {
   sendCompletionUpdate.addEventListener("click", () => {
+    speak("You did it. Now you can send Mom and Dad your update.", "sendUpdate");
     openWhatsappCompletionMessage();
   });
 }
@@ -2514,7 +2571,7 @@ answerStyleButtons.forEach((button) => {
     updateAnswerStyleUi();
     speak(selectedAnswerStyle === "third"
       ? "Zamaan answer."
-      : "I and my answer.");
+      : "I and my answer.", selectedAnswerStyle === "third" ? "thirdPersonReminder" : "firstPersonReminder");
   });
 });
 
@@ -2561,7 +2618,7 @@ if (saveSettings) {
     if (parentViewStatus) {
       parentViewStatus.textContent = "Settings saved.";
     }
-    speak("Settings saved.");
+    speak("Settings saved.", "caregiverCompletion");
     renderCaregiverReport();
   });
 }
@@ -2660,7 +2717,7 @@ if (resetProgress) {
   }
   renderCalendar();
   renderCaregiverReport();
-  speak("Today's progress has been reset.");
+  speak("Today's progress has been reset.", "keepGoing");
   });
 }
 
