@@ -43,6 +43,20 @@ const voicePrompts = {
 
 let currentVoicePrompt = null;
 
+function loadExternalQuestionBank() {
+  try {
+    const request = new XMLHttpRequest();
+    request.open("GET", `question-bank.json?v=${Date.now()}`, false);
+    request.send(null);
+    if (request.status >= 200 && request.status < 300) {
+      return JSON.parse(request.responseText);
+    }
+  } catch (error) {
+    return null;
+  }
+  return null;
+}
+
 function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -55,7 +69,7 @@ function getDayNumber(dateKey) {
   const current = new Date(year, month - 1, day);
   const anchor = new Date(2026, 0, 5);
   const diff = Math.floor((current - anchor) / 86400000);
-  return ((diff % 14) + 14) % 14;
+  return Math.max(diff, 0);
 }
 
 const todayKey = getLocalDateKey();
@@ -698,11 +712,60 @@ function getMoneyMathForDifficulty(baseDeck, level, dayIndex) {
   return baseDeck;
 }
 
-const todayPlan = curriculum[curriculumDay];
-const todayLanguage = languageDecks[curriculumDay];
-const todayMoneyMath = getMoneyMathForDifficulty(moneyMathDecks[curriculumDay], getDifficultyLevel(), curriculumDay);
-const todayBusinessPractice = businessPracticeDecks[curriculumDay];
-const todayPronounPractice = pronounPracticeDecks[curriculumDay];
+function applyExternalQuestionBank(questionBank) {
+  if (!questionBank || typeof questionBank !== "object") return;
+
+  const extraDays = Array.isArray(questionBank.curriculum)
+    ? questionBank.curriculum
+    : Array.isArray(questionBank.days)
+      ? questionBank.days
+      : [];
+  extraDays.forEach((day) => {
+    if (day && day.name && Array.isArray(day.brain) && Array.isArray(day.life) && Array.isArray(day.talk) && day.mini) {
+      curriculum.push(day);
+    }
+  });
+
+  if (Array.isArray(questionBank.languageDecks)) {
+    questionBank.languageDecks.forEach((deck) => {
+      if (Array.isArray(deck) && deck.length) languageDecks.push(deck);
+    });
+  }
+
+  if (Array.isArray(questionBank.moneyMathDecks)) {
+    questionBank.moneyMathDecks.forEach((deck) => {
+      if (Array.isArray(deck) && deck.length) moneyMathDecks.push(deck);
+    });
+  }
+
+  if (Array.isArray(questionBank.businessPracticeDecks)) {
+    questionBank.businessPracticeDecks.forEach((question) => {
+      if (question && question.title && question.prompt && question.answer && Array.isArray(question.choices)) {
+        businessPracticeDecks.push(question);
+      }
+    });
+  }
+
+  if (Array.isArray(questionBank.pronounPracticeDecks)) {
+    questionBank.pronounPracticeDecks.forEach((question) => {
+      if (question && question.title && question.prompt && question.answer && Array.isArray(question.choices)) {
+        pronounPracticeDecks.push(question);
+      }
+    });
+  }
+}
+
+const externalQuestionBank = loadExternalQuestionBank();
+applyExternalQuestionBank(externalQuestionBank);
+const activeDayIndex = curriculumDay % curriculum.length;
+const activeCycleLength = curriculum.length;
+const activeDayNumber = activeDayIndex + 1;
+
+const todayPlan = curriculum[activeDayIndex];
+const todayLanguage = languageDecks[activeDayIndex % languageDecks.length];
+const todayMoneyMath = getMoneyMathForDifficulty(moneyMathDecks[activeDayIndex % moneyMathDecks.length], getDifficultyLevel(), activeDayIndex);
+const todayBusinessPractice = businessPracticeDecks[activeDayIndex % businessPracticeDecks.length];
+const todayPronounPractice = pronounPracticeDecks[activeDayIndex % pronounPracticeDecks.length];
 
 const title = document.querySelector("#page-title");
 const todayLabel = document.querySelector("#todayLabel");
@@ -1018,7 +1081,7 @@ function sendTestSync() {
     date: todayKey,
     childName: state.name,
     mood: state.mood,
-    curriculumDay: curriculumDay + 1,
+    curriculumDay: activeDayNumber,
     plan: getPlanLabel(),
     section: "Sync Test",
     round: "",
@@ -1083,7 +1146,7 @@ function logLearningAttempt(gameName, titleText, promptText, selectedAnswer, cor
     date: todayKey,
     childName: state.name,
     mood: state.mood,
-    curriculumDay: curriculumDay + 1,
+    curriculumDay: activeDayNumber,
     plan: getPlanLabel(),
     section: "Learning Game Attempt",
     round: "",
@@ -1256,7 +1319,7 @@ function syncActivityLog(entry) {
     date: todayKey,
     childName: state.name,
     mood: state.mood,
-    curriculumDay: curriculumDay + 1,
+    curriculumDay: activeDayNumber,
     plan: getPlanLabel(),
     section: labelFor(entry.section),
     round: entry.round,
@@ -1425,7 +1488,7 @@ function updateGreeting() {
   }
   const intro = document.querySelector(".intro");
   if (intro) {
-    intro.textContent = `Today is Day ${curriculumDay + 1} of 14: ${todayPlan.name}. ${getDifficultyLabel()}. Finish the four short sections, then unlock extra learning games.`;
+    intro.textContent = `Today is Day ${activeDayNumber} of ${activeCycleLength}: ${todayPlan.name}. ${getDifficultyLabel()}. Finish the four short sections, then unlock extra learning games.`;
   }
   if (nameInput) {
     nameInput.value = state.name;
@@ -1577,7 +1640,7 @@ function renderCaregiverReport() {
   const logs = getTodayLogs();
   const doneRounds = getRoundTotal();
   const mood = state.mood ? ` Mood: ${state.mood}.` : "";
-  reportSummary.textContent = `${doneRounds} of ${totalRounds} rounds completed. Day ${curriculumDay + 1}: ${getPlanLabel()}.${mood}`;
+  reportSummary.textContent = `${doneRounds} of ${totalRounds} rounds completed. Day ${activeDayNumber} of ${activeCycleLength}: ${getPlanLabel()}.${mood}`;
 
   if (!logs.length) {
     reportList.innerHTML = "";
@@ -2279,7 +2342,7 @@ function updateHistory() {
     rounds: getRoundTotal(),
     mood: state.mood,
     plan: getPlanLabel(),
-    day: curriculumDay + 1,
+    day: activeDayNumber,
     updatedAt: new Date().toISOString()
   };
   saveHistory();
@@ -2320,7 +2383,7 @@ if (todayLabel) {
     weekday: "long",
     month: "short",
     day: "numeric"
-  }).format(new Date())} · Day ${curriculumDay + 1} of 14`;
+  }).format(new Date())} · Day ${activeDayNumber} of ${activeCycleLength}`;
 }
 
 document.querySelectorAll(".mood-button").forEach((button) => {

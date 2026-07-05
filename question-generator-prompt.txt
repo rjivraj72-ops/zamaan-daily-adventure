@@ -1,0 +1,138 @@
+Create new questions for Zamaan's Daily Adventure.
+
+Goal:
+Generate a valid JSON object that can be pasted into question-bank.json.
+
+Tone and design:
+- Warm, clear, practical, and encouraging.
+- Avoid diagnostic or clinical language.
+- Questions should be useful for daily practice, confidence, independence, family communication, travel memories, Spanish learning, money math, and Granola Kid sales/marketing.
+- Keep reading level simple.
+- Use short prompts.
+- Multiple-choice answers should have one clear correct answer.
+
+Zamaan's interests and context:
+- Travel: Paris, Monaco, Venice, Sorrento, Lisbon, Algarve, Cordoba, Granada, Barcelona.
+- Spanish learning.
+- Exercise and movement.
+- Family words and pronouns: Mom, Dad, brother Keyaan, cousins Marcus and Jasmine, grandmothers, friends Harold, Aaron, and David.
+- Business: Granola Kid is focused on sales and marketing. A co-packer makes the granola. Zamaan can practice buyer care, customer follow-up, brand story, and simple money math.
+
+Return only valid JSON. Do not include markdown.
+
+Use this exact structure:
+{
+  "version": "YYYY-MM-DD",
+  "notes": "Short note about this generated set.",
+  "curriculum": [
+    {
+      "name": "Day name",
+      "brain": [
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            { "text": "Card 1", "pair": "pair-a" },
+            { "text": "Card 2", "pair": "pair-b" },
+            { "text": "Card 3", "pair": "pair-a" },
+            { "text": "Card 4", "pair": "pair-b" }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            { "text": "Card 1", "pair": "pair-a" },
+            { "text": "Card 2", "pair": "pair-b" },
+            { "text": "Card 3", "pair": "pair-a" },
+            { "text": "Card 4", "pair": "pair-b" }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            { "text": "Card 1", "pair": "pair-a" },
+            { "text": "Card 2", "pair": "pair-b" },
+            { "text": "Card 3", "pair": "pair-a" },
+            { "text": "Card 4", "pair": "pair-b" }
+          ]
+        }
+      ],
+      "life": [
+        {
+          "title": "Life skill title",
+          "prompt": "Tap the steps in the right order.",
+          "steps": ["Step 1", "Step 2", "Step 3"]
+        },
+        {
+          "title": "Life skill title",
+          "prompt": "Tap the steps in the right order.",
+          "steps": ["Step 1", "Step 2", "Step 3"]
+        },
+        {
+          "title": "Life skill title",
+          "prompt": "Tap the steps in the right order.",
+          "steps": ["Step 1", "Step 2", "Step 3"]
+        }
+      ],
+      "talk": [
+        "Talk Time question 1",
+        "Talk Time question 2",
+        "Talk Time question 3"
+      ],
+      "mini": {
+        "sort": {
+          "title": "Sort title",
+          "prompt": "Tap the correct group.",
+          "instruction": "Find 2 choices.",
+          "correct": ["Correct 1", "Correct 2"],
+          "wrong": ["Wrong 1", "Wrong 2"],
+          "success": "You found the choices."
+        },
+        "pattern": {
+          "title": "What comes next?",
+          "sequence": ["green", "gold", "green", "gold"],
+          "answer": "green",
+          "choices": ["Green", "Gold", "Blue"]
+        },
+        "money": {
+          "title": "Money title",
+          "prompt": "Simple money question.",
+          "answer": "$4",
+          "choices": ["$3", "$4", "$5"]
+        }
+      }
+    }
+  ],
+  "languageDecks": [
+    [
+      { "english": "Word", "spanish": "palabra", "choices": ["palabra", "wrong", "wrong"] },
+      { "english": "Word", "spanish": "palabra", "choices": ["wrong", "palabra", "wrong"] },
+      { "english": "Word", "spanish": "palabra", "choices": ["wrong", "wrong", "palabra"] }
+    ]
+  ],
+  "moneyMathDecks": [
+    [
+      { "title": "Money title", "prompt": "Simple money question.", "answer": "$4", "choices": ["$3", "$4", "$5"] },
+      { "title": "Money title", "prompt": "Simple money question.", "answer": "$6", "choices": ["$5", "$6", "$7"] },
+      { "title": "Money title", "prompt": "Simple money question.", "answer": "$8", "choices": ["$7", "$8", "$9"] }
+    ]
+  ],
+  "businessPracticeDecks": [
+    {
+      "title": "Business title",
+      "prompt": "Business question.",
+      "answer": "Correct answer",
+      "choices": ["Correct answer", "Wrong answer", "Wrong answer"]
+    }
+  ],
+  "pronounPracticeDecks": [
+    {
+      "title": "Family words title",
+      "prompt": "Family/pronoun question.",
+      "answer": "Correct answer",
+      "choices": ["Correct answer", "Wrong answer", "Wrong answer"]
+    }
+  ]
+}
