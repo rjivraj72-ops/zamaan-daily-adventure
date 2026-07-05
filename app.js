@@ -733,6 +733,7 @@ const reportSummary = document.querySelector("#reportSummary");
 const reportList = document.querySelector("#reportList");
 const syncUrlInput = document.querySelector("#syncUrlInput");
 const familyCodeInput = document.querySelector("#familyCodeInput");
+const familyCodeRevealButton = document.createElement("button");
 const syncStatus = document.querySelector("#syncStatus");
 const lastSyncStatus = document.querySelector("#lastSyncStatus");
 const shareSyncSetup = document.querySelector("#shareSyncSetup");
@@ -825,6 +826,28 @@ function saveSyncConfig() {
   localStorage.setItem("dailyAdventureSyncUrl", syncUrlInput.value.trim());
   localStorage.setItem("dailyAdventureFamilyCode", familyCodeInput.value.trim());
   updateSyncStatus();
+}
+
+function setupFamilyCodeReveal() {
+  if (!familyCodeInput || familyCodeRevealButton.isConnected) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "secret-input-row";
+  familyCodeInput.parentNode.insertBefore(wrapper, familyCodeInput);
+  wrapper.appendChild(familyCodeInput);
+
+  familyCodeRevealButton.type = "button";
+  familyCodeRevealButton.className = "secret-toggle";
+  familyCodeRevealButton.textContent = "Show 👁";
+  familyCodeRevealButton.setAttribute("aria-label", "Show family code");
+  familyCodeRevealButton.addEventListener("click", () => {
+    const willShow = familyCodeInput.type === "password";
+    familyCodeInput.type = willShow ? "text" : "password";
+    familyCodeRevealButton.textContent = willShow ? "Hide 🙈" : "Show 👁";
+    familyCodeRevealButton.setAttribute("aria-label", willShow ? "Hide family code" : "Show family code");
+  });
+
+  wrapper.appendChild(familyCodeRevealButton);
 }
 
 function updateSyncStatus() {
@@ -2731,6 +2754,7 @@ function resetSequenceGame() {
 
 const syncSetupApplied = applyIncomingSyncSetup();
 
+setupFamilyCodeReveal();
 updateGreeting();
 if (hasDailyPage) {
   renderDailyRounds();
