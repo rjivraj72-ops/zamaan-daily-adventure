@@ -29,7 +29,16 @@ const voicePrompts = {
   finished: "audio/finished.mp3",
   sendUpdate: "audio/send-update.mp3",
   extraGames: "audio/extra-games.mp3",
-  caregiverCompletion: "audio/caregiver-completion.mp3"
+  caregiverCompletion: "audio/caregiver-completion.mp3",
+  pickOneMoreCard: "audio/pick-one-more-card.mp3",
+  nextStep: "audio/next-step.mp3",
+  settingsSaved: "audio/settings-saved.mp3",
+  soundOn: "audio/sound-on.mp3",
+  progressReset: "audio/progress-reset.mp3",
+  moodHappy: "audio/mood-happy.mp3",
+  moodCalm: "audio/mood-calm.mp3",
+  moodTired: "audio/mood-tired.mp3",
+  moodUnsure: "audio/mood-unsure.mp3"
 };
 
 let currentVoicePrompt = null;
@@ -1332,27 +1341,11 @@ function checkPin() {
   updatePinDisplay();
 }
 
-function speakWithDeviceVoice(text) {
-  if (!isSoundEnabled() || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  const voices = window.speechSynthesis.getVoices();
-  const preferredNames = ["Samantha", "Ava", "Susan", "Karen", "Moira", "Daniel"];
-  utterance.voice = preferredNames
-    .map((name) => voices.find((voice) => voice.name.includes(name) && voice.lang.startsWith("en")))
-    .find(Boolean) || voices.find((voice) => voice.lang === "en-US" && voice.localService) || null;
-  utterance.rate = 0.92;
-  utterance.pitch = 1.03;
-  utterance.volume = 1;
-  window.speechSynthesis.speak(utterance);
-}
-
-function speak(text, promptKey = "") {
+function speak(_text, promptKey = "") {
   if (!isSoundEnabled()) return;
 
   const audioPath = voicePrompts[promptKey];
   if (!audioPath) {
-    speakWithDeviceVoice(text);
     return;
   }
 
@@ -1365,9 +1358,9 @@ function speak(text, promptKey = "") {
       window.speechSynthesis.cancel();
     }
     currentVoicePrompt = new Audio(audioPath);
-    currentVoicePrompt.play().catch(() => speakWithDeviceVoice(text));
+    currentVoicePrompt.play().catch(() => {});
   } catch (error) {
-    speakWithDeviceVoice(text);
+    // Stay quiet if a natural audio clip cannot play.
   }
 }
 
@@ -2144,10 +2137,10 @@ function attachRoundHandlers() {
 
       card.classList.add("selected");
       memoryPicks.push(card);
-      speak(card.textContent);
 
       if (memoryPicks.length < 2) {
         feedback.textContent = "Pick one more card.";
+        speak("Pick one more card.", "pickOneMoreCard");
         return;
       }
 
@@ -2217,7 +2210,7 @@ function attachRoundHandlers() {
           window.setTimeout(renderDailyRounds, 700);
         } else {
           feedback.textContent = `Good. Now find step ${sequenceStep}.`;
-          speak(`Good. Now find step ${sequenceStep}.`, "keepGoing");
+          speak(`Good. Now find step ${sequenceStep}.`, "nextStep");
         }
         return;
       }
@@ -2338,7 +2331,7 @@ document.querySelectorAll(".mood-button").forEach((button) => {
     button.classList.add("selected");
     save();
     updateHistory();
-    speak(`You chose ${state.mood}.`, "startPath");
+    speak(`You chose ${state.mood}.`, `mood${state.mood}`);
   });
 });
 
@@ -2496,7 +2489,7 @@ if (soundToggle) {
     saveSoundEnabled(enabled);
     soundToggle.textContent = enabled ? "Sound on" : "Sound off";
     soundToggle.setAttribute("aria-pressed", String(enabled));
-    if (enabled) speak("Sound is on.", "keepGoing");
+    if (enabled) speak("Sound is on.", "soundOn");
   });
 }
 
@@ -2641,7 +2634,7 @@ if (saveSettings) {
     if (parentViewStatus) {
       parentViewStatus.textContent = "Settings saved.";
     }
-    speak("Settings saved.", "caregiverCompletion");
+    speak("Settings saved.", "settingsSaved");
     renderCaregiverReport();
   });
 }
@@ -2740,7 +2733,7 @@ if (resetProgress) {
   }
   renderCalendar();
   renderCaregiverReport();
-  speak("Today's progress has been reset.", "keepGoing");
+  speak("Today's progress has been reset.", "progressReset");
   });
 }
 
