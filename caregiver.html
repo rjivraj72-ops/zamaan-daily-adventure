@@ -82,6 +82,17 @@
           </label>
           <p class="sync-status" id="parentViewStatus">Parent view has not loaded yet.</p>
           <div class="parent-view-results" id="parentViewResults"></div>
+          <div class="ai-prompt-panel" id="questionGeneratorPanel">
+            <div>
+              <h4>Question Generator</h4>
+              <p>Copy this prompt when you want ChatGPT or Gemini to create fresh question-bank updates.</p>
+            </div>
+            <div class="ai-actions">
+              <button id="copyQuestionGeneratorPromptStatic" class="secondary-button" type="button">Copy question generator prompt</button>
+              <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
+            </div>
+            <textarea id="questionGeneratorPromptPreviewStatic" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
+          </div>
         </section>
 
         <details class="learning-settings caregiver-settings">
@@ -164,5 +175,23 @@
     </main>
 
     <script src="app.js?v=20260705-question-generator"></script>
+    <script>
+      document.addEventListener("click", async (event) => {
+        if (event.target && event.target.id === "copyQuestionGeneratorPromptStatic") {
+          const status = document.querySelector("#parentViewStatus");
+          const preview = document.querySelector("#questionGeneratorPromptPreviewStatic");
+          try {
+            const response = await fetch("question-generator-prompt.txt?v=" + Date.now());
+            if (!response.ok) throw new Error("Prompt file not found");
+            const prompt = await response.text();
+            if (preview) preview.value = prompt;
+            await navigator.clipboard.writeText(prompt);
+            if (status) status.textContent = "Question generator prompt copied. Paste it into ChatGPT or Gemini.";
+          } catch {
+            if (status) status.textContent = "Open the prompt file and copy it manually.";
+          }
+        }
+      });
+    </script>
   </body>
 </html>
