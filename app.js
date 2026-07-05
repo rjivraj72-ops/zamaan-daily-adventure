@@ -1825,6 +1825,23 @@ function renderParentView(data) {
       </div>
       <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
     </div>
+    ${buildQuestionGeneratorPanel()}
+  `;
+}
+
+function buildQuestionGeneratorPanel() {
+  return `
+    <div class="ai-prompt-panel">
+      <div>
+        <h4>Question Generator</h4>
+        <p>Copy this prompt when you want ChatGPT or Gemini to create fresh question-bank updates.</p>
+      </div>
+      <div class="ai-actions">
+        <button id="copyQuestionGeneratorPrompt" class="secondary-button" type="button">Copy question generator prompt</button>
+        <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
+      </div>
+      <textarea id="questionGeneratorPromptPreview" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
+    </div>
   `;
 }
 
@@ -1937,6 +1954,28 @@ async function copyWeeklyPromptText(successMessage) {
   } catch {
     if (parentViewStatus) {
       parentViewStatus.textContent = "Prompt is ready below. Select it and copy it manually.";
+    }
+    return false;
+  }
+}
+
+async function copyQuestionGeneratorPrompt() {
+  try {
+    const response = await fetch(`question-generator-prompt.txt?v=${Date.now()}`);
+    if (!response.ok) throw new Error("Prompt file not found");
+    const prompt = await response.text();
+    const preview = document.querySelector("#questionGeneratorPromptPreview");
+    if (preview) {
+      preview.value = prompt;
+    }
+    await copyTextToClipboard(prompt);
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Question generator prompt copied. Paste it into ChatGPT or Gemini.";
+    }
+    return true;
+  } catch {
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Could not load the question generator prompt. Open question-generator-prompt.txt from GitHub.";
     }
     return false;
   }
@@ -2735,6 +2774,9 @@ if (parentViewResults) {
     if (event.target?.id === "copyWeeklyPrompt") {
       copyWeeklyPrompt();
     }
+    if (event.target?.id === "copyQuestionGeneratorPrompt") {
+      copyQuestionGeneratorPrompt();
+    }
     const aiLink = event.target?.closest?.("[data-ai-target]");
     if (aiLink) {
       if (!latestParentViewData) {
@@ -2819,6 +2861,9 @@ if (hasDailyPage) {
   updateHistory();
 }
 renderCaregiverReport();
+if (parentViewResults && !parentViewResults.innerHTML.trim()) {
+  parentViewResults.innerHTML = buildQuestionGeneratorPanel();
+}
 
 if (loadParentView) {
   const { url, familyCode } = getSyncConfig();
