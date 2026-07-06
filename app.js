@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260705-production-ui";
+  polishLink.href = "polish.css?v=20260705-accessibility-comfort";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -790,6 +790,11 @@ const caregiverPanel = document.querySelector("#caregiver-panel");
 const nameInput = document.querySelector("#nameInput");
 const difficultyInput = document.querySelector("#difficultyInput");
 const focusModeInput = document.querySelector("#focusModeInput");
+const largeTextInput = document.querySelector("#largeTextInput");
+const highContrastInput = document.querySelector("#highContrastInput");
+const extraHintsInput = document.querySelector("#extraHintsInput");
+const reduceMotionInput = document.querySelector("#reduceMotionInput");
+const replayAudioInput = document.querySelector("#replayAudioInput");
 const promptInput = document.querySelector("#promptInput");
 const messageInput = document.querySelector("#messageInput");
 const pinInput = document.querySelector("#pinInput");
@@ -841,6 +846,13 @@ let latestParentViewData = null;
 let movementInterval = null;
 const sortPicks = new Set();
 const retryCounts = new Map();
+const accessibilityDefaults = {
+  largeText: false,
+  highContrast: false,
+  extraHints: false,
+  reduceMotion: false,
+  replayAudio: true
+};
 
 function save() {
   localStorage.setItem("dailyAdventure", JSON.stringify(state));
@@ -871,11 +883,55 @@ function saveWhatsappPhone(value) {
   localStorage.setItem("dailyAdventureWhatsappPhone", digits);
 }
 
+function getAccessibilitySettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("dailyAdventureAccessibility") || "{}");
+    return { ...accessibilityDefaults, ...saved };
+  } catch (error) {
+    return { ...accessibilityDefaults };
+  }
+}
+
+function saveAccessibilitySettings(settings) {
+  localStorage.setItem("dailyAdventureAccessibility", JSON.stringify({
+    ...accessibilityDefaults,
+    ...settings
+  }));
+  applyAccessibilitySettings();
+}
+
+function applyAccessibilitySettings() {
+  const settings = getAccessibilitySettings();
+  document.body.classList.toggle("a11y-large-text", settings.largeText);
+  document.body.classList.toggle("a11y-high-contrast", settings.highContrast);
+  document.body.classList.toggle("a11y-reduce-motion", settings.reduceMotion);
+  document.body.classList.toggle("a11y-extra-hints", settings.extraHints);
+  document.body.classList.toggle("a11y-replay-audio", settings.replayAudio);
+
+  if (largeTextInput) largeTextInput.checked = settings.largeText;
+  if (highContrastInput) highContrastInput.checked = settings.highContrast;
+  if (extraHintsInput) extraHintsInput.checked = settings.extraHints;
+  if (reduceMotionInput) reduceMotionInput.checked = settings.reduceMotion;
+  if (replayAudioInput) replayAudioInput.checked = settings.replayAudio;
+}
+
+function isExtraHintsEnabled() {
+  return getAccessibilitySettings().extraHints;
+}
+
+function isReplayAudioEnabled() {
+  return getAccessibilitySettings().replayAudio;
+}
+
+function getScrollBehavior() {
+  return getAccessibilitySettings().reduceMotion ? "auto" : "smooth";
+}
+
 function getRetryFeedback(key, hint, correctAnswer) {
   const attempts = (retryCounts.get(key) || 0) + 1;
   retryCounts.set(key, attempts);
-  if (attempts === 1) return "Good try. Try again.";
-  if (attempts === 2) return `Here is a hint: ${hint}`;
+  if (attempts === 1 && !isExtraHintsEnabled()) return "Good try. Try again.";
+  if (attempts <= (isExtraHintsEnabled() ? 1 : 2)) return `Here is a hint: ${hint}`;
   return `The answer is ${correctAnswer}. Tap it to continue.`;
 }
 
@@ -1462,7 +1518,7 @@ function completeRound(id, message, detail = {}) {
   renderCaregiverReport();
   window.setTimeout(() => {
     const activeActivity = document.querySelector(".activity.active:not([hidden])");
-    if (activeActivity) activeActivity.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (activeActivity) activeActivity.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
   }, 900);
   const doneRounds = getRoundTotal();
   const roundsLeft = Math.max(totalRounds - doneRounds, 0);
@@ -1530,6 +1586,27 @@ function updateGreeting() {
     familyCodeInput.value = getSyncConfig().familyCode;
   }
   updateSyncStatus();
+}
+
+function addReplayButton(activity, promptKey, label) {
+  if (!activity) return;
+
+  const existing = activity.querySelector(".replay-audio-button");
+  if (!isReplayAudioEnabled()) {
+    if (existing) existing.remove();
+    return;
+  }
+
+  const header = activity.querySelector(".activity-header");
+  if (!header || existing) return;
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "replay-audio-button";
+  button.textContent = "Listen";
+  button.setAttribute("aria-label", `Replay ${label} instructions`);
+  button.addEventListener("click", () => speak(label, promptKey));
+  header.appendChild(button);
 }
 
 function renderTodayPath(nextId) {
@@ -2024,6 +2101,7 @@ function renderBrainRound() {
   const deck = todayPlan.brain[round];
   const activity = document.querySelector('[data-activity="brain"]');
   if (!activity) return;
+  addReplayButton(activity, "memoryGame", "Memory Game");
 
   activity.querySelector("h2").textContent = state.completed.includes("brain") ? "Memory complete" : deck.title;
   activity.querySelector(".prompt").textContent = state.completed.includes("brain")
@@ -2042,6 +2120,7 @@ function renderLifeRound() {
   const deck = todayPlan.life[round];
   const activity = document.querySelector('[data-activity="life"]');
   if (!activity || !sequenceGame) return;
+  addReplayButton(activity, "beforeQuestion", "Life Skill");
   const shuffledSteps = [deck.steps[0], deck.steps[2], deck.steps[1]];
 
   activity.querySelector("h2").textContent = state.completed.includes("life") ? "Life skills complete" : deck.title;
@@ -2064,6 +2143,7 @@ function renderLanguageRound() {
   const deck = todayLanguage[round];
   const activity = document.querySelector('[data-activity="language"]');
   if (!activity) return;
+  addReplayButton(activity, "spanishCards", "Spanish Cards");
 
   const isDone = state.completed.includes("language");
 
@@ -2089,6 +2169,7 @@ function renderTalkRound() {
     : todayPlan.talk[round];
   const activity = document.querySelector('[data-activity="talk"]');
   if (!activity) return;
+  addReplayButton(activity, "talkTime", "Talk Time");
 
   activity.querySelector("h2").textContent = state.completed.includes("talk") ? "Talk Time complete" : "Share an answer";
   talkPrompt.textContent = state.completed.includes("talk")
@@ -2710,19 +2791,26 @@ if (caregiverToggle && caregiverPanel) {
 const saveSettings = document.querySelector("#saveSettings");
 if (saveSettings) {
   saveSettings.addEventListener("click", () => {
-    state.name = nameInput.value.trim() || "Zamaan";
+    state.name = nameInput?.value.trim() || "Zamaan";
     if (difficultyInput) {
       saveDifficultyLevel(difficultyInput.value);
     }
     if (focusModeInput) {
       saveFocusMode(focusModeInput.checked);
     }
+    saveAccessibilitySettings({
+      largeText: Boolean(largeTextInput?.checked),
+      highContrast: Boolean(highContrastInput?.checked),
+      extraHints: Boolean(extraHintsInput?.checked),
+      reduceMotion: Boolean(reduceMotionInput?.checked),
+      replayAudio: replayAudioInput ? replayAudioInput.checked : true
+    });
     if (parentNoteInput) {
       localStorage.setItem("dailyAdventureParentNote", parentNoteInput.value.trim());
     }
-    state.talkPrompt = promptInput.value.trim() || defaultState.talkPrompt;
-    state.message = messageInput.value.trim() || defaultState.message;
-    saveAppPin(pinInput.value.replace(/\D/g, "").slice(0, 8) || "1234");
+    state.talkPrompt = promptInput?.value.trim() || defaultState.talkPrompt;
+    state.message = messageInput?.value.trim() || defaultState.message;
+    saveAppPin(pinInput?.value.replace(/\D/g, "").slice(0, 8) || "1234");
     if (whatsappPhoneInput) {
       saveWhatsappPhone(whatsappPhoneInput.value);
     }
@@ -2730,7 +2818,11 @@ if (saveSettings) {
     save();
     updateGreeting();
     updateProgress();
-    renderTalkRound();
+    if (hasDailyPage) {
+      renderDailyRounds();
+    } else {
+      renderTalkRound();
+    }
     if (celebration) {
       celebration.textContent = "Settings saved.";
     }
@@ -2853,6 +2945,7 @@ function resetSequenceGame() {
 
 const syncSetupApplied = applyIncomingSyncSetup();
 
+applyAccessibilitySettings();
 setupFamilyCodeReveal();
 updateGreeting();
 if (hasDailyPage) {
