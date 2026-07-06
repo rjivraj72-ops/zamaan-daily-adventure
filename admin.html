@@ -202,7 +202,10 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260705-admin-page-split"></script>
+    <p id="reportSummary" hidden></p>
+    <div id="reportList" hidden></div>
+
+    <script src="app.js?v=20260705-admin-stability"></script>
     <script>
       document.addEventListener("click", async (event) => {
         if (event.target && event.target.id === "copyQuestionGeneratorPromptStatic") {

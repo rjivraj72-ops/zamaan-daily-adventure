@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260705-admin-page-split";
+  polishLink.href = "polish.css?v=20260705-admin-stability";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -2846,11 +2846,9 @@ if (saveSettings) {
     saveSyncConfig();
     save();
     updateGreeting();
-    updateProgress();
     if (hasDailyPage) {
+      updateProgress();
       renderDailyRounds();
-    } else {
-      renderTalkRound();
     }
     if (celebration) {
       celebration.textContent = "Settings saved.";
