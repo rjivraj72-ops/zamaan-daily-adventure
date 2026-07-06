@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260705-a11y-voice-cleanup";
+  polishLink.href = "polish.css?v=20260705-admin-page-split";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -1926,7 +1926,6 @@ function renderParentView(data) {
       </div>
       <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
     </div>
-    ${buildQuestionGeneratorPanel()}
   `;
 }
 
@@ -2985,9 +2984,6 @@ if (hasDailyPage) {
   updateHistory();
 }
 renderCaregiverReport();
-if (parentViewResults && !parentViewResults.innerHTML.trim()) {
-  parentViewResults.innerHTML = buildQuestionGeneratorPanel();
-}
 
 if (loadParentView) {
   const { url, familyCode } = getSyncConfig();

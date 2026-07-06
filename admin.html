@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Daily Adventure</title>
+    <meta name="theme-color" content="#247c6d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Daily Adventure">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="caregiver-page admin-page">
+    <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">
+      <div class="pin-card">
+        <img class="app-icon" src="icons/app-icon-192.png" alt="" aria-hidden="true">
+        <p class="eyebrow">Daily Adventure</p>
+        <h1 id="pin-title">Enter your PIN</h1>
+        <p class="pin-help">Use the family PIN to open Admin & Setup.</p>
+        <div class="pin-display" id="pinDisplay" aria-label="PIN entry">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="pin-pad" aria-label="Number pad">
+          <button class="pin-key" data-pin-key="1">1</button>
+          <button class="pin-key" data-pin-key="2">2</button>
+          <button class="pin-key" data-pin-key="3">3</button>
+          <button class="pin-key" data-pin-key="4">4</button>
+          <button class="pin-key" data-pin-key="5">5</button>
+          <button class="pin-key" data-pin-key="6">6</button>
+          <button class="pin-key" data-pin-key="7">7</button>
+          <button class="pin-key" data-pin-key="8">8</button>
+          <button class="pin-key" data-pin-key="9">9</button>
+          <button class="pin-key secondary" data-pin-clear>Clear</button>
+          <button class="pin-key" data-pin-key="0">0</button>
+          <button class="pin-key secondary" data-pin-back>Back</button>
+        </div>
+        <p class="pin-message" id="pinMessage" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <main class="app-shell caregiver-shell">
+      <nav class="app-nav" aria-label="App sections">
+        <a href="index.html">Daily Adventure</a>
+        <a href="caregiver.html">Parent Dashboard</a>
+        <a class="active" href="admin.html">Admin</a>
+      </nav>
+
+      <section class="caregiver-hero" aria-labelledby="admin-title">
+        <div>
+          <p class="eyebrow">Admin</p>
+          <h1 id="admin-title">Admin & setup</h1>
+          <p>Manage settings, sync, accessibility, and new question generation in one place.</p>
+        </div>
+      </section>
+
+      <section class="caregiver-panel" id="caregiver-panel">
+        <section class="learning-settings caregiver-settings" aria-labelledby="app-settings-title">
+          <h3 id="app-settings-title">App settings</h3>
+          <div class="settings-grid">
+            <label>
+              Difficulty level
+              <select id="difficultyInput">
+                <option value="1">Level 1 - more support</option>
+                <option value="2">Level 2 - current level</option>
+                <option value="3">Level 3 - more challenge</option>
+              </select>
+            </label>
+            <label>
+              Name shown in greeting
+              <input id="nameInput" type="text" value="Zamaan">
+            </label>
+            <label>
+              Talk Time prompt
+              <input id="promptInput" type="text" value="What is one thing you want to do today?">
+            </label>
+            <label>
+              Encouraging message
+              <input id="messageInput" type="text" value="Great job. You finished today's adventure.">
+            </label>
+            <label>
+              App PIN
+              <input id="pinInput" type="password" inputmode="numeric" maxlength="8" value="1234">
+            </label>
+            <label>
+              WhatsApp update number
+              <input id="whatsappPhoneInput" type="tel" inputmode="tel" placeholder="Optional. Example: 16045551234">
+            </label>
+          </div>
+          <label class="toggle-setting">
+            <input id="focusModeInput" type="checkbox" checked>
+            <span>
+              Focus Mode
+              <small>Keep extra games locked until the 12 daily rounds are finished.</small>
+            </span>
+          </label>
+          <p>Difficulty changes the challenge level, not the number of daily rounds.</p>
+        </section>
+
+        <section class="learning-settings caregiver-settings" aria-labelledby="accessibility-title">
+          <h3 id="accessibility-title">Accessibility & comfort</h3>
+          <p>Adjust the app for focus, readability, sound, and sensory comfort.</p>
+          <label class="toggle-setting">
+            <input id="largeTextInput" type="checkbox">
+            <span>
+              Larger text
+              <small>Bigger words and touch targets for easier reading.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="highContrastInput" type="checkbox">
+            <span>
+              High contrast
+              <small>Clearer colors, stronger borders, and easier-to-see buttons.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="extraHintsInput" type="checkbox">
+            <span>
+              Extra hints
+              <small>Show helpful hints sooner after a missed answer.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="reduceMotionInput" type="checkbox">
+            <span>
+              Reduce motion
+              <small>Limit animated movement and smooth scrolling.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="replayAudioInput" type="checkbox" checked>
+            <span>
+              Replay audio buttons
+              <small>Add Listen buttons so instructions can be heard again.</small>
+            </span>
+          </label>
+        </section>
+
+        <section class="sync-settings advanced-settings" aria-labelledby="sync-title">
+          <h3 id="sync-title">Sync setup</h3>
+          <p>Use this when setting up a phone, fixing sync, or testing the private Google Sheet connection.</p>
+          <label>
+            Sync web app URL
+            <input id="syncUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+          </label>
+          <label>
+            Family code
+            <input id="familyCodeInput" type="password" placeholder="Private family code">
+          </label>
+          <div class="sync-actions">
+            <button id="shareSyncSetup" type="button">Send iPhone setup link</button>
+            <button id="copySyncSetup" class="secondary-button" type="button">Copy setup link</button>
+          </div>
+          <label>
+            Home Screen setup code
+            <textarea id="syncSetupCode" rows="3" placeholder="Paste setup code here if the Home Screen app lost sync settings."></textarea>
+          </label>
+          <div class="sync-actions">
+            <button id="copySyncCode" class="secondary-button" type="button">Copy setup code</button>
+            <button id="importSyncCode" class="secondary-button" type="button">Import setup code</button>
+          </div>
+          <button id="testSync" class="secondary-button" type="button">Test sync</button>
+          <p class="sync-note">Only send setup links or codes to family. They connect the phone to your private Sheet.</p>
+          <p class="sync-status" id="lastSyncStatus">Last synced: never</p>
+          <p class="sync-status" id="syncStatus">Sync is not set up yet.</p>
+        </section>
+
+        <section class="parent-view" aria-labelledby="question-generator-title">
+          <div class="ai-prompt-panel" id="questionGeneratorPanel">
+            <div>
+              <h3 id="question-generator-title">Question Generator</h3>
+              <p>Box 1 is the prompt to copy into ChatGPT. Box 2 is where you can paste the generated question-bank JSON before updating GitHub.</p>
+            </div>
+            <div class="ai-actions">
+              <button id="copyQuestionGeneratorPromptStatic" class="secondary-button" type="button">Copy question generator prompt</button>
+              <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
+            </div>
+            <label>
+              Box 1: Prompt for ChatGPT
+              <textarea id="questionGeneratorPromptPreviewStatic" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
+            </label>
+            <label>
+              Box 2: Generated question-bank JSON
+              <textarea id="generatedQuestionBankPreviewStatic" rows="5" placeholder="Paste ChatGPT's generated JSON here so you can review it before updating question-bank.json."></textarea>
+            </label>
+          </div>
+          <p class="sync-status" id="parentViewStatus">Admin is ready.</p>
+        </section>
+
+        <div class="caregiver-actions">
+          <button id="saveSettings">Save changes</button>
+          <a class="button-link secondary-button" href="caregiver.html">Back to Parent Dashboard</a>
+          <button id="lockApp" class="secondary-button">Lock admin</button>
+          <button id="resetProgress" class="secondary-button danger-lite">Reset today's local progress</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js?v=20260705-admin-page-split"></script>
+    <script>
+      document.addEventListener("click", async (event) => {
+        if (event.target && event.target.id === "copyQuestionGeneratorPromptStatic") {
+          const status = document.querySelector("#parentViewStatus");
+          const preview = document.querySelector("#questionGeneratorPromptPreviewStatic");
+          try {
+            const response = await fetch("question-generator-prompt.txt?v=" + Date.now());
+            if (!response.ok) throw new Error("Prompt file not found");
+            const prompt = await response.text();
+            if (preview) preview.value = prompt;
+            await navigator.clipboard.writeText(prompt);
+            if (status) status.textContent = "Question generator prompt copied. Paste it into ChatGPT.";
+          } catch {
+            if (status) status.textContent = "Open the prompt file and copy it manually.";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
