@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260705-admin-desktop-polish";
+  polishLink.href = "polish.css?v=20260705-toggle-polish";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
