@@ -85,13 +85,20 @@
           <div class="ai-prompt-panel" id="questionGeneratorPanel">
             <div>
               <h4>Question Generator</h4>
-              <p>Copy this prompt when you want ChatGPT or Gemini to create fresh question-bank updates.</p>
+              <p>Box 1 is the prompt to copy into ChatGPT. Box 2 is where you can paste the generated question-bank JSON before updating GitHub.</p>
             </div>
             <div class="ai-actions">
               <button id="copyQuestionGeneratorPromptStatic" class="secondary-button" type="button">Copy question generator prompt</button>
               <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
             </div>
-            <textarea id="questionGeneratorPromptPreviewStatic" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
+            <label>
+              Box 1: Prompt for ChatGPT
+              <textarea id="questionGeneratorPromptPreviewStatic" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
+            </label>
+            <label>
+              Box 2: Generated question-bank JSON
+              <textarea id="generatedQuestionBankPreviewStatic" rows="5" placeholder="Paste ChatGPT's generated JSON here so you can review it before updating question-bank.json."></textarea>
+            </label>
           </div>
         </section>
 
@@ -137,6 +144,46 @@
           <p>Difficulty changes the challenge level, not the number of daily rounds.</p>
         </details>
 
+        <details class="learning-settings caregiver-settings" open>
+          <summary>Accessibility & comfort</summary>
+          <p>Adjust the app for focus, readability, sound, and sensory comfort.</p>
+          <label class="toggle-setting">
+            <input id="largeTextInput" type="checkbox">
+            <span>
+              Larger text
+              <small>Bigger words and touch targets for easier reading.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="highContrastInput" type="checkbox">
+            <span>
+              High contrast
+              <small>Clearer colors, stronger borders, and easier-to-see buttons.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="extraHintsInput" type="checkbox">
+            <span>
+              Extra hints
+              <small>Show helpful hints sooner after a missed answer.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="reduceMotionInput" type="checkbox">
+            <span>
+              Reduce motion
+              <small>Limit animated movement and smooth scrolling.</small>
+            </span>
+          </label>
+          <label class="toggle-setting">
+            <input id="replayAudioInput" type="checkbox" checked>
+            <span>
+              Replay audio buttons
+              <small>Add Listen buttons so instructions can be heard again.</small>
+            </span>
+          </label>
+        </details>
+
         <details class="sync-settings advanced-settings">
           <summary id="sync-title">Advanced setup</summary>
           <p>Use this when setting up a phone, fixing sync, or testing the private Google Sheet connection.</p>
@@ -174,7 +221,7 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260705-question-generator"></script>
+    <script src="app.js?v=20260705-a11y-voice-cleanup"></script>
     <script>
       document.addEventListener("click", async (event) => {
         if (event.target && event.target.id === "copyQuestionGeneratorPromptStatic") {

@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260705-accessibility-comfort";
+  polishLink.href = "polish.css?v=20260705-a11y-voice-cleanup";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -43,6 +43,26 @@ const voicePrompts = {
 };
 
 let currentVoicePrompt = null;
+
+function getHiddenVoicePlayer() {
+  let player = document.querySelector("audio[data-voice-prompt]");
+  if (player) return player;
+
+  player = document.createElement("audio");
+  player.dataset.voicePrompt = "true";
+  player.hidden = true;
+  player.controls = false;
+  player.preload = "none";
+  player.setAttribute("aria-hidden", "true");
+  player.setAttribute("playsinline", "");
+  player.setAttribute("webkit-playsinline", "");
+  player.style.display = "none";
+  if ("disableRemotePlayback" in player) {
+    player.disableRemotePlayback = true;
+  }
+  document.body.appendChild(player);
+  return player;
+}
 
 function loadExternalQuestionBank() {
   try {
@@ -1477,7 +1497,10 @@ function speak(_text, promptKey = "") {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
-    currentVoicePrompt = new Audio(audioPath);
+    currentVoicePrompt = getHiddenVoicePlayer();
+    currentVoicePrompt.removeAttribute("controls");
+    currentVoicePrompt.src = audioPath;
+    currentVoicePrompt.currentTime = 0;
     currentVoicePrompt.play().catch(() => {});
   } catch (error) {
     // Stay quiet if a natural audio clip cannot play.
@@ -1912,13 +1935,20 @@ function buildQuestionGeneratorPanel() {
     <div class="ai-prompt-panel">
       <div>
         <h4>Question Generator</h4>
-        <p>Copy this prompt when you want ChatGPT or Gemini to create fresh question-bank updates.</p>
+        <p>Box 1 is the prompt to copy into ChatGPT. Box 2 is where you can paste the generated question-bank JSON before updating GitHub.</p>
       </div>
       <div class="ai-actions">
         <button id="copyQuestionGeneratorPrompt" class="secondary-button" type="button">Copy question generator prompt</button>
         <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
       </div>
-      <textarea id="questionGeneratorPromptPreview" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
+      <label>
+        Box 1: Prompt for ChatGPT
+        <textarea id="questionGeneratorPromptPreview" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
+      </label>
+      <label>
+        Box 2: Generated question-bank JSON
+        <textarea id="generatedQuestionBankPreview" rows="5" placeholder="Paste ChatGPT's generated JSON here so you can review it before updating question-bank.json."></textarea>
+      </label>
     </div>
   `;
 }
