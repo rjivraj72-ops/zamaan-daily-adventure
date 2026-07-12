@@ -647,6 +647,16 @@ textarea {
   box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
 }
 
+.question-cycle-reminder {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(59, 154, 110, 0.2);
+  border-radius: 8px;
+  background: rgba(235, 247, 239, 0.9);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
 .caregiver-actions {
   padding: 14px;
   border: 1px solid rgba(16, 47, 41, 0.1);

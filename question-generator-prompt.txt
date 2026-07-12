@@ -2,6 +2,7 @@ Create new questions for Zamaan's Daily Adventure.
 
 Goal:
 Generate a valid JSON object that can be pasted into question-bank.json.
+Create a fresh set for the next practice cycle. Avoid repeating recent question wording, answer choices, and examples when possible. Keep the same learning areas, but vary the situations, names, travel memories, Spanish words, money math, and Granola Kid sales/marketing examples.
 
 Tone and design:
 - Warm, clear, practical, and encouraging.

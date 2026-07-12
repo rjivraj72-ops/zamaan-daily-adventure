@@ -2018,20 +2018,19 @@ function buildQuestionGeneratorPanel() {
   return `
     <div class="ai-prompt-panel">
       <div>
-        <h4>Question Generator</h4>
-        <p>Use this when you want to create a fresh set of questions. The app automatically rotates through the questions that are already uploaded.</p>
+        <h4>Create New Questions</h4>
+        <p>Use this when you want ChatGPT to create the next set of questions. The app automatically rotates through the question file that is already uploaded.</p>
+      </div>
+      <div class="question-cycle-reminder">
+        <strong>Parent reminder:</strong> Start a fresh question set every 2 weeks, or sooner if Zamaan is mastering the current set.
       </div>
       <div class="ai-actions">
-        <button id="copyQuestionGeneratorPrompt" class="secondary-button" type="button">Copy question generator prompt</button>
+        <button id="copyQuestionGeneratorPrompt" class="secondary-button" type="button">Copy ChatGPT prompt</button>
         <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
       </div>
       <label>
-        Question Ideas Prompt
-        <textarea id="questionGeneratorPromptPreview" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
-      </label>
-      <label>
-        App-Ready Question File
-        <textarea id="generatedQuestionBankPreview" rows="5" placeholder="Paste the generated question-bank JSON here if you want to review it before updating GitHub."></textarea>
+        ChatGPT Prompt
+        <textarea id="questionGeneratorPromptPreview" rows="6" readonly>Tap copy to load the question generator prompt.</textarea>
       </label>
     </div>
   `;

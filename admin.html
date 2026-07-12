@@ -174,20 +174,19 @@
         <section class="parent-view" aria-labelledby="question-generator-title">
           <div class="ai-prompt-panel" id="questionGeneratorPanel">
             <div>
-              <h3 id="question-generator-title">Question Generator</h3>
-              <p>Use this when you want to create a fresh set of questions. The app automatically rotates through the questions that are already uploaded.</p>
+              <h3 id="question-generator-title">Create New Questions</h3>
+              <p>Use this when you want ChatGPT to create the next set of questions. The app automatically rotates through the question file that is already uploaded.</p>
+            </div>
+            <div class="question-cycle-reminder">
+              <strong>Parent reminder:</strong> Start a fresh question set every 2 weeks, or sooner if Zamaan is mastering the current set.
             </div>
             <div class="ai-actions">
-              <button id="copyQuestionGeneratorPromptStatic" class="secondary-button" type="button">Copy question generator prompt</button>
+              <button id="copyQuestionGeneratorPromptStatic" class="secondary-button" type="button">Copy ChatGPT prompt</button>
               <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
             </div>
             <label>
-              Question Ideas Prompt
-              <textarea id="questionGeneratorPromptPreviewStatic" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
-            </label>
-            <label>
-              App-Ready Question File
-              <textarea id="generatedQuestionBankPreviewStatic" rows="5" placeholder="Paste the generated question-bank JSON here if you want to review it before updating GitHub."></textarea>
+              ChatGPT Prompt
+              <textarea id="questionGeneratorPromptPreviewStatic" rows="6" readonly>Tap copy to load the question generator prompt.</textarea>
             </label>
           </div>
           <p class="sync-status" id="parentViewStatus">Admin is ready.</p>
