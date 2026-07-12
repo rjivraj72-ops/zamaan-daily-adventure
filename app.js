@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260705-toggle-polish";
+  polishLink.href = "polish.css?v=20260712-personality-voice";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -12,27 +12,98 @@ function loadPolishedUi() {
 loadPolishedUi();
 
 const voicePrompts = {
-  welcome: "audio/welcome.mp3",
-  startPath: "audio/start-path.mp3",
-  beforeQuestion: "audio/before-question.mp3",
-  memoryGame: "audio/memory-game.mp3",
-  moneyMath: "audio/money-math.mp3",
-  spanishCards: "audio/spanish-cards.mp3",
-  talkTime: "audio/talk-time.mp3",
+  welcome: [
+    "audio/personality/welcome-1.mp3",
+    "audio/personality/welcome-2.mp3",
+    "audio/personality/welcome-3.mp3"
+  ],
+  startPath: [
+    "audio/personality/start-path-1.mp3",
+    "audio/personality/start-path-2.mp3",
+    "audio/personality/travel-1.mp3"
+  ],
+  beforeQuestion: [
+    "audio/personality/start-path-1.mp3",
+    "audio/personality/keep-going-1.mp3"
+  ],
+  memoryGame: [
+    "audio/personality/start-path-1.mp3",
+    "audio/personality/keep-going-1.mp3"
+  ],
+  moneyMath: [
+    "audio/personality/money-math-1.mp3",
+    "audio/personality/money-math-2.mp3"
+  ],
+  spanishCards: [
+    "audio/personality/spanish-1.mp3",
+    "audio/personality/spanish-2.mp3"
+  ],
+  talkTime: [
+    "audio/personality/talk-time-1.mp3",
+    "audio/personality/talk-time-2.mp3"
+  ],
   firstPersonReminder: "audio/first-person-reminder.mp3",
   thirdPersonReminder: "audio/third-person-reminder.mp3",
-  familyWords: "audio/family-words.mp3",
-  correct: "audio/correct.mp3",
-  incorrect: "audio/incorrect.mp3",
-  keepGoing: "audio/keep-going.mp3",
-  halfwayDone: "audio/halfway-done.mp3",
-  almostDone: "audio/almost-done.mp3",
-  finished: "audio/finished.mp3",
-  sendUpdate: "audio/send-update.mp3",
+  familyWords: [
+    "audio/personality/family-words-1.mp3",
+    "audio/personality/family-words-2.mp3"
+  ],
+  correct: [
+    "audio/personality/correct-1.mp3",
+    "audio/personality/correct-2.mp3",
+    "audio/personality/correct-3.mp3",
+    "audio/personality/keep-going-1.mp3"
+  ],
+  incorrect: [
+    "audio/personality/try-again-1.mp3",
+    "audio/personality/try-again-2.mp3",
+    "audio/personality/try-again-3.mp3"
+  ],
+  hint: [
+    "audio/personality/hint-1.mp3",
+    "audio/personality/hint-2.mp3"
+  ],
+  keepGoing: [
+    "audio/personality/keep-going-1.mp3",
+    "audio/personality/keep-going-2.mp3"
+  ],
+  halfwayDone: [
+    "audio/personality/halfway-1.mp3",
+    "audio/personality/halfway-2.mp3"
+  ],
+  almostDone: [
+    "audio/personality/almost-done-1.mp3",
+    "audio/personality/almost-done-2.mp3"
+  ],
+  finished: [
+    "audio/personality/finished-1.mp3",
+    "audio/personality/finished-2.mp3",
+    "audio/personality/family-cheer-1.mp3"
+  ],
+  sendUpdate: [
+    "audio/personality/send-update-1.mp3",
+    "audio/personality/send-update-2.mp3"
+  ],
   extraGames: "audio/extra-games.mp3",
   caregiverCompletion: "audio/caregiver-completion.mp3",
   pickOneMoreCard: "audio/pick-one-more-card.mp3",
   nextStep: "audio/next-step.mp3",
+  workoutBreak: [
+    "audio/personality/workout-break-1.mp3",
+    "audio/personality/workout-break-2.mp3"
+  ],
+  businessPractice: [
+    "audio/personality/granola-ceo-1.mp3",
+    "audio/personality/granola-ceo-2.mp3"
+  ],
+  travel: [
+    "audio/personality/travel-1.mp3",
+    "audio/personality/travel-2.mp3"
+  ],
+  familyCheer: [
+    "audio/personality/family-cheer-1.mp3",
+    "audio/personality/family-cheer-2.mp3"
+  ],
   settingsSaved: "audio/settings-saved.mp3",
   soundOn: "audio/sound-on.mp3",
   progressReset: "audio/progress-reset.mp3",
@@ -1481,10 +1552,24 @@ function checkPin() {
   updatePinDisplay();
 }
 
+function resolveVoicePrompt(promptKey) {
+  const prompt = voicePrompts[promptKey];
+  if (!Array.isArray(prompt)) {
+    return prompt;
+  }
+
+  const storageKey = `dailyAdventureVoiceIndex-${promptKey}`;
+  const currentIndex = Number(localStorage.getItem(storageKey) || "0");
+  const safeIndex = Number.isFinite(currentIndex) ? currentIndex : 0;
+  const audioPath = prompt[safeIndex % prompt.length];
+  localStorage.setItem(storageKey, String(safeIndex + 1));
+  return audioPath;
+}
+
 function speak(_text, promptKey = "") {
   if (!isSoundEnabled()) return;
 
-  const audioPath = voicePrompts[promptKey];
+  const audioPath = resolveVoicePrompt(promptKey);
   if (!audioPath) {
     return;
   }
@@ -2653,7 +2738,7 @@ function attachMiniGameHandlers() {
           ? "Nice money math. You answered all 3."
           : `Correct. ${currentQuestion.answer} is right.`
         : getRetryFeedback(`money-${questionIndex}`, "Count the dollars one step at a time.", currentQuestion.answer);
-      speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
+      speak(feedback.textContent, isCorrect ? "moneyMath" : "incorrect");
     });
   });
 
@@ -2670,7 +2755,7 @@ function attachMiniGameHandlers() {
       feedback.textContent = isCorrect
         ? "Good business choice."
         : getRetryFeedback("business", "Think about the helpful action for a buyer or customer.", todayBusinessPractice.answer);
-      speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
+      speak(feedback.textContent, isCorrect ? "businessPractice" : "incorrect");
     });
   });
 
@@ -2731,7 +2816,7 @@ if (startMovementBreak) {
     let secondsLeft = 120;
     startMovementBreak.disabled = true;
     if (movementTimer) movementTimer.textContent = "2:00 remaining";
-    speak("Movement break started. Stand up, stretch, and move.", "keepGoing");
+    speak("Movement break started. Stand up, stretch, and move.", "workoutBreak");
     movementInterval = window.setInterval(() => {
       secondsLeft -= 1;
       const minutes = Math.floor(secondsLeft / 60);
