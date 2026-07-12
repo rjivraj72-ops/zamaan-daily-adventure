@@ -2019,19 +2019,19 @@ function buildQuestionGeneratorPanel() {
     <div class="ai-prompt-panel">
       <div>
         <h4>Question Generator</h4>
-        <p>Box 1 is the prompt to copy into ChatGPT. Box 2 is where you can paste the generated question-bank JSON before updating GitHub.</p>
+        <p>Use this when you want to create a fresh set of questions. The app automatically rotates through the questions that are already uploaded.</p>
       </div>
       <div class="ai-actions">
         <button id="copyQuestionGeneratorPrompt" class="secondary-button" type="button">Copy question generator prompt</button>
         <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
       </div>
       <label>
-        Box 1: Prompt for ChatGPT
+        Question Ideas Prompt
         <textarea id="questionGeneratorPromptPreview" rows="5" readonly>Tap copy to load the question generator prompt.</textarea>
       </label>
       <label>
-        Box 2: Generated question-bank JSON
-        <textarea id="generatedQuestionBankPreview" rows="5" placeholder="Paste ChatGPT's generated JSON here so you can review it before updating question-bank.json."></textarea>
+        App-Ready Question File
+        <textarea id="generatedQuestionBankPreview" rows="5" placeholder="Paste the generated question-bank JSON here if you want to review it before updating GitHub."></textarea>
       </label>
     </div>
   `;
