@@ -913,6 +913,19 @@ const importSyncCode = document.querySelector("#importSyncCode");
 const testSync = document.querySelector("#testSync");
 const loadParentView = document.querySelector("#loadParentView");
 const parentViewStatus = document.querySelector("#parentViewStatus");
+const weeklyAdventureRecipientsInput = document.querySelector("#weeklyAdventureRecipientsInput");
+const weeklyAdventureHourInput = document.querySelector("#weeklyAdventureHourInput");
+const weeklyAdventureBadge = document.querySelector("#weeklyAdventureBadge");
+const weeklyAdventureStatusText = document.querySelector("#weeklyAdventureStatusText");
+const weeklyAdventureDeliveryText = document.querySelector("#weeklyAdventureDeliveryText");
+const weeklyAdventureLastSent = document.querySelector("#weeklyAdventureLastSent");
+const weeklyAdventureTimezone = document.querySelector("#weeklyAdventureTimezone");
+const weeklyAdventureMessage = document.querySelector("#weeklyAdventureMessage");
+const saveWeeklyAdventure = document.querySelector("#saveWeeklyAdventure");
+const sendWeeklyAdventureTestButton = document.querySelector("#sendWeeklyAdventureTest");
+const refreshWeeklyAdventure = document.querySelector("#refreshWeeklyAdventure");
+const disableWeeklyAdventure = document.querySelector("#disableWeeklyAdventure");
+
 const parentViewResults = document.querySelector("#parentViewResults");
 const levelBadge = document.querySelector("#levelBadge");
 const soundToggle = document.querySelector("#soundToggle");
@@ -1246,6 +1259,117 @@ function getParentViewUrl() {
 
   const separator = url.includes("?") ? "&" : "?";
   return `${url}${separator}mode=parentView&familyCode=${encodeURIComponent(familyCode)}`;
+}
+
+function getWeeklyAdventureApiUrl(mode, extraParams = {}) {
+  const { url, familyCode } = getSyncConfig();
+  if (!url || !familyCode) return "";
+
+  const endpoint = new URL(url);
+  endpoint.searchParams.set("mode", mode);
+  endpoint.searchParams.set("familyCode", familyCode);
+  Object.entries(extraParams).forEach(([key, value]) => {
+    endpoint.searchParams.set(key, String(value));
+  });
+  endpoint.searchParams.set("_", String(Date.now()));
+  return endpoint.toString();
+}
+
+function formatWeeklyAdventureHour(hour) {
+  const date = new Date(2000, 0, 1, Number(hour || 0), 0);
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
+}
+
+function renderWeeklyAdventureStatus(data) {
+  if (!data) return;
+  if (weeklyAdventureRecipientsInput) weeklyAdventureRecipientsInput.value = data.recipients || "";
+  if (weeklyAdventureHourInput) weeklyAdventureHourInput.value = String(data.sendHour ?? 10);
+  if (weeklyAdventureBadge) {
+    weeklyAdventureBadge.textContent = data.enabled ? "ON" : "OFF";
+    weeklyAdventureBadge.classList.toggle("is-on", Boolean(data.enabled));
+  }
+  if (weeklyAdventureStatusText) {
+    weeklyAdventureStatusText.textContent = data.enabled
+      ? "Weekly Sunday emails are scheduled."
+      : "Weekly emails are currently disabled.";
+  }
+  if (weeklyAdventureDeliveryText) {
+    weeklyAdventureDeliveryText.textContent = `Sunday near ${formatWeeklyAdventureHour(data.sendHour)}`;
+  }
+  if (weeklyAdventureTimezone) {
+    weeklyAdventureTimezone.textContent = `Time zone: ${data.timezone || "Apps Script project time zone"}`;
+  }
+  if (weeklyAdventureLastSent) {
+    weeklyAdventureLastSent.textContent = data.lastSentAt
+      ? formatShortDateTime(data.lastSentAt)
+      : "Not sent yet";
+  }
+}
+
+async function requestWeeklyAdventure(mode, params = {}, loadingMessage = "Working…") {
+  const endpoint = getWeeklyAdventureApiUrl(mode, params);
+  if (!endpoint) {
+    if (weeklyAdventureMessage) {
+      weeklyAdventureMessage.textContent = "Add the Sync web app URL and family code first.";
+    }
+    return null;
+  }
+
+  if (weeklyAdventureMessage) weeklyAdventureMessage.textContent = loadingMessage;
+  try {
+    const response = await fetch(endpoint, { method: "GET", cache: "no-store" });
+    const data = await response.json();
+    if (!data.ok) throw new Error(data.error || "Weekly Adventure request failed.");
+    renderWeeklyAdventureStatus(data);
+    if (weeklyAdventureMessage) {
+      weeklyAdventureMessage.textContent = data.message || "Weekly Adventure status refreshed.";
+    }
+    return data;
+  } catch (error) {
+    if (weeklyAdventureMessage) {
+      weeklyAdventureMessage.textContent = error.message || "Could not reach Weekly Adventure settings. Redeploy Apps Script and try again.";
+    }
+    return null;
+  }
+}
+
+function loadWeeklyAdventureStatus() {
+  return requestWeeklyAdventure(
+    "weeklyAdventureStatus",
+    {},
+    "Checking the current Weekly Adventure schedule…"
+  );
+}
+
+function saveWeeklyAdventureSettings() {
+  return requestWeeklyAdventure(
+    "weeklyAdventureAction",
+    {
+      action: "save",
+      recipients: weeklyAdventureRecipientsInput?.value.trim() || "",
+      sendHour: weeklyAdventureHourInput?.value || "10"
+    },
+    "Saving settings and updating the Sunday schedule…"
+  );
+}
+
+function sendWeeklyAdventureTestFromAdmin() {
+  return requestWeeklyAdventure(
+    "weeklyAdventureAction",
+    { action: "test" },
+    "Creating and sending the test Weekly Adventure email…"
+  );
+}
+
+function disableWeeklyAdventureEmails() {
+  return requestWeeklyAdventure(
+    "weeklyAdventureAction",
+    { action: "disable" },
+    "Disabling the Weekly Adventure schedule…"
+  );
 }
 
 async function loadParentViewData() {
@@ -2995,6 +3119,22 @@ if (parentViewResults) {
   });
 }
 
+if (saveWeeklyAdventure) {
+  saveWeeklyAdventure.addEventListener("click", saveWeeklyAdventureSettings);
+}
+
+if (sendWeeklyAdventureTestButton) {
+  sendWeeklyAdventureTestButton.addEventListener("click", sendWeeklyAdventureTestFromAdmin);
+}
+
+if (refreshWeeklyAdventure) {
+  refreshWeeklyAdventure.addEventListener("click", loadWeeklyAdventureStatus);
+}
+
+if (disableWeeklyAdventure) {
+  disableWeeklyAdventure.addEventListener("click", disableWeeklyAdventureEmails);
+}
+
 if (lockApp) {
   lockApp.addEventListener("click", () => {
     sessionStorage.removeItem("dailyAdventureUnlocked");
@@ -3059,6 +3199,9 @@ const syncSetupApplied = applyIncomingSyncSetup();
 applyAccessibilitySettings();
 setupFamilyCodeReveal();
 updateGreeting();
+if (weeklyAdventureMessage) {
+  loadWeeklyAdventureStatus();
+}
 if (hasDailyPage) {
   renderDailyRounds();
   renderMiniGames();

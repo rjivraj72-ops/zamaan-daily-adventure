@@ -55,7 +55,7 @@
         <div>
           <p class="eyebrow">Admin</p>
           <h1 id="admin-title">Admin & setup</h1>
-          <p>Manage settings, sync, accessibility, and new question generation in one place.</p>
+          <p>Manage learning settings, accessibility, sync, and the family Weekly Adventure email.</p>
         </div>
       </section>
 
@@ -171,25 +171,66 @@
           <p class="sync-status" id="syncStatus">Sync is not set up yet.</p>
         </section>
 
-        <section class="parent-view" aria-labelledby="question-generator-title">
-          <div class="ai-prompt-panel" id="questionGeneratorPanel">
+
+        <section class="weekly-adventure-settings" aria-labelledby="weekly-adventure-title">
+          <div class="section-heading">
             <div>
-              <h3 id="question-generator-title">Create New Questions</h3>
-              <p>Use this when you want ChatGPT to create the next set of questions. The app automatically rotates through the question file that is already uploaded.</p>
+              <p class="eyebrow">Family update</p>
+              <h3 id="weekly-adventure-title">Zamaan's Weekly Adventure</h3>
+              <p>Send a warm Sunday email with progress, strengths, practice priorities, and family activities.</p>
             </div>
-            <div class="question-cycle-reminder">
-              <strong>Parent reminder:</strong> Start a fresh question set every 2 weeks, or sooner if Zamaan is mastering the current set.
+            <span class="weekly-adventure-badge" id="weeklyAdventureBadge">Checking…</span>
+          </div>
+
+          <div class="weekly-adventure-summary" aria-live="polite">
+            <div>
+              <small>Status</small>
+              <strong id="weeklyAdventureStatusText">Checking the current schedule…</strong>
             </div>
-            <div class="ai-actions">
-              <button id="copyQuestionGeneratorPromptStatic" class="secondary-button" type="button">Copy ChatGPT prompt</button>
-              <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
+            <div>
+              <small>Delivery</small>
+              <strong id="weeklyAdventureDeliveryText">Sunday</strong>
             </div>
+            <div>
+              <small>Last sent</small>
+              <strong id="weeklyAdventureLastSent">Not sent yet</strong>
+            </div>
+          </div>
+
+          <div class="settings-grid">
             <label>
-              ChatGPT Prompt
-              <textarea id="questionGeneratorPromptPreviewStatic" rows="6" readonly>Tap copy to load the question generator prompt.</textarea>
+              Recipient emails
+              <textarea id="weeklyAdventureRecipientsInput" rows="3" placeholder="parent@example.com, caregiver@example.com"></textarea>
+              <small>Separate multiple email addresses with commas.</small>
+            </label>
+            <label>
+              Sunday send time
+              <select id="weeklyAdventureHourInput">
+                <option value="7">7:00 AM</option>
+                <option value="8">8:00 AM</option>
+                <option value="9">9:00 AM</option>
+                <option value="10">10:00 AM</option>
+                <option value="11">11:00 AM</option>
+                <option value="12">12:00 PM</option>
+                <option value="13">1:00 PM</option>
+                <option value="14">2:00 PM</option>
+                <option value="15">3:00 PM</option>
+                <option value="16">4:00 PM</option>
+                <option value="17">5:00 PM</option>
+                <option value="18">6:00 PM</option>
+                <option value="19">7:00 PM</option>
+              </select>
+              <small id="weeklyAdventureTimezone">Uses the Apps Script project time zone.</small>
             </label>
           </div>
-          <p class="sync-status" id="parentViewStatus">Admin is ready.</p>
+
+          <div class="weekly-adventure-actions">
+            <button id="saveWeeklyAdventure" type="button">Save & schedule</button>
+            <button id="sendWeeklyAdventureTest" class="secondary-button" type="button">Send test email</button>
+            <button id="refreshWeeklyAdventure" class="secondary-button" type="button">Refresh status</button>
+            <button id="disableWeeklyAdventure" class="secondary-button danger-lite" type="button">Disable weekly emails</button>
+          </div>
+          <p class="sync-status" id="weeklyAdventureMessage">Connect sync first, then refresh the Weekly Adventure status.</p>
         </section>
 
         <div class="caregiver-actions">
@@ -204,24 +245,6 @@
     <p id="reportSummary" hidden></p>
     <div id="reportList" hidden></div>
 
-    <script src="app.js?v=20260712-personality-voice"></script>
-    <script>
-      document.addEventListener("click", async (event) => {
-        if (event.target && event.target.id === "copyQuestionGeneratorPromptStatic") {
-          const status = document.querySelector("#parentViewStatus");
-          const preview = document.querySelector("#questionGeneratorPromptPreviewStatic");
-          try {
-            const response = await fetch("question-generator-prompt.txt?v=" + Date.now());
-            if (!response.ok) throw new Error("Prompt file not found");
-            const prompt = await response.text();
-            if (preview) preview.value = prompt;
-            await navigator.clipboard.writeText(prompt);
-            if (status) status.textContent = "Question generator prompt copied. Paste it into ChatGPT.";
-          } catch {
-            if (status) status.textContent = "Open the prompt file and copy it manually.";
-          }
-        }
-      });
-    </script>
+    <script src="app.js?v=20260719-weekly-adventure-admin"></script>
   </body>
 </html>
