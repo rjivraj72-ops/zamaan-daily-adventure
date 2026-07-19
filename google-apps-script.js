@@ -6,7 +6,6 @@ const SECTION_SHEET_NAME = "Section Summary";
 const TALK_SHEET_NAME = "Recent Talk Time";
 const ATTEMPTS_SHEET_NAME = "Learning Attempts";
 const SKILL_MASTERY_SHEET_NAME = "skill_mastery";
-const CHATGPT_PROMPT_SHEET_NAME = "ChatGPT Prompt";
 const EXPECTED_DAILY_ROUNDS = 12;
 
 function doPost(e) {
@@ -48,6 +47,20 @@ function doGet(e) {
     const rows = getLogRows_(logSheet);
     const analysis = buildAnalysis_(rows);
     return createJsonResponse_(buildParentView_(analysis));
+  }
+
+  if (params.mode === "weeklyAdventureStatus") {
+    if (params.familyCode !== FAMILY_CODE) {
+      return createJsonResponse_({ ok: false, error: "Not allowed" });
+    }
+    return createJsonResponse_(getWeeklyAdventureAdminStatus_());
+  }
+
+  if (params.mode === "weeklyAdventureAction") {
+    if (params.familyCode !== FAMILY_CODE) {
+      return createJsonResponse_({ ok: false, error: "Not allowed" });
+    }
+    return createJsonResponse_(handleWeeklyAdventureAdminAction_(params));
   }
 
   refreshAnalysisSheets_();
@@ -104,7 +117,6 @@ function refreshAnalysisSheets_() {
   writeRecentTalk_(getOrCreateSheet_(spreadsheet, TALK_SHEET_NAME), analysis.talkRows);
   writeLearningAttempts_(getOrCreateSheet_(spreadsheet, ATTEMPTS_SHEET_NAME), analysis.attemptRows);
   writeSkillMastery_(getOrCreateSheet_(spreadsheet, SKILL_MASTERY_SHEET_NAME), analysis.skillMasteryRows);
-  writeChatGptPrompt_(getOrCreateSheet_(spreadsheet, CHATGPT_PROMPT_SHEET_NAME), analysis);
 }
 
 function getLogRows_(sheet) {
@@ -736,92 +748,6 @@ function writeSkillMastery_(sheet, rows) {
   sheet.setColumnWidths(1, 10, 160);
   sheet.setColumnWidth(3, 320);
   sheet.setColumnWidth(10, 420);
-}
-
-function writeChatGptPrompt_(sheet, analysis) {
-  sheet.clear();
-  const prompt = buildChatGptPrompt_(analysis);
-  const values = [
-    ["ChatGPT Prompt"],
-    ["Copy the prompt below into your ChatGPT project when mom or dad wants a plain-English progress summary."],
-    [prompt]
-  ];
-
-  sheet.getRange(1, 1, values.length, 1).setValues(values);
-  sheet.getRange("A1").setFontSize(16).setFontWeight("bold").setBackground("#e5f4ef");
-  sheet.getRange("A2").setFontWeight("bold");
-  sheet.getRange("A3").setWrap(true).setVerticalAlignment("top");
-  sheet.setColumnWidth(1, 900);
-  sheet.setRowHeight(3, 520);
-}
-
-function buildChatGptPrompt_(analysis) {
-  const recentDailyRows = analysis.dailyRows.slice(-7);
-  const recentTalkRows = analysis.talkRows.slice(0, 10);
-  const attemptRows = analysis.attemptRows;
-  const strengthRows = (analysis.masteryStrengths || []).map((item) => [
-    item.skillArea,
-    item.questionText,
-    item.accuracy,
-    item.masteryStatus,
-    item.attempts
-  ]);
-  const practiceRows = (analysis.practiceNext || []).map((item) => [
-    item.skillArea,
-    item.questionText,
-    item.accuracy,
-    item.masteryStatus,
-    item.priorityScore,
-    item.nextPracticeActivity
-  ]);
-
-  return [
-    "You are helping mom and dad understand Zamaan's Daily Adventure progress.",
-    "Please use a warm, practical parent-friendly tone. Avoid diagnostic language. Focus on patterns, encouragement, and simple next steps.",
-    "Use Skill Mastery first when choosing strengths and practice areas. Practice areas should come from the highest priority_score items, considering mastery_status.",
-    "",
-    "Please provide:",
-    "1. A short weekly progress summary.",
-    "2. Three strengths, using Strong or Mastered skill_mastery items when available.",
-    "3. Two practice areas, chosen from the highest priority_score skill_mastery items.",
-    "4. Patterns in Talk Time, Money Math, Spanish, and Family Words/Pronouns.",
-    "5. Top 2 home activities for next week, using next_practice_activity from the priority skills.",
-    "",
-    "Dashboard:",
-    `- Total completed rounds: ${analysis.totalRounds}`,
-    `- Days used: ${analysis.daysUsed}`,
-    `- Completed days: ${analysis.completedDays}`,
-    `- Completion rate: ${analysis.completionRate}`,
-    `- Rounds in last 7 days: ${analysis.lastSevenRounds}`,
-    `- Learning game attempts: ${analysis.totalAttempts}`,
-    `- Learning game correct: ${analysis.correctAttempts}`,
-    `- Learning game accuracy: ${analysis.attemptAccuracy}`,
-    "",
-    "Recent Daily Summary:",
-    formatPromptRows_(recentDailyRows, ["Date", "Child", "Mood", "Plan", "Day", "Rounds", "Completion", "Status", "Memory", "Life", "Spanish", "Talk", "Money Math", "Last Completed"]),
-    "",
-    "Learning Attempts:",
-    formatPromptRows_(attemptRows, ["Game / Skill", "Attempts", "Correct", "Accuracy", "Last Prompt", "Last Answer", "Last Attempt"]),
-    "",
-    "Skill Mastery Strengths:",
-    formatPromptRows_(strengthRows, ["Skill", "Question", "Accuracy", "Mastery", "Attempts"]),
-    "",
-    "Skill Mastery Practice Priorities:",
-    formatPromptRows_(practiceRows, ["Skill", "Question", "Accuracy", "Mastery", "Priority", "Parent Activity"]),
-    "",
-    "Recent Talk Time:",
-    formatPromptRows_(recentTalkRows, ["Timestamp", "Date", "Child", "Prompt", "Answer", "Response Type", "Answer Length"])
-  ].join("\n");
-}
-
-function formatPromptRows_(rows, headers) {
-  if (!rows.length) return "- No data yet.";
-
-  return rows.map((row) => {
-    return "- " + headers.map((header, index) => {
-      return `${header}: ${formatPromptValue_(row[index])}`;
-    }).join(" | ");
-  }).join("\n");
 }
 
 function formatPromptValue_(value) {

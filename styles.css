@@ -1340,6 +1340,95 @@ button:focus-visible {
   gap: 14px;
 }
 
+.dashboard-story-section {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboard-story-section > h3 {
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-size: 1.22rem;
+}
+
+.strengths-grid,
+.family-activities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.family-activities-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.strength-card,
+.family-activity-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid rgba(8, 120, 101, 0.18);
+  border-radius: var(--radius-small);
+  background: #fff;
+}
+
+.strength-card small,
+.family-activity-card small {
+  color: var(--accent);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.strength-card span,
+.family-activity-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.parent-detail-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: var(--surface-soft);
+}
+
+.parent-detail-panel summary {
+  padding: 16px;
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.parent-detail-content {
+  display: grid;
+  gap: 12px;
+  padding: 0 12px 12px;
+}
+
+.admin-advanced-controls {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+  background: var(--surface-soft);
+}
+
+.admin-advanced-controls summary {
+  padding: 16px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.admin-advanced-controls > div {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.admin-advanced-controls p,
+.admin-advanced-controls button {
+  margin: 0;
+}
+
 .parent-summary-grid {
   display: grid;
   grid-template-columns: 1.35fr 1fr 1fr;
@@ -1487,53 +1576,41 @@ button:focus-visible {
   font-weight: 800;
 }
 
-.ai-prompt-panel {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
-  border-radius: var(--radius-small);
-  border: 1px solid rgba(46, 111, 180, 0.2);
-  background: linear-gradient(180deg, #fff, var(--blue-soft));
-}
-
-.ai-prompt-panel h4,
-.ai-prompt-panel p {
-  margin: 0;
-}
-
-.ai-prompt-panel p {
-  color: var(--muted);
-  line-height: 1.35;
-}
-
-.ai-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.ai-fallback-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-weight: 800;
-}
-
-.ai-fallback-actions a {
-  color: var(--accent);
-}
-
-.ai-prompt-panel textarea {
-  min-height: 120px;
-  font-size: 0.9rem;
-  color: var(--muted);
-  background: #fff;
-}
-
 .parent-empty {
   padding: 10px 12px;
   border-radius: var(--radius-small);
   background: var(--surface-soft);
+}
+
+.report-share-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(8, 120, 101, 0.22);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+}
+
+.report-share-panel h4,
+.report-share-panel p {
+  margin: 0;
+}
+
+.report-share-panel p {
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.report-share-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.report-share-actions button {
+  width: 100%;
+  min-height: 54px;
+  margin: 0;
 }
 
 .weekly-comparison {
@@ -1634,6 +1711,11 @@ button:focus-visible {
 }
 
 @media (max-width: 860px) {
+  .strengths-grid,
+  .family-activities-grid {
+    grid-template-columns: 1fr;
+  }
+
   .hero,
   .today-path,
   .check-in,
@@ -1664,6 +1746,10 @@ button:focus-visible {
 }
 
 @media (max-width: 560px) {
+  .report-share-actions {
+    grid-template-columns: 1fr;
+  }
+
   .app-shell {
     width: min(100% - 20px, 1120px);
     padding-top: 10px;
@@ -1738,10 +1824,6 @@ button:focus-visible {
 
   .parent-days {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .ai-actions {
-    grid-template-columns: 1fr;
   }
 
   .mini-game {

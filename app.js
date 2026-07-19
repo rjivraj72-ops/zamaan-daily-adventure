@@ -939,7 +939,6 @@ const movementTimer = document.querySelector("#movementTimer");
 const completionPanel = document.querySelector("#completionPanel");
 const sendCompletionUpdate = document.querySelector("#sendCompletionUpdate");
 const shareCompletionUpdate = document.querySelector("#shareCompletionUpdate");
-const parentNoteInput = document.querySelector("#parentNoteInput");
 const hasDailyPage = Boolean(document.querySelector("[data-complete-talk]"));
 
 let memoryPicks = [];
@@ -1796,9 +1795,6 @@ function updateGreeting() {
     soundToggle.textContent = enabled ? "Sound on" : "Sound off";
     soundToggle.setAttribute("aria-pressed", String(enabled));
   }
-  if (parentNoteInput) {
-    parentNoteInput.value = localStorage.getItem("dailyAdventureParentNote") || "";
-  }
   if (promptInput) {
     promptInput.value = state.talkPrompt;
   }
@@ -2029,13 +2025,6 @@ function renderParentView(data) {
     `).join("")
     : `<p class="parent-empty">No extra learning-game attempts yet.</p>`;
 
-  const needsPracticeHtml = (data.needsPractice || []).map((item) => `
-    <article class="practice-item">
-      <strong>${escapeHtml(item.title)}</strong>
-      <span>${escapeHtml(item.detail)}</span>
-    </article>
-  `).join("");
-
   const practiceNextHtml = (data.practiceNext || []).length
     ? data.practiceNext.slice(0, 3).map((item) => `
       <article class="practice-next-card">
@@ -2044,10 +2033,30 @@ function renderParentView(data) {
           <strong>${escapeHtml(item.skillArea)}: ${escapeHtml(item.questionText)}</strong>
           <span>${escapeHtml(item.correct || 0)} correct out of ${escapeHtml(item.attempts || 0)} attempts · ${escapeHtml(item.accuracy || "0%")}</span>
         </div>
-        <p>${escapeHtml(item.nextPracticeActivity)}</p>
       </article>
     `).join("")
     : `<p class="parent-empty">No priority practice yet. Complete a few learning games to build this list.</p>`;
+
+  const strengthsHtml = (data.masteryStrengths || []).length
+    ? data.masteryStrengths.slice(0, 3).map((item) => `
+      <article class="strength-card">
+        <small>${escapeHtml(item.masteryStatus)}</small>
+        <strong>${escapeHtml(item.skillArea)}</strong>
+        <span>${escapeHtml(item.questionText)}</span>
+        <span>${escapeHtml(item.accuracy)} accuracy · ${escapeHtml(item.attempts)} attempts</span>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">Complete a few learning games to begin showing strengths.</p>`;
+
+  const familyActivitiesHtml = (data.practiceNext || []).length
+    ? data.practiceNext.slice(0, 2).map((item, index) => `
+      <article class="family-activity-card">
+        <small>Family activity ${index + 1}</small>
+        <strong>${escapeHtml(item.skillArea)}</strong>
+        <p>${escapeHtml(item.nextPracticeActivity)}</p>
+      </article>
+    `).join("")
+    : `<p class="parent-empty">Family activities will appear after a few learning-game attempts.</p>`;
 
   const skillTrendsHtml = (data.skillTrends || []).length
     ? data.skillTrends.map((item) => `
@@ -2069,6 +2078,8 @@ function renderParentView(data) {
     : `<p class="parent-empty">No missed-question pattern yet.</p>`;
 
   parentViewResults.innerHTML = `
+    <section class="dashboard-story-section" aria-labelledby="this-week-heading">
+      <h3 id="this-week-heading">This Week</h3>
     <div class="parent-summary-grid">
       ${todayHtml}
       <article class="parent-card">
@@ -2083,14 +2094,6 @@ function renderParentView(data) {
         <span>${escapeHtml(data.dashboard.correctAttempts)} correct out of ${escapeHtml(data.dashboard.totalAttempts)} attempts</span>
       </article>
     </div>
-    <div class="parent-list practice-list">
-      <h4>Needs Practice</h4>
-      ${needsPracticeHtml}
-    </div>
-    <div class="parent-list practice-next-list">
-      <h4>What to Practice Next</h4>
-      ${practiceNextHtml}
-    </div>
     <div class="weekly-comparison">
       <h4>This Week vs Last Week</h4>
       <div class="comparison-grid">
@@ -2101,14 +2104,33 @@ function renderParentView(data) {
     </div>
     <div class="parent-list">
       <h4>7-Day Check</h4>
-      <div class="parent-days">
-      ${dailyHtml}
-      </div>
+      <div class="parent-days">${dailyHtml}</div>
     </div>
-    <div class="parent-list">
-      <h4>Recent Talk Time</h4>
-      ${talkHtml}
-    </div>
+    </section>
+
+    <section class="dashboard-story-section" aria-labelledby="strengths-heading">
+      <h3 id="strengths-heading">Strengths</h3>
+      <div class="strengths-grid">${strengthsHtml}</div>
+    </section>
+
+    <section class="dashboard-story-section" aria-labelledby="practice-next-heading">
+      <h3 id="practice-next-heading">What to Practice Next</h3>
+      <div class="parent-list practice-next-list">${practiceNextHtml}</div>
+    </section>
+
+    <section class="dashboard-story-section" aria-labelledby="family-activities-heading">
+      <h3 id="family-activities-heading">Family Activities</h3>
+      <div class="family-activities-grid">${familyActivitiesHtml}</div>
+    </section>
+
+    <section class="dashboard-story-section" aria-labelledby="talk-time-heading">
+      <h3 id="talk-time-heading">Talk Time</h3>
+      <div class="parent-list">${talkHtml}</div>
+    </section>
+
+    <details class="parent-detail-panel">
+      <summary>Detailed learning trends</summary>
+      <div class="parent-detail-content">
     <div class="parent-list">
       <h4>Learning Games</h4>
       ${attemptsHtml}
@@ -2121,185 +2143,114 @@ function renderParentView(data) {
       <h4>Questions to Review</h4>
       ${missedQuestionsHtml}
     </div>
-    <div class="ai-prompt-panel">
+      </div>
+    </details>
+    <div class="report-share-panel">
       <div>
-        <h4>Weekly AI Summary</h4>
-        <p>Copy this prompt, then open ChatGPT to continue the parent progress thread.</p>
+        <h4>Share this report</h4>
+        <p>Save a clean PDF, then attach it to a WhatsApp or Outlook message if needed.</p>
       </div>
-      <div class="ai-actions">
-        <button id="copyWeeklyPrompt" class="secondary-button" type="button">Copy weekly AI prompt</button>
-        <a class="button-link secondary-button ai-open-link" href="chatgpt://" data-ai-target="chatgpt">Open ChatGPT app</a>
+      <div class="report-share-actions">
+        <button id="saveParentReportPdf" type="button">Save as PDF</button>
+        <button id="shareParentReportWhatsApp" class="secondary-button" type="button">WhatsApp</button>
+        <button id="shareParentReportEmail" class="secondary-button" type="button">Email / Outlook</button>
       </div>
-      <div class="ai-fallback-actions">
-        <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT web fallback</a>
-      </div>
-      <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
     </div>
   `;
 }
 
-function buildQuestionGeneratorPanel() {
-  return `
-    <div class="ai-prompt-panel">
-      <div>
-        <h4>Create New Questions</h4>
-        <p>Use this when you want ChatGPT to create the next set of questions. The app automatically rotates through the question file that is already uploaded.</p>
-      </div>
-      <div class="question-cycle-reminder">
-        <strong>Parent reminder:</strong> Start a fresh question set every 2 weeks, or sooner if Zamaan is mastering the current set.
-      </div>
-      <div class="ai-actions">
-        <button id="copyQuestionGeneratorPrompt" class="secondary-button" type="button">Copy ChatGPT prompt</button>
-        <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
-      </div>
-      <label>
-        ChatGPT Prompt
-        <textarea id="questionGeneratorPromptPreview" rows="6" readonly>Tap copy to load the question generator prompt.</textarea>
-      </label>
-    </div>
-  `;
+function buildParentReportShareText(data) {
+  const dashboard = data?.dashboard || {};
+  const weekly = data?.weeklyTrend || {};
+  const priorities = (data?.practiceNext || []).slice(0, 2);
+  const lines = [
+    "Zamaan's Daily Adventure - Parent Report",
+    `Complete days this week: ${weekly.completeDays || 0}`,
+    `Rounds this week: ${weekly.rounds || 0}`,
+    `Learning-game accuracy: ${dashboard.attemptAccuracy || "0%"}`
+  ];
+
+  if (priorities.length) {
+    lines.push("", "What to practise next:");
+    priorities.forEach((item) => lines.push(`- ${item.skillArea}: ${item.questionText}`));
+  }
+
+  lines.push("", `Full dashboard: ${window.location.href}`);
+  return lines.join("\n");
 }
 
-function buildWeeklyAiPrompt(data) {
-  const dashboard = data.dashboard || {};
-  const weeklyTrend = data.weeklyTrend || {};
-  const today = data.today;
-  const needsPractice = data.needsPractice || [];
-  const recentDaily = data.recentDaily || [];
-  const recentTalk = data.recentTalk || [];
-  const learningAttempts = data.learningAttempts || [];
-  const comparison = data.weeklyComparison || {};
-  const skillTrends = data.skillTrends || [];
-  const missedQuestions = data.missedQuestions || [];
-  const practiceNext = data.practiceNext || [];
-  const masteryStrengths = data.masteryStrengths || [];
-  const parentNote = localStorage.getItem("dailyAdventureParentNote") || "No parent note added.";
+function openParentReportPdf() {
+  if (!latestParentViewData || !parentViewResults) {
+    if (parentViewStatus) parentViewStatus.textContent = "Load the parent report before saving a PDF.";
+    return;
+  }
 
-  return [
-    "You are helping Zamaan's mom and dad understand his Daily Adventure learning progress.",
-    "Please use a warm, practical parent-friendly tone. Avoid diagnostic language. Focus on patterns, encouragement, and simple next steps.",
-    "Use Skill Mastery first when choosing strengths and practice areas. Practice areas should come from the highest priority_score items, considering mastery_status.",
-    "",
-    "Please provide:",
-    "1. A short weekly progress summary.",
-    "2. Three strengths, using Strong or Mastered skill_mastery items when available.",
-    "3. Two practice areas, chosen from the highest priority_score skill_mastery items.",
-    "4. Patterns in Talk Time, Money Math, Spanish, and Family Words/Pronouns.",
-    "5. Top 2 home activities for next week, using next_practice_activity from the priority skills.",
-    "",
-    "Dashboard:",
-    `- Total rounds completed: ${dashboard.totalRounds || 0}`,
-    `- Completed days overall: ${dashboard.completedDays || 0}`,
-    `- Overall completion rate: ${dashboard.completionRate || "0%"}`,
-    `- Learning game attempts: ${dashboard.totalAttempts || 0}`,
-    `- Learning game correct: ${dashboard.correctAttempts || 0}`,
-    `- Learning game accuracy: ${dashboard.attemptAccuracy || "0%"}`,
-    "",
-    "Last 7 days:",
-    `- Days with activity: ${weeklyTrend.daysUsed || 0}`,
-    `- Complete days: ${weeklyTrend.completeDays || 0}`,
-    `- Rounds completed: ${weeklyTrend.rounds || 0}`,
-    `- Recent Talk Time answers: ${weeklyTrend.talkAnswers || 0}`,
-    `- Previous week rounds: ${comparison.previousRounds || 0}`,
-    `- Previous week game accuracy: ${comparison.previousAccuracy || "0%"}`,
-    "",
-    "Parent note:",
-    `- ${parentNote}`,
-    "",
-    "Today:",
-    today
-      ? `- ${today.date}: ${today.rounds} of ${totalRounds} rounds, ${today.status}, mood ${today.mood || "not picked"}, plan ${today.plan || "Daily Adventure"}`
-      : "- No synced data for today yet.",
-    "",
-    "Needs practice shown in the app:",
-    formatPromptList(needsPractice, (item) => `- ${item.title}: ${item.detail}`),
-    "",
-    "Skill Mastery Strengths:",
-    formatPromptList(masteryStrengths, (item) => `- ${item.skillArea}: ${item.questionText} | ${item.masteryStatus}, ${item.accuracy}, ${item.attempts} attempts`),
-    "",
-    "Skill Mastery Practice Priorities:",
-    formatPromptList(practiceNext, (item) => `- ${item.skillArea}: ${item.questionText} | ${item.masteryStatus}, ${item.accuracy}, priority ${item.priorityScore} | Parent activity: ${item.nextPracticeActivity}`),
-    "",
-    "Recent daily detail:",
-    formatPromptList(recentDaily, (day) => `- ${day.date}: ${day.rounds} of ${totalRounds} rounds, ${day.status}, ${day.completion} complete`),
-    "",
-    "Recent Talk Time:",
-    formatPromptList(recentTalk, (item) => `- ${item.date}: Prompt: ${item.prompt} | Answer: ${item.answer || "No typed answer"} | Type: ${item.responseType}`),
-    "",
-    "Learning game attempts:",
-    formatPromptList(learningAttempts, (item) => `- ${item.game}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`),
-    "",
-    "Skill trends this week:",
-    formatPromptList(skillTrends, (item) => `- ${item.skill}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`),
-    "",
-    "Frequently missed questions:",
-    formatPromptList(missedQuestions, (item) => `- ${item.skill}: ${item.prompt} | Misses: ${item.misses}`)
-  ].join("\n");
+  const printable = parentViewResults.cloneNode(true);
+  printable.querySelector(".report-share-panel")?.remove();
+  printable.querySelectorAll("details").forEach((detail) => { detail.open = true; });
+  const reportWindow = window.open("", "_blank");
+  if (!reportWindow) {
+    if (parentViewStatus) parentViewStatus.textContent = "Allow pop-ups, then try Save as PDF again.";
+    return;
+  }
+  reportWindow.opener = null;
+
+  const generatedAt = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "long",
+    timeStyle: "short"
+  }).format(new Date());
+
+  reportWindow.document.write(`<!doctype html>
+    <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zamaan's Daily Adventure - Parent Report</title><style>
+      @page { size: letter; margin: 0.55in; }
+      * { box-sizing: border-box; }
+      body { margin: 0; color: #26332f; font: 14px/1.45 Arial, sans-serif; }
+      header { margin-bottom: 22px; padding-bottom: 16px; border-bottom: 3px solid #247c6d; }
+      h1 { margin: 0; color: #247c6d; font-size: 26px; }
+      header p { margin: 6px 0 0; color: #63736d; }
+      h4 { margin: 0 0 10px; font-size: 17px; }
+      .parent-summary-grid, .comparison-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .parent-card, .comparison-grid article, .parent-list, .weekly-comparison, .practice-next-card,
+      .strength-card, .family-activity-card {
+        break-inside: avoid; margin: 0 0 12px; padding: 12px; border: 1px solid #dfe9e5; border-radius: 8px;
+      }
+      .parent-card, .comparison-grid article { display: grid; gap: 4px; }
+      .parent-card strong, .comparison-grid strong { color: #247c6d; font-size: 17px; }
+      .parent-list-item, .parent-day { display: grid; gap: 3px; padding: 8px 0; border-bottom: 1px solid #edf2f0; }
+      .parent-days { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .strengths-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .family-activities-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .dashboard-story-section > h3 { margin: 18px 0 10px; color: #247c6d; }
+      .parent-detail-panel { border: 0; }
+      .parent-detail-panel summary { display: none; }
+      .practice-next-card p { margin: 8px 0 0; }
+      button, a { display: none !important; }
+      @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+    </style></head><body>
+      <header><h1>Zamaan's Daily Adventure</h1><p>Parent Report - generated ${escapeHtml(generatedAt)}</p></header>
+      ${printable.innerHTML}
+      <script>window.addEventListener("load", () => window.print());<\/script>
+    </body></html>`);
+  reportWindow.document.close();
 }
 
-function formatPromptList(items, formatter) {
-  if (!items.length) return "- No data yet.";
-  return items.map(formatter).join("\n");
-}
-
-async function copyWeeklyPrompt() {
-  return copyWeeklyPromptText("Weekly AI prompt copied. Paste it into your ChatGPT project.");
-}
-
-async function copyWeeklyPromptText(successMessage) {
+function shareParentReportWhatsApp() {
   if (!latestParentViewData) {
-    if (parentViewStatus) {
-      parentViewStatus.textContent = "Load parent view first, then copy the weekly AI prompt.";
-    }
-    return false;
+    if (parentViewStatus) parentViewStatus.textContent = "Load the parent report before sharing.";
+    return;
   }
-
-  const prompt = buildWeeklyAiPrompt(latestParentViewData);
-  const preview = document.querySelector("#weeklyPromptPreview");
-  if (preview) {
-    preview.value = prompt;
-  }
-
-  try {
-    await copyTextToClipboard(prompt);
-    if (parentViewStatus) {
-      parentViewStatus.textContent = successMessage;
-    }
-    return true;
-  } catch {
-    if (parentViewStatus) {
-      parentViewStatus.textContent = "Prompt is ready below. Select it and copy it manually.";
-    }
-    return false;
-  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(buildParentReportShareText(latestParentViewData))}`, "_blank", "noopener,noreferrer");
 }
 
-async function copyQuestionGeneratorPrompt() {
-  try {
-    const response = await fetch(`question-generator-prompt.txt?v=${Date.now()}`);
-    if (!response.ok) throw new Error("Prompt file not found");
-    const prompt = await response.text();
-    const preview = document.querySelector("#questionGeneratorPromptPreview");
-    if (preview) {
-      preview.value = prompt;
-    }
-    await copyTextToClipboard(prompt);
-    if (parentViewStatus) {
-      parentViewStatus.textContent = "Question generator prompt copied. Paste it into ChatGPT or Gemini.";
-    }
-    return true;
-  } catch {
-    if (parentViewStatus) {
-      parentViewStatus.textContent = "Could not load the question generator prompt. Open question-generator-prompt.txt from GitHub.";
-    }
-    return false;
+function shareParentReportEmail() {
+  if (!latestParentViewData) {
+    if (parentViewStatus) parentViewStatus.textContent = "Load the parent report before sharing.";
+    return;
   }
-}
-
-function copyPromptForAiAssistant(target) {
-  copyWeeklyPromptText(
-    "Weekly AI prompt copied. Trying to open the ChatGPT app."
-  );
+  const subject = "Zamaan's Daily Adventure - Parent Report";
+  const body = buildParentReportShareText(latestParentViewData);
+  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function escapeHtml(value) {
@@ -3042,9 +2993,6 @@ if (saveSettings) {
       reduceMotion: Boolean(reduceMotionInput?.checked),
       replayAudio: replayAudioInput ? replayAudioInput.checked : true
     });
-    if (parentNoteInput) {
-      localStorage.setItem("dailyAdventureParentNote", parentNoteInput.value.trim());
-    }
     state.talkPrompt = promptInput?.value.trim() || defaultState.talkPrompt;
     state.message = messageInput?.value.trim() || defaultState.message;
     saveAppPin(pinInput?.value.replace(/\D/g, "").slice(0, 8) || "1234");
@@ -3099,23 +3047,9 @@ if (loadParentView) {
 
 if (parentViewResults) {
   parentViewResults.addEventListener("click", (event) => {
-    if (event.target?.id === "copyWeeklyPrompt") {
-      copyWeeklyPrompt();
-    }
-    if (event.target?.id === "copyQuestionGeneratorPrompt") {
-      copyQuestionGeneratorPrompt();
-    }
-    const aiLink = event.target?.closest?.("[data-ai-target]");
-    if (aiLink) {
-      if (!latestParentViewData) {
-        event.preventDefault();
-        if (parentViewStatus) {
-          parentViewStatus.textContent = "Load parent view first, then open ChatGPT.";
-        }
-        return;
-      }
-      copyPromptForAiAssistant(aiLink.dataset.aiTarget);
-    }
+    if (event.target?.id === "saveParentReportPdf") openParentReportPdf();
+    if (event.target?.id === "shareParentReportWhatsApp") shareParentReportWhatsApp();
+    if (event.target?.id === "shareParentReportEmail") shareParentReportEmail();
   });
 }
 
