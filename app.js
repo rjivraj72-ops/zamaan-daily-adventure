@@ -269,6 +269,15 @@ const conversationCoachDeck = [
   }
 ];
 
+const extraGameOrder = [
+  { id: "sort", label: "Sort" },
+  { id: "pattern", label: "Pattern" },
+  { id: "money-math", label: "Money Math" },
+  { id: "business", label: "Business" },
+  { id: "pronouns", label: "Family Words" },
+  { id: "conversation-coach", label: "Conversation Coach" }
+];
+
 const defaultState = {
   name: "Zamaan",
   talkPrompt: "What is one thing you want to do today?",
@@ -1840,6 +1849,7 @@ function updateExtraGamesAccess(doneRounds) {
   const focusMode = isFocusModeEnabled();
   const dailyComplete = doneRounds === totalRounds;
   const locked = focusMode && !dailyComplete;
+  const extraComplete = areExtraGamesComplete();
 
   toggleExtraGames.disabled = locked;
   toggleExtraGames.setAttribute("aria-disabled", String(locked));
@@ -1855,11 +1865,15 @@ function updateExtraGamesAccess(doneRounds) {
     return;
   }
 
-  toggleExtraGames.textContent = extraGames.hidden ? "Play more" : "Hide extra games";
+  toggleExtraGames.textContent = extraGames.hidden
+    ? extraComplete ? "Review extra path" : "Start extra path"
+    : "Hide extra path";
   if (gamesDescription) {
-    gamesDescription.textContent = dailyComplete
-      ? "Great work finishing today's 12 rounds. Extra games are unlocked."
-      : "Extra games are available because Focus Mode is off.";
+    gamesDescription.textContent = extraComplete
+      ? "Extra practice is complete. Now send Mom and Dad the final update."
+      : dailyComplete
+        ? "Great work finishing today's 12 rounds. Finish each extra activity one at a time."
+        : "Extra games are available because Focus Mode is off. Finish each extra activity one at a time.";
   }
 }
 
@@ -1899,13 +1913,15 @@ function updateProgress() {
   });
 
   celebration.textContent = doneRounds === totalRounds
-    ? `Congratulations, ${state.name}. ${state.message}`
+    ? areExtraGamesComplete()
+      ? `Congratulations, ${state.name}. ${state.message}`
+      : `Great work, ${state.name}. Now finish the extra practice path, one step at a time.`
     : doneRounds > 0
       ? `Good progress. ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left today.`
       : "Start with Memory. Finish rounds to earn stars and mark the calendar.";
 
   if (completionPanel) {
-    completionPanel.hidden = doneRounds !== totalRounds;
+    completionPanel.hidden = doneRounds !== totalRounds || !areExtraGamesComplete();
   }
 
   if (movementBreak && doneRounds >= 6 && doneRounds < totalRounds) {
@@ -2431,9 +2447,13 @@ function renderMiniGames() {
   const businessPractice = todayBusinessPractice;
   const pronounPractice = todayPronounPractice;
   const conversationCoach = getConversationCoachPrompt();
+  const extraProgress = getExtraProgress();
+  const currentExtraStep = getCurrentExtraStep();
 
   miniGames.innerHTML = `
-    <article class="mini-game" data-mini-game="sort">
+    ${renderExtraPathHeader(extraProgress, currentExtraStep)}
+
+    <article class="${getExtraGameClass("sort", extraProgress, currentExtraStep)}" data-mini-game="sort" ${getExtraGameHidden("sort", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Sort</span>
         <strong>${todayPlan.mini.sort.title}</strong>
@@ -2447,7 +2467,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">${todayPlan.mini.sort.instruction}</p>
     </article>
 
-    <article class="mini-game" data-mini-game="pattern">
+    <article class="${getExtraGameClass("pattern", extraProgress, currentExtraStep)}" data-mini-game="pattern" ${getExtraGameHidden("pattern", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Pattern</span>
         <strong>${pattern.title}</strong>
@@ -2464,7 +2484,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Choose the next color.</p>
     </article>
 
-    <article class="mini-game" data-mini-game="money-math">
+    <article class="${getExtraGameClass("money-math", extraProgress, currentExtraStep)}" data-mini-game="money-math" ${getExtraGameHidden("money-math", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Money Math</span>
         <strong>3 quick questions</strong>
@@ -2485,7 +2505,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Answer all 3 money questions.</p>
     </article>
 
-    <article class="mini-game" data-mini-game="business">
+    <article class="${getExtraGameClass("business", extraProgress, currentExtraStep)}" data-mini-game="business" ${getExtraGameHidden("business", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Business</span>
         <strong>${businessPractice.title}</strong>
@@ -2499,7 +2519,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Choose the best business action.</p>
     </article>
 
-    <article class="mini-game" data-mini-game="pronouns">
+    <article class="${getExtraGameClass("pronouns", extraProgress, currentExtraStep)}" data-mini-game="pronouns" ${getExtraGameHidden("pronouns", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Family Words</span>
         <strong>${pronounPractice.title}</strong>
@@ -2513,7 +2533,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Choose the family word.</p>
     </article>
 
-    <article class="mini-game conversation-coach-card" data-mini-game="conversation-coach">
+    <article class="${getExtraGameClass("conversation-coach", extraProgress, currentExtraStep)} conversation-coach-card" data-mini-game="conversation-coach" ${getExtraGameHidden("conversation-coach", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Conversation Coach</span>
         <strong>${escapeHtml(conversationCoach.title)}</strong>
@@ -2541,9 +2561,96 @@ function renderMiniGames() {
       </div>
       <p class="mini-feedback" aria-live="polite">Tap Send Reply after saying the blue message.</p>
     </article>
+
+    ${areExtraGamesComplete()
+      ? `<article class="mini-game extra-path-complete">
+          <div class="mini-game-header">
+            <span>Done</span>
+            <strong>Extra practice complete</strong>
+          </div>
+          <p>Nice focus. Now send Mom and Dad your final update.</p>
+        </article>`
+      : ""}
   `;
 
   attachMiniGameHandlers();
+}
+
+function getExtraProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(`dailyAdventureExtraProgress-${todayKey}`) || "[]");
+    return Array.isArray(saved) ? saved.filter((id) => extraGameOrder.some((game) => game.id === id)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveExtraProgress(progress) {
+  localStorage.setItem(`dailyAdventureExtraProgress-${todayKey}`, JSON.stringify(progress));
+}
+
+function areExtraGamesComplete() {
+  return getExtraProgress().length >= extraGameOrder.length;
+}
+
+function getCurrentExtraStep() {
+  const progress = getExtraProgress();
+  return extraGameOrder.find((game) => !progress.includes(game.id))?.id || "complete";
+}
+
+function getExtraGameClass(id, progress, currentStep) {
+  const classes = ["mini-game", "extra-path-step"];
+  if (progress.includes(id)) classes.push("done");
+  if (id === currentStep) classes.push("active");
+  return classes.join(" ");
+}
+
+function getExtraGameHidden(id, currentStep) {
+  return id === currentStep ? "" : "hidden";
+}
+
+function renderExtraPathHeader(progress, currentStep) {
+  const complete = currentStep === "complete";
+  const currentLabel = extraGameOrder.find((game) => game.id === currentStep)?.label || "All done";
+  return `
+    <div class="extra-path-header">
+      <div>
+        <span>Extra Path</span>
+        <strong>${complete ? "All extra practice complete" : `Next: ${escapeHtml(currentLabel)}`}</strong>
+      </div>
+      <p>${progress.length} of ${extraGameOrder.length} extra activities complete</p>
+      <div class="extra-path-steps">
+        ${extraGameOrder.map((game, index) => {
+          const done = progress.includes(game.id);
+          const active = game.id === currentStep;
+          return `
+            <span class="extra-path-chip ${done ? "done" : ""} ${active ? "active" : ""}">
+              ${index + 1}. ${escapeHtml(game.label)}
+            </span>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function completeExtraGame(id, message = "Nice work. The next extra activity is ready.") {
+  const progress = getExtraProgress();
+  if (!progress.includes(id)) {
+    progress.push(id);
+    saveExtraProgress(progress);
+  }
+
+  window.setTimeout(() => {
+    renderMiniGames();
+    updateProgress();
+    if (areExtraGamesComplete()) {
+      speak("All extra practice is complete. Now send Mom and Dad your update.", "sendUpdate");
+      if (completionPanel) completionPanel.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
+    } else {
+      speak(message, "keepGoing");
+    }
+  }, 650);
 }
 
 function getConversationCoachIndex() {
@@ -2827,6 +2934,9 @@ function attachMiniGameHandlers() {
           ? todayPlan.mini.sort.success
           : "Yes. Find one more.";
         speak(feedback.textContent, "correct");
+        if (sortPicks.size === todayPlan.mini.sort.correct.length) {
+          completeExtraGame("sort", "Sort is finished. The next extra activity is ready.");
+        }
       } else {
         tile.classList.add("wrong");
         feedback.textContent = getRetryFeedback("sort", "Think about what the question is asking you to group.", correctAnswer);
@@ -2850,6 +2960,9 @@ function attachMiniGameHandlers() {
         ? `Yes. ${capitalize(todayPlan.mini.pattern.answer)} comes next.`
         : getRetryFeedback("pattern", "Look at which colors repeat.", capitalize(todayPlan.mini.pattern.answer));
       speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
+      if (isCorrect) {
+        completeExtraGame("pattern", "Pattern is finished. The next extra activity is ready.");
+      }
     });
   });
 
@@ -2877,6 +2990,9 @@ function attachMiniGameHandlers() {
           : `Correct. ${currentQuestion.answer} is right.`
         : getRetryFeedback(`money-${questionIndex}`, "Count the dollars one step at a time.", currentQuestion.answer);
       speak(feedback.textContent, isCorrect ? "moneyMath" : "incorrect");
+      if (answeredCount === todayMoneyMath.length) {
+        completeExtraGame("money-math", "Money Math is finished. The next extra activity is ready.");
+      }
     });
   });
 
@@ -2894,6 +3010,9 @@ function attachMiniGameHandlers() {
         ? "Good business choice."
         : getRetryFeedback("business", "Think about the helpful action for a buyer or customer.", todayBusinessPractice.answer);
       speak(feedback.textContent, isCorrect ? "businessPractice" : "incorrect");
+      if (isCorrect) {
+        completeExtraGame("business", "Business practice is finished. The next extra activity is ready.");
+      }
     });
   });
 
@@ -2911,6 +3030,9 @@ function attachMiniGameHandlers() {
         ? "Good family word."
         : getRetryFeedback("family-words", "Think about who the person is to Zamaan.", todayPronounPractice.answer);
       speak(feedback.textContent, isCorrect ? "familyWords" : "incorrect");
+      if (isCorrect) {
+        completeExtraGame("pronouns", "Family Words is finished. The next extra activity is ready.");
+      }
     });
   });
 
@@ -2945,6 +3067,7 @@ function attachMiniGameHandlers() {
           card: coachPrompt.topic
         });
         speak(feedback.textContent, "conversationCoachNice");
+        completeExtraGame("conversation-coach", "Conversation Coach is finished.");
         return;
       }
 
@@ -3238,6 +3361,8 @@ if (resetProgress) {
   memoryPicks = [];
   sequenceStep = 1;
   sortPicks.clear();
+  localStorage.removeItem(`dailyAdventureExtraProgress-${todayKey}`);
+  sessionStorage.removeItem(`dailyAdventureCoachIndex-${todayKey}`);
   delete history.days[todayKey];
   delete activityLogs[todayKey];
   save();

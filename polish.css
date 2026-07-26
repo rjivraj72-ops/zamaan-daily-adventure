@@ -662,6 +662,76 @@ textarea {
   background: linear-gradient(180deg, #fff, #edf6ff);
 }
 
+.extra-path-header {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(46, 111, 180, 0.18);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff, #f2f8ff);
+  box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
+}
+
+.extra-path-header > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.extra-path-header span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.extra-path-header strong {
+  color: var(--ink);
+  font-size: 1.08rem;
+}
+
+.extra-path-header p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.extra-path-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.extra-path-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid rgba(16, 47, 41, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.extra-path-chip.active {
+  border-color: rgba(46, 111, 180, 0.32);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.extra-path-chip.done {
+  border-color: rgba(59, 154, 110, 0.26);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.extra-path-complete {
+  border-color: rgba(59, 154, 110, 0.24);
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+}
+
 .coach-chat {
   display: grid;
   gap: 10px;
