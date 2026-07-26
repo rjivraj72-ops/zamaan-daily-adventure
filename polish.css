@@ -640,6 +640,100 @@ textarea {
   background: linear-gradient(180deg, #fff8e1, #fff);
 }
 
+.ai-prompt-panel {
+  border-color: rgba(46, 111, 180, 0.18);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff, var(--blue-soft));
+  box-shadow: 0 8px 18px rgba(16, 47, 41, 0.06);
+}
+
+.question-cycle-reminder {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(59, 154, 110, 0.2);
+  border-radius: 8px;
+  background: rgba(235, 247, 239, 0.9);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.conversation-coach-card {
+  border-color: rgba(46, 111, 180, 0.22);
+  background: linear-gradient(180deg, #fff, #edf6ff);
+}
+
+.coach-chat {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  margin: 12px 0;
+  padding: 14px;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(242, 248, 255, 0.94));
+  overflow-y: auto;
+}
+
+.coach-message-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.coach-message-row-user {
+  justify-content: flex-end;
+}
+
+.coach-avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 950;
+}
+
+.coach-bubble {
+  max-width: min(82%, 420px);
+  padding: 10px 13px;
+  border-radius: 18px;
+  box-shadow: 0 6px 14px rgba(16, 47, 41, 0.07);
+}
+
+.coach-bubble span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.76rem;
+  font-weight: 950;
+  opacity: 0.72;
+}
+
+.coach-bubble p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.coach-bubble-bot {
+  border-bottom-left-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.coach-bubble-user {
+  border-bottom-right-radius: 6px;
+  background: linear-gradient(180deg, #2f7df6, #1765d8);
+  color: #fff;
+}
+
+.coach-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .caregiver-actions {
   padding: 14px;
   border: 1px solid rgba(16, 47, 41, 0.1);
@@ -795,6 +889,14 @@ audio[data-voice-prompt],
   visibility: hidden !important;
 }
 
+.ai-prompt-panel label {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--ink);
+  font-weight: 900;
+}
+
 @media (min-width: 861px) {
   .activity-layout {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -919,6 +1021,8 @@ audio[data-voice-prompt],
     height: 46px;
   }
 
+  .ai-actions,
+  .coach-actions,
   .comparison-grid,
   .parent-summary-grid {
     grid-template-columns: 1fr;
