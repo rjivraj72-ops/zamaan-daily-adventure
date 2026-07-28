@@ -1748,6 +1748,10 @@ function completeRound(id, message, detail = {}) {
       ? `Congratulations, ${state.name}. You finished today's adventure.`
       : `Great work, ${state.name}. Your extra practice path is ready. Start the next step.`
     : progressMessage, progressVoice);
+
+  if (mainRoundsComplete && !extraComplete) {
+    openExtraPathAfterMainRounds();
+  }
 }
 
 function nextActivityId() {
@@ -1879,6 +1883,22 @@ function updateExtraGamesAccess(doneRounds) {
         ? "Great work finishing today's 12 rounds. Finish each extra activity one at a time."
         : "Extra games are available because Focus Mode is off. Finish each extra activity one at a time.";
   }
+}
+
+function openExtraPathAfterMainRounds() {
+  if (!toggleExtraGames || !extraGames || areExtraGamesComplete()) return;
+  const openedKey = `dailyAdventureExtraOpened-${todayKey}`;
+  if (sessionStorage.getItem(openedKey) === "yes") return;
+
+  extraGames.hidden = false;
+  toggleExtraGames.textContent = "Hide extra path";
+  toggleExtraGames.setAttribute("aria-expanded", "true");
+  renderMiniGames();
+  sessionStorage.setItem(openedKey, "yes");
+
+  window.setTimeout(() => {
+    extraGames.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
+  }, 850);
 }
 
 function updateProgress() {
