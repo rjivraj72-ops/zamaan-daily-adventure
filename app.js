@@ -1734,15 +1734,19 @@ function completeRound(id, message, detail = {}) {
   const doneRounds = getRoundTotal();
   const roundsLeft = Math.max(totalRounds - doneRounds, 0);
   const progressMessage = roundsLeft > 0 ? `${message} ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left.` : message;
-  const progressVoice = doneRounds === totalRounds
-    ? "finished"
+  const mainRoundsComplete = doneRounds === totalRounds;
+  const extraComplete = areExtraGamesComplete();
+  const progressVoice = mainRoundsComplete
+    ? extraComplete ? "finished" : "keepGoing"
     : doneRounds === Math.floor(totalRounds / 2)
       ? "halfwayDone"
       : roundsLeft <= 2
         ? "almostDone"
         : detail.voiceKey || "correct";
-  speak(doneRounds === totalRounds
-    ? `Congratulations, ${state.name}. You finished today's adventure.`
+  speak(mainRoundsComplete
+    ? extraComplete
+      ? `Congratulations, ${state.name}. You finished today's adventure.`
+      : `Great work, ${state.name}. Your extra practice path is ready. Start the next step.`
     : progressMessage, progressVoice);
 }
 
