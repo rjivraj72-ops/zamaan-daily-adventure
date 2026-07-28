@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260712-personality-voice";
+  polishLink.href = "polish.css?v=20260727-stable-refresh";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
