@@ -1,0 +1,140 @@
+Zamaan's Daily Adventure - ElevenLabs Studio Pack
+Conversation Coach / iMessage-style guided chat
+
+HOW TO USE THIS FILE
+1. In ElevenLabs Studio, use the voice direction below for the project/voice style.
+2. Create each audio clip from the numbered prompt list.
+3. Export each clip as MP3.
+4. Rename each MP3 exactly as the filename shown.
+5. Put the MP3 files in GitHub under: audio/personality/
+
+VOICE DIRECTION
+Warm, natural, clear, and encouraging. Sound like a friendly young coach who knows Zamaan well. Keep the pace calm and easy to follow. Add a little personality and confidence, but do not sound like a cartoon, a robot, a teacher giving a test, or a little-kid voice. Short pauses are okay. Make every line feel like a real person helping Zamaan practice conversation.
+
+STYLE NOTES
+- Speak directly to Zamaan.
+- Keep it relaxed and upbeat.
+- Use simple emotion: friendly, confident, patient.
+- Do not overact.
+- Do not make it sound clinical.
+- Leave a tiny pause before the sentence he should repeat.
+
+01
+Filename: coach-start-1.mp3
+Prompt:
+Hey Zamaan, want to talk for a minute? Let's practice one good sentence.
+
+02
+Filename: coach-start-2.mp3
+Prompt:
+Alright Zamaan, conversation time. One question, one strong answer.
+
+03
+Filename: coach-family-1.mp3
+Prompt:
+Let's practice family words. Listen to the question, then say the full sentence.
+
+04
+Filename: coach-family-2.mp3
+Prompt:
+Family words can be tricky. No worries. Let's say it nice and clear.
+
+05
+Filename: coach-travel-1.mp3
+Prompt:
+Let's talk travel. Think about the place, then tell me one memory.
+
+06
+Filename: coach-travel-2.mp3
+Prompt:
+Travel story time. Say it in one full sentence, nice and easy.
+
+07
+Filename: coach-business-1.mp3
+Prompt:
+Granola Kid time. Let's practice what you can say to a buyer.
+
+08
+Filename: coach-business-2.mp3
+Prompt:
+Business mode, Zamaan. Keep it friendly, clear, and confident.
+
+09
+Filename: coach-sentence-1.mp3
+Prompt:
+Nice. Now make it a full sentence.
+
+10
+Filename: coach-sentence-2.mp3
+Prompt:
+Try saying the whole sentence from the beginning.
+
+11
+Filename: coach-nice-1.mp3
+Prompt:
+That was good practice. Nice job, Zamaan.
+
+12
+Filename: coach-nice-2.mp3
+Prompt:
+Yes, that's it. Clear sentence, strong answer.
+
+13
+Filename: coach-next-1.mp3
+Prompt:
+Okay, let's try another one.
+
+14
+Filename: coach-next-2.mp3
+Prompt:
+New question coming up. You've got this.
+
+15
+Filename: coach-correction-1.mp3
+Prompt:
+Almost. Listen to the sentence, then try it again.
+
+16
+Filename: coach-correction-2.mp3
+Prompt:
+Good try. Let's fix the words and say it one more time.
+
+17
+Filename: coach-keyaan-1.mp3
+Prompt:
+Keyaan is your brother. Try saying, Keyaan is my brother.
+
+18
+Filename: coach-mom-dad-1.mp3
+Prompt:
+You are Mom and Dad's son. Try saying, I am Mom and Dad's son.
+
+19
+Filename: coach-cousins-1.mp3
+Prompt:
+Marcus and Jasmine are your cousins. Try saying, Marcus and Jasmine are my cousins.
+
+20
+Filename: coach-friends-1.mp3
+Prompt:
+Harold, Aaron, and David are your friends. Try saying, They are my friends.
+
+21
+Filename: coach-paris-1.mp3
+Prompt:
+Tell me about Paris. Start with, I remember.
+
+22
+Filename: coach-barcelona-1.mp3
+Prompt:
+Tell me about Barcelona. Start with, I traveled with.
+
+23
+Filename: coach-granola-buyer-1.mp3
+Prompt:
+Try a buyer greeting. Start with, Hi, I am Zamaan from Granola Kid.
+
+24
+Filename: coach-granola-thanks-1.mp3
+Prompt:
+Try thanking a buyer. Start with, Thank you for trying our granola.

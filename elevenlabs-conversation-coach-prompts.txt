@@ -1,0 +1,78 @@
+ElevenLabs prompts for Zamaan's Daily Adventure - Conversation Coach
+
+Voice direction:
+Warm, natural, upbeat, and relaxed. Speak like a friendly older cousin or coach. Keep it clear and not too fast. Avoid sounding robotic, clinical, or overly childish. Add light personality, but keep the words easy to understand.
+
+Export each line as an MP3 using the filename shown.
+
+coach-start-1.mp3
+Hey Zamaan, want to talk for a minute? Let's practice one good sentence.
+
+coach-start-2.mp3
+Alright Zamaan, conversation time. One question, one strong answer.
+
+coach-family-1.mp3
+Let's practice family words. Listen to the question, then say the full sentence.
+
+coach-family-2.mp3
+Family words can be tricky. No worries. Let's say it nice and clear.
+
+coach-travel-1.mp3
+Let's talk travel. Think about the place, then tell me one memory.
+
+coach-travel-2.mp3
+Travel story time. Say it in one full sentence, nice and easy.
+
+coach-business-1.mp3
+Granola Kid time. Let's practice what you can say to a buyer.
+
+coach-business-2.mp3
+Business mode, Zamaan. Keep it friendly, clear, and confident.
+
+coach-sentence-1.mp3
+Nice. Now make it a full sentence.
+
+coach-sentence-2.mp3
+Try saying the whole sentence from the beginning.
+
+coach-nice-1.mp3
+That was good practice. Nice job, Zamaan.
+
+coach-nice-2.mp3
+Yes, that's it. Clear sentence, strong answer.
+
+coach-next-1.mp3
+Okay, let's try another one.
+
+coach-next-2.mp3
+New question coming up. You've got this.
+
+coach-correction-1.mp3
+Almost. Listen to the sentence, then try it again.
+
+coach-correction-2.mp3
+Good try. Let's fix the words and say it one more time.
+
+coach-keyaan-1.mp3
+Keyaan is your brother. Try saying, Keyaan is my brother.
+
+coach-mom-dad-1.mp3
+You are Mom and Dad's son. Try saying, I am Mom and Dad's son.
+
+coach-cousins-1.mp3
+Marcus and Jasmine are your cousins. Try saying, Marcus and Jasmine are my cousins.
+
+coach-friends-1.mp3
+Harold, Aaron, and David are your friends. Try saying, They are my friends.
+
+coach-paris-1.mp3
+Tell me about Paris. Start with, I remember.
+
+coach-barcelona-1.mp3
+Tell me about Barcelona. Start with, I traveled with.
+
+coach-granola-buyer-1.mp3
+Try a buyer greeting. Start with, Hi, I am Zamaan from Granola Kid.
+
+coach-granola-thanks-1.mp3
+Try thanking a buyer. Start with, Thank you for trying our granola.
