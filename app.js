@@ -1026,6 +1026,8 @@ const movementBreak = document.querySelector("#movementBreak");
 const startMovementBreak = document.querySelector("#startMovementBreak");
 const skipMovementBreak = document.querySelector("#skipMovementBreak");
 const movementTimer = document.querySelector("#movementTimer");
+const rewardPanel = document.querySelector(".reward");
+const calendarPanel = document.querySelector(".calendar-panel");
 const completionPanel = document.querySelector("#completionPanel");
 const sendCompletionUpdate = document.querySelector("#sendCompletionUpdate");
 const shareCompletionUpdate = document.querySelector("#shareCompletionUpdate");
@@ -1908,10 +1910,16 @@ function updateProgress() {
   const doneSections = state.completed.length;
   const nextId = nextActivityId();
   const roundsLeft = Math.max(totalRounds - doneRounds, 0);
-  progressCount.textContent = `${doneRounds} of ${totalRounds} rounds`;
+  const mainRoundsComplete = doneRounds === totalRounds;
+  const extraComplete = areExtraGamesComplete();
+  const extraInProgress = mainRoundsComplete && !extraComplete;
+
+  progressCount.textContent = extraInProgress
+    ? `${doneRounds} of ${totalRounds} core rounds`
+    : `${doneRounds} of ${totalRounds} rounds`;
   if (roundsLeftLabel) {
-    roundsLeftLabel.textContent = roundsLeft === 0
-      ? "Daily adventure complete"
+    roundsLeftLabel.textContent = mainRoundsComplete
+      ? extraComplete ? "Daily adventure complete" : "Extra practice next"
       : `${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left today`;
   }
   progressBar.style.width = `${(doneRounds / totalRounds) * 100}%`;
@@ -1936,16 +1944,18 @@ function updateProgress() {
       : `${labelFor(id)} round ${round} of ${maxRounds[id]}`;
   });
 
-  celebration.textContent = doneRounds === totalRounds
-    ? areExtraGamesComplete()
+  celebration.textContent = mainRoundsComplete
+    ? extraComplete
       ? `Congratulations, ${state.name}. ${state.message}`
-      : `Great work, ${state.name}. Now finish the extra practice path, one step at a time.`
+      : `Great work, ${state.name}. Core path complete. Extra practice is next.`
     : doneRounds > 0
       ? `Good progress. ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left today.`
       : "Start with Memory. Finish rounds to earn stars and mark the calendar.";
 
+  if (rewardPanel) rewardPanel.hidden = extraInProgress;
+  if (calendarPanel) calendarPanel.hidden = extraInProgress;
   if (completionPanel) {
-    completionPanel.hidden = doneRounds !== totalRounds || !areExtraGamesComplete();
+    completionPanel.hidden = !mainRoundsComplete || !extraComplete;
   }
 
   if (movementBreak && doneRounds >= 6 && doneRounds < totalRounds) {
