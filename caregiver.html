@@ -8,10 +8,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Daily Adventure">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="manifest" href="manifest.webmanifest?v=20260727-stable-refresh">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260727-stable-refresh">
   </head>
   <body class="caregiver-page">
     <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">
@@ -77,6 +77,10 @@
             <button id="loadParentView" class="secondary-button compact-button" type="button">Refresh</button>
           </div>
           <p>Load Zamaan's latest progress, Talk Time answers, and practice suggestions from the private Google Sheet.</p>
+          <label>
+            Optional parent note
+            <textarea id="parentNoteInput" rows="3" placeholder="Example: Needed help with his versus my."></textarea>
+          </label>
           <p class="sync-status" id="parentViewStatus">Parent view has not loaded yet.</p>
           <div class="parent-view-results" id="parentViewResults"></div>
         </section>
@@ -88,6 +92,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260719-navigation-refinement"></script>
+    <script src="app.js?v=20260727-stable-refresh"></script>
   </body>
 </html>

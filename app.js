@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260712-personality-voice";
+  polishLink.href = "polish.css?v=20260727-stable-refresh";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -110,7 +110,35 @@ const voicePrompts = {
   moodHappy: "audio/mood-happy.mp3",
   moodCalm: "audio/mood-calm.mp3",
   moodTired: "audio/mood-tired.mp3",
-  moodUnsure: "audio/mood-unsure.mp3"
+  moodUnsure: "audio/mood-unsure.mp3",
+  conversationCoachStart: [
+    "audio/personality/coach-start-1.mp3",
+    "audio/personality/coach-start-2.mp3"
+  ],
+  conversationCoachFamily: [
+    "audio/personality/coach-family-1.mp3",
+    "audio/personality/coach-family-2.mp3"
+  ],
+  conversationCoachTravel: [
+    "audio/personality/coach-travel-1.mp3",
+    "audio/personality/coach-travel-2.mp3"
+  ],
+  conversationCoachBusiness: [
+    "audio/personality/coach-business-1.mp3",
+    "audio/personality/coach-business-2.mp3"
+  ],
+  conversationCoachSentence: [
+    "audio/personality/coach-sentence-1.mp3",
+    "audio/personality/coach-sentence-2.mp3"
+  ],
+  conversationCoachNice: [
+    "audio/personality/coach-nice-1.mp3",
+    "audio/personality/coach-nice-2.mp3"
+  ],
+  conversationCoachNext: [
+    "audio/personality/coach-next-1.mp3",
+    "audio/personality/coach-next-2.mp3"
+  ]
 };
 
 let currentVoicePrompt = null;
@@ -174,6 +202,81 @@ const maxRounds = {
   language: 3,
   talk: 3
 };
+
+const conversationCoachDeck = [
+  {
+    topic: "Family Words",
+    title: "Keyaan is my brother",
+    prompt: "Who is Keyaan to you?",
+    model: "Keyaan is my brother.",
+    voiceKey: "conversationCoachFamily"
+  },
+  {
+    topic: "Family Words",
+    title: "Mom and Dad",
+    prompt: "Who are you to Mom and Dad?",
+    model: "I am Mom and Dad's son.",
+    voiceKey: "conversationCoachFamily"
+  },
+  {
+    topic: "Family Words",
+    title: "Cousins",
+    prompt: "Who are Marcus and Jasmine to you?",
+    model: "Marcus and Jasmine are my cousins.",
+    voiceKey: "conversationCoachFamily"
+  },
+  {
+    topic: "Travel Talk",
+    title: "Paris memory",
+    prompt: "Tell me one thing you remember about Paris.",
+    model: "I remember seeing the Eiffel Tower in Paris.",
+    voiceKey: "conversationCoachTravel"
+  },
+  {
+    topic: "Travel Talk",
+    title: "Barcelona memory",
+    prompt: "Who did you travel with in Barcelona?",
+    model: "I traveled with my family in Barcelona.",
+    voiceKey: "conversationCoachTravel"
+  },
+  {
+    topic: "Travel Talk",
+    title: "Favorite trip",
+    prompt: "What place would you like to visit again?",
+    model: "I would like to visit Sorrento again.",
+    voiceKey: "conversationCoachTravel"
+  },
+  {
+    topic: "Granola Kid",
+    title: "Buyer greeting",
+    prompt: "What can you say to a buyer?",
+    model: "Hi, I am Zamaan from Granola Kid.",
+    voiceKey: "conversationCoachBusiness"
+  },
+  {
+    topic: "Granola Kid",
+    title: "Thank a buyer",
+    prompt: "How can you thank someone for trying a sample?",
+    model: "Thank you for trying our granola.",
+    voiceKey: "conversationCoachBusiness"
+  },
+  {
+    topic: "Granola Kid",
+    title: "Co-packer",
+    prompt: "Who makes the granola?",
+    model: "Our co-packer makes the granola.",
+    voiceKey: "conversationCoachBusiness"
+  }
+];
+
+const extraGameOrder = [
+  { id: "sort", label: "Sort" },
+  { id: "pattern", label: "Pattern" },
+  { id: "money-math", label: "Money Math" },
+  { id: "business", label: "Business" },
+  { id: "pronouns", label: "Family Words" },
+  { id: "conversation-coach", label: "Conversation Coach" }
+];
 
 const defaultState = {
   name: "Zamaan",
@@ -913,19 +1016,6 @@ const importSyncCode = document.querySelector("#importSyncCode");
 const testSync = document.querySelector("#testSync");
 const loadParentView = document.querySelector("#loadParentView");
 const parentViewStatus = document.querySelector("#parentViewStatus");
-const weeklyAdventureRecipientsInput = document.querySelector("#weeklyAdventureRecipientsInput");
-const weeklyAdventureHourInput = document.querySelector("#weeklyAdventureHourInput");
-const weeklyAdventureBadge = document.querySelector("#weeklyAdventureBadge");
-const weeklyAdventureStatusText = document.querySelector("#weeklyAdventureStatusText");
-const weeklyAdventureDeliveryText = document.querySelector("#weeklyAdventureDeliveryText");
-const weeklyAdventureLastSent = document.querySelector("#weeklyAdventureLastSent");
-const weeklyAdventureTimezone = document.querySelector("#weeklyAdventureTimezone");
-const weeklyAdventureMessage = document.querySelector("#weeklyAdventureMessage");
-const saveWeeklyAdventure = document.querySelector("#saveWeeklyAdventure");
-const sendWeeklyAdventureTestButton = document.querySelector("#sendWeeklyAdventureTest");
-const refreshWeeklyAdventure = document.querySelector("#refreshWeeklyAdventure");
-const disableWeeklyAdventure = document.querySelector("#disableWeeklyAdventure");
-
 const parentViewResults = document.querySelector("#parentViewResults");
 const levelBadge = document.querySelector("#levelBadge");
 const soundToggle = document.querySelector("#soundToggle");
@@ -939,6 +1029,7 @@ const movementTimer = document.querySelector("#movementTimer");
 const completionPanel = document.querySelector("#completionPanel");
 const sendCompletionUpdate = document.querySelector("#sendCompletionUpdate");
 const shareCompletionUpdate = document.querySelector("#shareCompletionUpdate");
+const parentNoteInput = document.querySelector("#parentNoteInput");
 const hasDailyPage = Boolean(document.querySelector("[data-complete-talk]"));
 
 let memoryPicks = [];
@@ -1258,117 +1349,6 @@ function getParentViewUrl() {
 
   const separator = url.includes("?") ? "&" : "?";
   return `${url}${separator}mode=parentView&familyCode=${encodeURIComponent(familyCode)}`;
-}
-
-function getWeeklyAdventureApiUrl(mode, extraParams = {}) {
-  const { url, familyCode } = getSyncConfig();
-  if (!url || !familyCode) return "";
-
-  const endpoint = new URL(url);
-  endpoint.searchParams.set("mode", mode);
-  endpoint.searchParams.set("familyCode", familyCode);
-  Object.entries(extraParams).forEach(([key, value]) => {
-    endpoint.searchParams.set(key, String(value));
-  });
-  endpoint.searchParams.set("_", String(Date.now()));
-  return endpoint.toString();
-}
-
-function formatWeeklyAdventureHour(hour) {
-  const date = new Date(2000, 0, 1, Number(hour || 0), 0);
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(date);
-}
-
-function renderWeeklyAdventureStatus(data) {
-  if (!data) return;
-  if (weeklyAdventureRecipientsInput) weeklyAdventureRecipientsInput.value = data.recipients || "";
-  if (weeklyAdventureHourInput) weeklyAdventureHourInput.value = String(data.sendHour ?? 10);
-  if (weeklyAdventureBadge) {
-    weeklyAdventureBadge.textContent = data.enabled ? "ON" : "OFF";
-    weeklyAdventureBadge.classList.toggle("is-on", Boolean(data.enabled));
-  }
-  if (weeklyAdventureStatusText) {
-    weeklyAdventureStatusText.textContent = data.enabled
-      ? "Weekly Sunday emails are scheduled."
-      : "Weekly emails are currently disabled.";
-  }
-  if (weeklyAdventureDeliveryText) {
-    weeklyAdventureDeliveryText.textContent = `Sunday near ${formatWeeklyAdventureHour(data.sendHour)}`;
-  }
-  if (weeklyAdventureTimezone) {
-    weeklyAdventureTimezone.textContent = `Time zone: ${data.timezone || "Apps Script project time zone"}`;
-  }
-  if (weeklyAdventureLastSent) {
-    weeklyAdventureLastSent.textContent = data.lastSentAt
-      ? formatShortDateTime(data.lastSentAt)
-      : "Not sent yet";
-  }
-}
-
-async function requestWeeklyAdventure(mode, params = {}, loadingMessage = "Working…") {
-  const endpoint = getWeeklyAdventureApiUrl(mode, params);
-  if (!endpoint) {
-    if (weeklyAdventureMessage) {
-      weeklyAdventureMessage.textContent = "Add the Sync web app URL and family code first.";
-    }
-    return null;
-  }
-
-  if (weeklyAdventureMessage) weeklyAdventureMessage.textContent = loadingMessage;
-  try {
-    const response = await fetch(endpoint, { method: "GET", cache: "no-store" });
-    const data = await response.json();
-    if (!data.ok) throw new Error(data.error || "Weekly Adventure request failed.");
-    renderWeeklyAdventureStatus(data);
-    if (weeklyAdventureMessage) {
-      weeklyAdventureMessage.textContent = data.message || "Weekly Adventure status refreshed.";
-    }
-    return data;
-  } catch (error) {
-    if (weeklyAdventureMessage) {
-      weeklyAdventureMessage.textContent = error.message || "Could not reach Weekly Adventure settings. Redeploy Apps Script and try again.";
-    }
-    return null;
-  }
-}
-
-function loadWeeklyAdventureStatus() {
-  return requestWeeklyAdventure(
-    "weeklyAdventureStatus",
-    {},
-    "Checking the current Weekly Adventure schedule…"
-  );
-}
-
-function saveWeeklyAdventureSettings() {
-  return requestWeeklyAdventure(
-    "weeklyAdventureAction",
-    {
-      action: "save",
-      recipients: weeklyAdventureRecipientsInput?.value.trim() || "",
-      sendHour: weeklyAdventureHourInput?.value || "10"
-    },
-    "Saving settings and updating the Sunday schedule…"
-  );
-}
-
-function sendWeeklyAdventureTestFromAdmin() {
-  return requestWeeklyAdventure(
-    "weeklyAdventureAction",
-    { action: "test" },
-    "Creating and sending the test Weekly Adventure email…"
-  );
-}
-
-function disableWeeklyAdventureEmails() {
-  return requestWeeklyAdventure(
-    "weeklyAdventureAction",
-    { action: "disable" },
-    "Disabling the Weekly Adventure schedule…"
-  );
 }
 
 async function loadParentViewData() {
@@ -1795,6 +1775,9 @@ function updateGreeting() {
     soundToggle.textContent = enabled ? "Sound on" : "Sound off";
     soundToggle.setAttribute("aria-pressed", String(enabled));
   }
+  if (parentNoteInput) {
+    parentNoteInput.value = localStorage.getItem("dailyAdventureParentNote") || "";
+  }
   if (promptInput) {
     promptInput.value = state.talkPrompt;
   }
@@ -1866,6 +1849,7 @@ function updateExtraGamesAccess(doneRounds) {
   const focusMode = isFocusModeEnabled();
   const dailyComplete = doneRounds === totalRounds;
   const locked = focusMode && !dailyComplete;
+  const extraComplete = areExtraGamesComplete();
 
   toggleExtraGames.disabled = locked;
   toggleExtraGames.setAttribute("aria-disabled", String(locked));
@@ -1881,11 +1865,15 @@ function updateExtraGamesAccess(doneRounds) {
     return;
   }
 
-  toggleExtraGames.textContent = extraGames.hidden ? "Play more" : "Hide extra games";
+  toggleExtraGames.textContent = extraGames.hidden
+    ? extraComplete ? "Review extra path" : "Start extra path"
+    : "Hide extra path";
   if (gamesDescription) {
-    gamesDescription.textContent = dailyComplete
-      ? "Great work finishing today's 12 rounds. Extra games are unlocked."
-      : "Extra games are available because Focus Mode is off.";
+    gamesDescription.textContent = extraComplete
+      ? "Extra practice is complete. Now send Mom and Dad the final update."
+      : dailyComplete
+        ? "Great work finishing today's 12 rounds. Finish each extra activity one at a time."
+        : "Extra games are available because Focus Mode is off. Finish each extra activity one at a time.";
   }
 }
 
@@ -1925,13 +1913,15 @@ function updateProgress() {
   });
 
   celebration.textContent = doneRounds === totalRounds
-    ? `Congratulations, ${state.name}. ${state.message}`
+    ? areExtraGamesComplete()
+      ? `Congratulations, ${state.name}. ${state.message}`
+      : `Great work, ${state.name}. Now finish the extra practice path, one step at a time.`
     : doneRounds > 0
       ? `Good progress. ${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left today.`
       : "Start with Memory. Finish rounds to earn stars and mark the calendar.";
 
   if (completionPanel) {
-    completionPanel.hidden = doneRounds !== totalRounds;
+    completionPanel.hidden = doneRounds !== totalRounds || !areExtraGamesComplete();
   }
 
   if (movementBreak && doneRounds >= 6 && doneRounds < totalRounds) {
@@ -2025,6 +2015,13 @@ function renderParentView(data) {
     `).join("")
     : `<p class="parent-empty">No extra learning-game attempts yet.</p>`;
 
+  const needsPracticeHtml = (data.needsPractice || []).map((item) => `
+    <article class="practice-item">
+      <strong>${escapeHtml(item.title)}</strong>
+      <span>${escapeHtml(item.detail)}</span>
+    </article>
+  `).join("");
+
   const practiceNextHtml = (data.practiceNext || []).length
     ? data.practiceNext.slice(0, 3).map((item) => `
       <article class="practice-next-card">
@@ -2033,30 +2030,10 @@ function renderParentView(data) {
           <strong>${escapeHtml(item.skillArea)}: ${escapeHtml(item.questionText)}</strong>
           <span>${escapeHtml(item.correct || 0)} correct out of ${escapeHtml(item.attempts || 0)} attempts · ${escapeHtml(item.accuracy || "0%")}</span>
         </div>
-      </article>
-    `).join("")
-    : `<p class="parent-empty">No priority practice yet. Complete a few learning games to build this list.</p>`;
-
-  const strengthsHtml = (data.masteryStrengths || []).length
-    ? data.masteryStrengths.slice(0, 3).map((item) => `
-      <article class="strength-card">
-        <small>${escapeHtml(item.masteryStatus)}</small>
-        <strong>${escapeHtml(item.skillArea)}</strong>
-        <span>${escapeHtml(item.questionText)}</span>
-        <span>${escapeHtml(item.accuracy)} accuracy · ${escapeHtml(item.attempts)} attempts</span>
-      </article>
-    `).join("")
-    : `<p class="parent-empty">Complete a few learning games to begin showing strengths.</p>`;
-
-  const familyActivitiesHtml = (data.practiceNext || []).length
-    ? data.practiceNext.slice(0, 2).map((item, index) => `
-      <article class="family-activity-card">
-        <small>Family activity ${index + 1}</small>
-        <strong>${escapeHtml(item.skillArea)}</strong>
         <p>${escapeHtml(item.nextPracticeActivity)}</p>
       </article>
     `).join("")
-    : `<p class="parent-empty">Family activities will appear after a few learning-game attempts.</p>`;
+    : `<p class="parent-empty">No priority practice yet. Complete a few learning games to build this list.</p>`;
 
   const skillTrendsHtml = (data.skillTrends || []).length
     ? data.skillTrends.map((item) => `
@@ -2078,8 +2055,6 @@ function renderParentView(data) {
     : `<p class="parent-empty">No missed-question pattern yet.</p>`;
 
   parentViewResults.innerHTML = `
-    <section class="dashboard-story-section" aria-labelledby="this-week-heading">
-      <h3 id="this-week-heading">This Week</h3>
     <div class="parent-summary-grid">
       ${todayHtml}
       <article class="parent-card">
@@ -2094,6 +2069,14 @@ function renderParentView(data) {
         <span>${escapeHtml(data.dashboard.correctAttempts)} correct out of ${escapeHtml(data.dashboard.totalAttempts)} attempts</span>
       </article>
     </div>
+    <div class="parent-list practice-list">
+      <h4>Needs Practice</h4>
+      ${needsPracticeHtml}
+    </div>
+    <div class="parent-list practice-next-list">
+      <h4>What to Practice Next</h4>
+      ${practiceNextHtml}
+    </div>
     <div class="weekly-comparison">
       <h4>This Week vs Last Week</h4>
       <div class="comparison-grid">
@@ -2104,33 +2087,14 @@ function renderParentView(data) {
     </div>
     <div class="parent-list">
       <h4>7-Day Check</h4>
-      <div class="parent-days">${dailyHtml}</div>
+      <div class="parent-days">
+      ${dailyHtml}
+      </div>
     </div>
-    </section>
-
-    <section class="dashboard-story-section" aria-labelledby="strengths-heading">
-      <h3 id="strengths-heading">Strengths</h3>
-      <div class="strengths-grid">${strengthsHtml}</div>
-    </section>
-
-    <section class="dashboard-story-section" aria-labelledby="practice-next-heading">
-      <h3 id="practice-next-heading">What to Practice Next</h3>
-      <div class="parent-list practice-next-list">${practiceNextHtml}</div>
-    </section>
-
-    <section class="dashboard-story-section" aria-labelledby="family-activities-heading">
-      <h3 id="family-activities-heading">Family Activities</h3>
-      <div class="family-activities-grid">${familyActivitiesHtml}</div>
-    </section>
-
-    <section class="dashboard-story-section" aria-labelledby="talk-time-heading">
-      <h3 id="talk-time-heading">Talk Time</h3>
-      <div class="parent-list">${talkHtml}</div>
-    </section>
-
-    <details class="parent-detail-panel">
-      <summary>Detailed learning trends</summary>
-      <div class="parent-detail-content">
+    <div class="parent-list">
+      <h4>Recent Talk Time</h4>
+      ${talkHtml}
+    </div>
     <div class="parent-list">
       <h4>Learning Games</h4>
       ${attemptsHtml}
@@ -2143,114 +2107,185 @@ function renderParentView(data) {
       <h4>Questions to Review</h4>
       ${missedQuestionsHtml}
     </div>
-      </div>
-    </details>
-    <div class="report-share-panel">
+    <div class="ai-prompt-panel">
       <div>
-        <h4>Share this report</h4>
-        <p>Save a clean PDF, then attach it to a WhatsApp or Outlook message if needed.</p>
+        <h4>Weekly AI Summary</h4>
+        <p>Copy this prompt, then open ChatGPT to continue the parent progress thread.</p>
       </div>
-      <div class="report-share-actions">
-        <button id="saveParentReportPdf" type="button">Save as PDF</button>
-        <button id="shareParentReportWhatsApp" class="secondary-button" type="button">WhatsApp</button>
-        <button id="shareParentReportEmail" class="secondary-button" type="button">Email / Outlook</button>
+      <div class="ai-actions">
+        <button id="copyWeeklyPrompt" class="secondary-button" type="button">Copy weekly AI prompt</button>
+        <a class="button-link secondary-button ai-open-link" href="chatgpt://" data-ai-target="chatgpt">Open ChatGPT app</a>
       </div>
+      <div class="ai-fallback-actions">
+        <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT web fallback</a>
+      </div>
+      <textarea id="weeklyPromptPreview" rows="5" readonly>${escapeHtml(buildWeeklyAiPrompt(data))}</textarea>
     </div>
   `;
 }
 
-function buildParentReportShareText(data) {
-  const dashboard = data?.dashboard || {};
-  const weekly = data?.weeklyTrend || {};
-  const priorities = (data?.practiceNext || []).slice(0, 2);
-  const lines = [
-    "Zamaan's Daily Adventure - Parent Report",
-    `Complete days this week: ${weekly.completeDays || 0}`,
-    `Rounds this week: ${weekly.rounds || 0}`,
-    `Learning-game accuracy: ${dashboard.attemptAccuracy || "0%"}`
-  ];
-
-  if (priorities.length) {
-    lines.push("", "What to practise next:");
-    priorities.forEach((item) => lines.push(`- ${item.skillArea}: ${item.questionText}`));
-  }
-
-  lines.push("", `Full dashboard: ${window.location.href}`);
-  return lines.join("\n");
+function buildQuestionGeneratorPanel() {
+  return `
+    <div class="ai-prompt-panel">
+      <div>
+        <h4>Create New Questions</h4>
+        <p>Use this when you want ChatGPT to create the next set of questions. The app automatically rotates through the question file that is already uploaded.</p>
+      </div>
+      <div class="question-cycle-reminder">
+        <strong>Parent reminder:</strong> Start a fresh question set every 2 weeks, or sooner if Zamaan is mastering the current set.
+      </div>
+      <div class="ai-actions">
+        <button id="copyQuestionGeneratorPrompt" class="secondary-button" type="button">Copy ChatGPT prompt</button>
+        <a class="button-link secondary-button" href="question-generator-prompt.txt" target="_blank" rel="noopener">Open prompt file</a>
+      </div>
+      <label>
+        ChatGPT Prompt
+        <textarea id="questionGeneratorPromptPreview" rows="6" readonly>Tap copy to load the question generator prompt.</textarea>
+      </label>
+    </div>
+  `;
 }
 
-function openParentReportPdf() {
-  if (!latestParentViewData || !parentViewResults) {
-    if (parentViewStatus) parentViewStatus.textContent = "Load the parent report before saving a PDF.";
-    return;
-  }
+function buildWeeklyAiPrompt(data) {
+  const dashboard = data.dashboard || {};
+  const weeklyTrend = data.weeklyTrend || {};
+  const today = data.today;
+  const needsPractice = data.needsPractice || [];
+  const recentDaily = data.recentDaily || [];
+  const recentTalk = data.recentTalk || [];
+  const learningAttempts = data.learningAttempts || [];
+  const comparison = data.weeklyComparison || {};
+  const skillTrends = data.skillTrends || [];
+  const missedQuestions = data.missedQuestions || [];
+  const practiceNext = data.practiceNext || [];
+  const masteryStrengths = data.masteryStrengths || [];
+  const parentNote = localStorage.getItem("dailyAdventureParentNote") || "No parent note added.";
 
-  const printable = parentViewResults.cloneNode(true);
-  printable.querySelector(".report-share-panel")?.remove();
-  printable.querySelectorAll("details").forEach((detail) => { detail.open = true; });
-  const reportWindow = window.open("", "_blank");
-  if (!reportWindow) {
-    if (parentViewStatus) parentViewStatus.textContent = "Allow pop-ups, then try Save as PDF again.";
-    return;
-  }
-  reportWindow.opener = null;
-
-  const generatedAt = new Intl.DateTimeFormat(undefined, {
-    dateStyle: "long",
-    timeStyle: "short"
-  }).format(new Date());
-
-  reportWindow.document.write(`<!doctype html>
-    <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Zamaan's Daily Adventure - Parent Report</title><style>
-      @page { size: letter; margin: 0.55in; }
-      * { box-sizing: border-box; }
-      body { margin: 0; color: #26332f; font: 14px/1.45 Arial, sans-serif; }
-      header { margin-bottom: 22px; padding-bottom: 16px; border-bottom: 3px solid #247c6d; }
-      h1 { margin: 0; color: #247c6d; font-size: 26px; }
-      header p { margin: 6px 0 0; color: #63736d; }
-      h4 { margin: 0 0 10px; font-size: 17px; }
-      .parent-summary-grid, .comparison-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-      .parent-card, .comparison-grid article, .parent-list, .weekly-comparison, .practice-next-card,
-      .strength-card, .family-activity-card {
-        break-inside: avoid; margin: 0 0 12px; padding: 12px; border: 1px solid #dfe9e5; border-radius: 8px;
-      }
-      .parent-card, .comparison-grid article { display: grid; gap: 4px; }
-      .parent-card strong, .comparison-grid strong { color: #247c6d; font-size: 17px; }
-      .parent-list-item, .parent-day { display: grid; gap: 3px; padding: 8px 0; border-bottom: 1px solid #edf2f0; }
-      .parent-days { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-      .strengths-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .family-activities-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .dashboard-story-section > h3 { margin: 18px 0 10px; color: #247c6d; }
-      .parent-detail-panel { border: 0; }
-      .parent-detail-panel summary { display: none; }
-      .practice-next-card p { margin: 8px 0 0; }
-      button, a { display: none !important; }
-      @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
-    </style></head><body>
-      <header><h1>Zamaan's Daily Adventure</h1><p>Parent Report - generated ${escapeHtml(generatedAt)}</p></header>
-      ${printable.innerHTML}
-      <script>window.addEventListener("load", () => window.print());<\/script>
-    </body></html>`);
-  reportWindow.document.close();
+  return [
+    "You are helping Zamaan's mom and dad understand his Daily Adventure learning progress.",
+    "Please use a warm, practical parent-friendly tone. Avoid diagnostic language. Focus on patterns, encouragement, and simple next steps.",
+    "Use Skill Mastery first when choosing strengths and practice areas. Practice areas should come from the highest priority_score items, considering mastery_status.",
+    "",
+    "Please provide:",
+    "1. A short weekly progress summary.",
+    "2. Three strengths, using Strong or Mastered skill_mastery items when available.",
+    "3. Two practice areas, chosen from the highest priority_score skill_mastery items.",
+    "4. Patterns in Talk Time, Money Math, Spanish, and Family Words/Pronouns.",
+    "5. Top 2 home activities for next week, using next_practice_activity from the priority skills.",
+    "",
+    "Dashboard:",
+    `- Total rounds completed: ${dashboard.totalRounds || 0}`,
+    `- Completed days overall: ${dashboard.completedDays || 0}`,
+    `- Overall completion rate: ${dashboard.completionRate || "0%"}`,
+    `- Learning game attempts: ${dashboard.totalAttempts || 0}`,
+    `- Learning game correct: ${dashboard.correctAttempts || 0}`,
+    `- Learning game accuracy: ${dashboard.attemptAccuracy || "0%"}`,
+    "",
+    "Last 7 days:",
+    `- Days with activity: ${weeklyTrend.daysUsed || 0}`,
+    `- Complete days: ${weeklyTrend.completeDays || 0}`,
+    `- Rounds completed: ${weeklyTrend.rounds || 0}`,
+    `- Recent Talk Time answers: ${weeklyTrend.talkAnswers || 0}`,
+    `- Previous week rounds: ${comparison.previousRounds || 0}`,
+    `- Previous week game accuracy: ${comparison.previousAccuracy || "0%"}`,
+    "",
+    "Parent note:",
+    `- ${parentNote}`,
+    "",
+    "Today:",
+    today
+      ? `- ${today.date}: ${today.rounds} of ${totalRounds} rounds, ${today.status}, mood ${today.mood || "not picked"}, plan ${today.plan || "Daily Adventure"}`
+      : "- No synced data for today yet.",
+    "",
+    "Needs practice shown in the app:",
+    formatPromptList(needsPractice, (item) => `- ${item.title}: ${item.detail}`),
+    "",
+    "Skill Mastery Strengths:",
+    formatPromptList(masteryStrengths, (item) => `- ${item.skillArea}: ${item.questionText} | ${item.masteryStatus}, ${item.accuracy}, ${item.attempts} attempts`),
+    "",
+    "Skill Mastery Practice Priorities:",
+    formatPromptList(practiceNext, (item) => `- ${item.skillArea}: ${item.questionText} | ${item.masteryStatus}, ${item.accuracy}, priority ${item.priorityScore} | Parent activity: ${item.nextPracticeActivity}`),
+    "",
+    "Recent daily detail:",
+    formatPromptList(recentDaily, (day) => `- ${day.date}: ${day.rounds} of ${totalRounds} rounds, ${day.status}, ${day.completion} complete`),
+    "",
+    "Recent Talk Time:",
+    formatPromptList(recentTalk, (item) => `- ${item.date}: Prompt: ${item.prompt} | Answer: ${item.answer || "No typed answer"} | Type: ${item.responseType}`),
+    "",
+    "Learning game attempts:",
+    formatPromptList(learningAttempts, (item) => `- ${item.game}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`),
+    "",
+    "Skill trends this week:",
+    formatPromptList(skillTrends, (item) => `- ${item.skill}: ${item.correct} correct out of ${item.attempts}, accuracy ${item.accuracy}`),
+    "",
+    "Frequently missed questions:",
+    formatPromptList(missedQuestions, (item) => `- ${item.skill}: ${item.prompt} | Misses: ${item.misses}`)
+  ].join("\n");
 }
 
-function shareParentReportWhatsApp() {
+function formatPromptList(items, formatter) {
+  if (!items.length) return "- No data yet.";
+  return items.map(formatter).join("\n");
+}
+
+async function copyWeeklyPrompt() {
+  return copyWeeklyPromptText("Weekly AI prompt copied. Paste it into your ChatGPT project.");
+}
+
+async function copyWeeklyPromptText(successMessage) {
   if (!latestParentViewData) {
-    if (parentViewStatus) parentViewStatus.textContent = "Load the parent report before sharing.";
-    return;
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Load parent view first, then copy the weekly AI prompt.";
+    }
+    return false;
   }
-  window.open(`https://wa.me/?text=${encodeURIComponent(buildParentReportShareText(latestParentViewData))}`, "_blank", "noopener,noreferrer");
+
+  const prompt = buildWeeklyAiPrompt(latestParentViewData);
+  const preview = document.querySelector("#weeklyPromptPreview");
+  if (preview) {
+    preview.value = prompt;
+  }
+
+  try {
+    await copyTextToClipboard(prompt);
+    if (parentViewStatus) {
+      parentViewStatus.textContent = successMessage;
+    }
+    return true;
+  } catch {
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Prompt is ready below. Select it and copy it manually.";
+    }
+    return false;
+  }
 }
 
-function shareParentReportEmail() {
-  if (!latestParentViewData) {
-    if (parentViewStatus) parentViewStatus.textContent = "Load the parent report before sharing.";
-    return;
+async function copyQuestionGeneratorPrompt() {
+  try {
+    const response = await fetch(`question-generator-prompt.txt?v=${Date.now()}`);
+    if (!response.ok) throw new Error("Prompt file not found");
+    const prompt = await response.text();
+    const preview = document.querySelector("#questionGeneratorPromptPreview");
+    if (preview) {
+      preview.value = prompt;
+    }
+    await copyTextToClipboard(prompt);
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Question generator prompt copied. Paste it into ChatGPT or Gemini.";
+    }
+    return true;
+  } catch {
+    if (parentViewStatus) {
+      parentViewStatus.textContent = "Could not load the question generator prompt. Open question-generator-prompt.txt from GitHub.";
+    }
+    return false;
   }
-  const subject = "Zamaan's Daily Adventure - Parent Report";
-  const body = buildParentReportShareText(latestParentViewData);
-  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function copyPromptForAiAssistant(target) {
+  copyWeeklyPromptText(
+    "Weekly AI prompt copied. Trying to open the ChatGPT app."
+  );
 }
 
 function escapeHtml(value) {
@@ -2411,9 +2446,14 @@ function renderMiniGames() {
   const moneyMathQuestions = todayMoneyMath;
   const businessPractice = todayBusinessPractice;
   const pronounPractice = todayPronounPractice;
+  const conversationCoach = getConversationCoachPrompt();
+  const extraProgress = getExtraProgress();
+  const currentExtraStep = getCurrentExtraStep();
 
   miniGames.innerHTML = `
-    <article class="mini-game" data-mini-game="sort">
+    ${renderExtraPathHeader(extraProgress, currentExtraStep)}
+
+    <article class="${getExtraGameClass("sort", extraProgress, currentExtraStep)}" data-mini-game="sort" ${getExtraGameHidden("sort", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Sort</span>
         <strong>${todayPlan.mini.sort.title}</strong>
@@ -2427,7 +2467,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">${todayPlan.mini.sort.instruction}</p>
     </article>
 
-    <article class="mini-game" data-mini-game="pattern">
+    <article class="${getExtraGameClass("pattern", extraProgress, currentExtraStep)}" data-mini-game="pattern" ${getExtraGameHidden("pattern", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Pattern</span>
         <strong>${pattern.title}</strong>
@@ -2444,7 +2484,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Choose the next color.</p>
     </article>
 
-    <article class="mini-game" data-mini-game="money-math">
+    <article class="${getExtraGameClass("money-math", extraProgress, currentExtraStep)}" data-mini-game="money-math" ${getExtraGameHidden("money-math", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Money Math</span>
         <strong>3 quick questions</strong>
@@ -2465,7 +2505,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Answer all 3 money questions.</p>
     </article>
 
-    <article class="mini-game" data-mini-game="business">
+    <article class="${getExtraGameClass("business", extraProgress, currentExtraStep)}" data-mini-game="business" ${getExtraGameHidden("business", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Business</span>
         <strong>${businessPractice.title}</strong>
@@ -2479,7 +2519,7 @@ function renderMiniGames() {
       <p class="mini-feedback" aria-live="polite">Choose the best business action.</p>
     </article>
 
-    <article class="mini-game" data-mini-game="pronouns">
+    <article class="${getExtraGameClass("pronouns", extraProgress, currentExtraStep)}" data-mini-game="pronouns" ${getExtraGameHidden("pronouns", currentExtraStep)}>
       <div class="mini-game-header">
         <span>Family Words</span>
         <strong>${pronounPractice.title}</strong>
@@ -2492,9 +2532,140 @@ function renderMiniGames() {
       </div>
       <p class="mini-feedback" aria-live="polite">Choose the family word.</p>
     </article>
+
+    <article class="${getExtraGameClass("conversation-coach", extraProgress, currentExtraStep)} conversation-coach-card" data-mini-game="conversation-coach" ${getExtraGameHidden("conversation-coach", currentExtraStep)}>
+      <div class="mini-game-header">
+        <span>Conversation Coach</span>
+        <strong>${escapeHtml(conversationCoach.title)}</strong>
+      </div>
+      <div class="coach-chat" aria-label="Conversation Coach chat">
+        <div class="coach-message-row coach-message-row-bot">
+          <div class="coach-avatar">C</div>
+          <div class="coach-bubble coach-bubble-bot">
+            <span>Coach</span>
+            <p>${escapeHtml(conversationCoach.prompt)}</p>
+          </div>
+        </div>
+        <div class="coach-message-row coach-message-row-user coach-suggested-reply">
+          <div class="coach-bubble coach-bubble-user">
+            <span>Zamaan can say</span>
+            <p>${escapeHtml(conversationCoach.model)}</p>
+          </div>
+        </div>
+      </div>
+      <div class="coach-actions">
+        <button class="tile" data-coach-action="hear">Hear Coach</button>
+        <button class="tile" data-coach-action="reply">Send Reply</button>
+        <button class="tile" data-coach-action="help">Help Me</button>
+        <button class="tile" data-coach-action="next">New Chat</button>
+      </div>
+      <p class="mini-feedback" aria-live="polite">Tap Send Reply after saying the blue message.</p>
+    </article>
+
+    ${areExtraGamesComplete()
+      ? `<article class="mini-game extra-path-complete">
+          <div class="mini-game-header">
+            <span>Done</span>
+            <strong>Extra practice complete</strong>
+          </div>
+          <p>Nice focus. Now send Mom and Dad your final update.</p>
+        </article>`
+      : ""}
   `;
 
   attachMiniGameHandlers();
+}
+
+function getExtraProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(`dailyAdventureExtraProgress-${todayKey}`) || "[]");
+    return Array.isArray(saved) ? saved.filter((id) => extraGameOrder.some((game) => game.id === id)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveExtraProgress(progress) {
+  localStorage.setItem(`dailyAdventureExtraProgress-${todayKey}`, JSON.stringify(progress));
+}
+
+function areExtraGamesComplete() {
+  return getExtraProgress().length >= extraGameOrder.length;
+}
+
+function getCurrentExtraStep() {
+  const progress = getExtraProgress();
+  return extraGameOrder.find((game) => !progress.includes(game.id))?.id || "complete";
+}
+
+function getExtraGameClass(id, progress, currentStep) {
+  const classes = ["mini-game", "extra-path-step"];
+  if (progress.includes(id)) classes.push("done");
+  if (id === currentStep) classes.push("active");
+  return classes.join(" ");
+}
+
+function getExtraGameHidden(id, currentStep) {
+  return id === currentStep ? "" : "hidden";
+}
+
+function renderExtraPathHeader(progress, currentStep) {
+  const complete = currentStep === "complete";
+  const currentLabel = extraGameOrder.find((game) => game.id === currentStep)?.label || "All done";
+  return `
+    <div class="extra-path-header">
+      <div>
+        <span>Extra Path</span>
+        <strong>${complete ? "All extra practice complete" : `Next: ${escapeHtml(currentLabel)}`}</strong>
+      </div>
+      <p>${progress.length} of ${extraGameOrder.length} extra activities complete</p>
+      <div class="extra-path-steps">
+        ${extraGameOrder.map((game, index) => {
+          const done = progress.includes(game.id);
+          const active = game.id === currentStep;
+          return `
+            <span class="extra-path-chip ${done ? "done" : ""} ${active ? "active" : ""}">
+              ${index + 1}. ${escapeHtml(game.label)}
+            </span>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function completeExtraGame(id, message = "Nice work. The next extra activity is ready.") {
+  const progress = getExtraProgress();
+  if (!progress.includes(id)) {
+    progress.push(id);
+    saveExtraProgress(progress);
+  }
+
+  window.setTimeout(() => {
+    renderMiniGames();
+    updateProgress();
+    if (areExtraGamesComplete()) {
+      speak("All extra practice is complete. Now send Mom and Dad your update.", "sendUpdate");
+      if (completionPanel) completionPanel.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
+    } else {
+      speak(message, "keepGoing");
+    }
+  }, 650);
+}
+
+function getConversationCoachIndex() {
+  const index = Number(sessionStorage.getItem(`dailyAdventureCoachIndex-${todayKey}`) || "0");
+  return Number.isFinite(index) ? index : 0;
+}
+
+function setConversationCoachIndex(index) {
+  sessionStorage.setItem(`dailyAdventureCoachIndex-${todayKey}`, String(index));
+}
+
+function getConversationCoachPrompt() {
+  const offset = curriculumDay % conversationCoachDeck.length;
+  const index = (offset + getConversationCoachIndex()) % conversationCoachDeck.length;
+  return conversationCoachDeck[index];
 }
 
 function attachRoundHandlers() {
@@ -2763,6 +2934,9 @@ function attachMiniGameHandlers() {
           ? todayPlan.mini.sort.success
           : "Yes. Find one more.";
         speak(feedback.textContent, "correct");
+        if (sortPicks.size === todayPlan.mini.sort.correct.length) {
+          completeExtraGame("sort", "Sort is finished. The next extra activity is ready.");
+        }
       } else {
         tile.classList.add("wrong");
         feedback.textContent = getRetryFeedback("sort", "Think about what the question is asking you to group.", correctAnswer);
@@ -2786,6 +2960,9 @@ function attachMiniGameHandlers() {
         ? `Yes. ${capitalize(todayPlan.mini.pattern.answer)} comes next.`
         : getRetryFeedback("pattern", "Look at which colors repeat.", capitalize(todayPlan.mini.pattern.answer));
       speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
+      if (isCorrect) {
+        completeExtraGame("pattern", "Pattern is finished. The next extra activity is ready.");
+      }
     });
   });
 
@@ -2813,6 +2990,9 @@ function attachMiniGameHandlers() {
           : `Correct. ${currentQuestion.answer} is right.`
         : getRetryFeedback(`money-${questionIndex}`, "Count the dollars one step at a time.", currentQuestion.answer);
       speak(feedback.textContent, isCorrect ? "moneyMath" : "incorrect");
+      if (answeredCount === todayMoneyMath.length) {
+        completeExtraGame("money-math", "Money Math is finished. The next extra activity is ready.");
+      }
     });
   });
 
@@ -2830,6 +3010,9 @@ function attachMiniGameHandlers() {
         ? "Good business choice."
         : getRetryFeedback("business", "Think about the helpful action for a buyer or customer.", todayBusinessPractice.answer);
       speak(feedback.textContent, isCorrect ? "businessPractice" : "incorrect");
+      if (isCorrect) {
+        completeExtraGame("business", "Business practice is finished. The next extra activity is ready.");
+      }
     });
   });
 
@@ -2847,8 +3030,81 @@ function attachMiniGameHandlers() {
         ? "Good family word."
         : getRetryFeedback("family-words", "Think about who the person is to Zamaan.", todayPronounPractice.answer);
       speak(feedback.textContent, isCorrect ? "familyWords" : "incorrect");
+      if (isCorrect) {
+        completeExtraGame("pronouns", "Family Words is finished. The next extra activity is ready.");
+      }
     });
   });
+
+  document.querySelectorAll("[data-mini-game='conversation-coach'] [data-coach-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const game = button.closest(".mini-game");
+      const feedback = game.querySelector(".mini-feedback");
+      const chat = game.querySelector(".coach-chat");
+      const coachPrompt = getConversationCoachPrompt();
+      const action = button.dataset.coachAction;
+
+      if (action === "hear") {
+        feedback.textContent = "Listen to Coach, then say the blue reply.";
+        speak(feedback.textContent, coachPrompt.voiceKey || "conversationCoachStart");
+        return;
+      }
+
+      if (action === "help") {
+        feedback.textContent = "Try saying the blue message out loud.";
+        addCoachBotBubble(chat, `Try saying: ${coachPrompt.model}`);
+        speak(feedback.textContent, "conversationCoachSentence");
+        return;
+      }
+
+      if (action === "reply") {
+        feedback.textContent = "Nice reply. That sounded like a real conversation.";
+        addCoachUserBubble(chat, coachPrompt.model);
+        window.setTimeout(() => {
+          addCoachBotBubble(chat, "Nice sentence. Want another one?");
+        }, 250);
+        logLearningAttempt("Conversation Coach", coachPrompt.title, coachPrompt.prompt, "Practiced sentence", coachPrompt.model, true, {
+          card: coachPrompt.topic
+        });
+        speak(feedback.textContent, "conversationCoachNice");
+        completeExtraGame("conversation-coach", "Conversation Coach is finished.");
+        return;
+      }
+
+      setConversationCoachIndex(getConversationCoachIndex() + 1);
+      renderMiniGames();
+      speak("Okay. Let's try another one.", "conversationCoachNext");
+    });
+  });
+}
+
+function addCoachBotBubble(chat, text) {
+  if (!chat) return;
+  chat.insertAdjacentHTML("beforeend", `
+    <div class="coach-message-row coach-message-row-bot">
+      <div class="coach-avatar">C</div>
+      <div class="coach-bubble coach-bubble-bot">
+        <span>Coach</span>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </div>
+  `);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addCoachUserBubble(chat, text) {
+  if (!chat) return;
+  const suggestedReply = chat.querySelector(".coach-suggested-reply");
+  if (suggestedReply) suggestedReply.remove();
+  chat.insertAdjacentHTML("beforeend", `
+    <div class="coach-message-row coach-message-row-user">
+      <div class="coach-bubble coach-bubble-user">
+        <span>Zamaan</span>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </div>
+  `);
+  chat.scrollTop = chat.scrollHeight;
 }
 
 function capitalize(value) {
@@ -2993,6 +3249,9 @@ if (saveSettings) {
       reduceMotion: Boolean(reduceMotionInput?.checked),
       replayAudio: replayAudioInput ? replayAudioInput.checked : true
     });
+    if (parentNoteInput) {
+      localStorage.setItem("dailyAdventureParentNote", parentNoteInput.value.trim());
+    }
     state.talkPrompt = promptInput?.value.trim() || defaultState.talkPrompt;
     state.message = messageInput?.value.trim() || defaultState.message;
     saveAppPin(pinInput?.value.replace(/\D/g, "").slice(0, 8) || "1234");
@@ -3047,26 +3306,24 @@ if (loadParentView) {
 
 if (parentViewResults) {
   parentViewResults.addEventListener("click", (event) => {
-    if (event.target?.id === "saveParentReportPdf") openParentReportPdf();
-    if (event.target?.id === "shareParentReportWhatsApp") shareParentReportWhatsApp();
-    if (event.target?.id === "shareParentReportEmail") shareParentReportEmail();
+    if (event.target?.id === "copyWeeklyPrompt") {
+      copyWeeklyPrompt();
+    }
+    if (event.target?.id === "copyQuestionGeneratorPrompt") {
+      copyQuestionGeneratorPrompt();
+    }
+    const aiLink = event.target?.closest?.("[data-ai-target]");
+    if (aiLink) {
+      if (!latestParentViewData) {
+        event.preventDefault();
+        if (parentViewStatus) {
+          parentViewStatus.textContent = "Load parent view first, then open ChatGPT.";
+        }
+        return;
+      }
+      copyPromptForAiAssistant(aiLink.dataset.aiTarget);
+    }
   });
-}
-
-if (saveWeeklyAdventure) {
-  saveWeeklyAdventure.addEventListener("click", saveWeeklyAdventureSettings);
-}
-
-if (sendWeeklyAdventureTestButton) {
-  sendWeeklyAdventureTestButton.addEventListener("click", sendWeeklyAdventureTestFromAdmin);
-}
-
-if (refreshWeeklyAdventure) {
-  refreshWeeklyAdventure.addEventListener("click", loadWeeklyAdventureStatus);
-}
-
-if (disableWeeklyAdventure) {
-  disableWeeklyAdventure.addEventListener("click", disableWeeklyAdventureEmails);
 }
 
 if (lockApp) {
@@ -3104,6 +3361,8 @@ if (resetProgress) {
   memoryPicks = [];
   sequenceStep = 1;
   sortPicks.clear();
+  localStorage.removeItem(`dailyAdventureExtraProgress-${todayKey}`);
+  sessionStorage.removeItem(`dailyAdventureCoachIndex-${todayKey}`);
   delete history.days[todayKey];
   delete activityLogs[todayKey];
   save();
@@ -3133,9 +3392,6 @@ const syncSetupApplied = applyIncomingSyncSetup();
 applyAccessibilitySettings();
 setupFamilyCodeReveal();
 updateGreeting();
-if (weeklyAdventureMessage) {
-  loadWeeklyAdventureStatus();
-}
 if (hasDailyPage) {
   renderDailyRounds();
   renderMiniGames();
