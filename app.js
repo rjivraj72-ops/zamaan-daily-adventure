@@ -2915,17 +2915,44 @@ if (todayLabel) {
   }).format(new Date())} · Day ${activeDayNumber} of ${activeCycleLength}`;
 }
 
+const checkInSummary = document.querySelector("#checkInSummary");
+const checkInSummaryText = document.querySelector("#checkInSummaryText");
+const checkInPicker = document.querySelector("#checkInPicker");
+const changeMoodButton = document.querySelector("#changeMoodButton");
+let isEditingMood = false;
+
+function renderCheckIn() {
+  if (!checkInSummary || !checkInPicker) return;
+  const showSummary = Boolean(state.mood) && !isEditingMood;
+  checkInSummary.hidden = !showSummary;
+  checkInPicker.hidden = showSummary;
+  if (showSummary && checkInSummaryText) {
+    checkInSummaryText.textContent = `Feeling: ${state.mood}`;
+  }
+}
+
 document.querySelectorAll(".mood-button").forEach((button) => {
   button.classList.toggle("selected", button.dataset.mood === state.mood);
   button.addEventListener("click", () => {
     state.mood = button.dataset.mood;
     document.querySelectorAll(".mood-button").forEach((item) => item.classList.remove("selected"));
     button.classList.add("selected");
+    isEditingMood = false;
     save();
     updateHistory();
     speak(`You chose ${state.mood}.`, `mood${state.mood}`);
+    renderCheckIn();
   });
 });
+
+if (changeMoodButton) {
+  changeMoodButton.addEventListener("click", () => {
+    isEditingMood = true;
+    renderCheckIn();
+  });
+}
+
+renderCheckIn();
 
 document.querySelectorAll("[data-pin-key]").forEach((button) => {
   button.addEventListener("click", () => {

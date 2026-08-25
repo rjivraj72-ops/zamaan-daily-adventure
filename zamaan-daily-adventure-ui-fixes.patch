@@ -1,0 +1,224 @@
+diff --git a/app.js b/app.js
+index 2c0fd6a..cb8b2fd 100644
+--- a/app.js
++++ b/app.js
+@@ -2915,18 +2915,45 @@ if (todayLabel) {
+   }).format(new Date())} · Day ${activeDayNumber} of ${activeCycleLength}`;
+ }
+ 
++const checkInSummary = document.querySelector("#checkInSummary");
++const checkInSummaryText = document.querySelector("#checkInSummaryText");
++const checkInPicker = document.querySelector("#checkInPicker");
++const changeMoodButton = document.querySelector("#changeMoodButton");
++let isEditingMood = false;
++
++function renderCheckIn() {
++  if (!checkInSummary || !checkInPicker) return;
++  const showSummary = Boolean(state.mood) && !isEditingMood;
++  checkInSummary.hidden = !showSummary;
++  checkInPicker.hidden = showSummary;
++  if (showSummary && checkInSummaryText) {
++    checkInSummaryText.textContent = `Feeling: ${state.mood}`;
++  }
++}
++
+ document.querySelectorAll(".mood-button").forEach((button) => {
+   button.classList.toggle("selected", button.dataset.mood === state.mood);
+   button.addEventListener("click", () => {
+     state.mood = button.dataset.mood;
+     document.querySelectorAll(".mood-button").forEach((item) => item.classList.remove("selected"));
+     button.classList.add("selected");
++    isEditingMood = false;
+     save();
+     updateHistory();
+     speak(`You chose ${state.mood}.`, `mood${state.mood}`);
++    renderCheckIn();
+   });
+ });
+ 
++if (changeMoodButton) {
++  changeMoodButton.addEventListener("click", () => {
++    isEditingMood = true;
++    renderCheckIn();
++  });
++}
++
++renderCheckIn();
++
+ document.querySelectorAll("[data-pin-key]").forEach((button) => {
+   button.addEventListener("click", () => {
+     if (enteredPin.length >= 8) return;
+diff --git a/index.html b/index.html
+index 4402d8c..9b6e659 100644
+--- a/index.html
++++ b/index.html
+@@ -93,15 +93,21 @@
+       </section>
+ 
+       <section class="check-in" aria-labelledby="checkin-title">
+-        <div>
+-          <h2 id="checkin-title">How are you feeling?</h2>
+-          <p>Pick one. This helps choose a good pace for today.</p>
++        <div class="check-in-summary" id="checkInSummary" hidden>
++          <span id="checkInSummaryText">Feeling: Calm</span>
++          <button type="button" class="secondary-button compact-button" id="changeMoodButton">Change</button>
+         </div>
+-        <div class="mood-grid" role="list">
+-          <button class="mood-button" data-mood="Happy">Happy</button>
+-          <button class="mood-button" data-mood="Calm">Calm</button>
+-          <button class="mood-button" data-mood="Tired">Tired</button>
+-          <button class="mood-button" data-mood="Unsure">Unsure</button>
++        <div class="check-in-picker" id="checkInPicker">
++          <div>
++            <h2 id="checkin-title">How are you feeling?</h2>
++            <p>Pick one. This helps choose a good pace for today.</p>
++          </div>
++          <div class="mood-grid" role="list">
++            <button class="mood-button" data-mood="Happy">Happy</button>
++            <button class="mood-button" data-mood="Calm">Calm</button>
++            <button class="mood-button" data-mood="Tired">Tired</button>
++            <button class="mood-button" data-mood="Unsure">Unsure</button>
++          </div>
+         </div>
+       </section>
+ 
+diff --git a/polish.css b/polish.css
+index ada847a..472ccbd 100644
+--- a/polish.css
++++ b/polish.css
+@@ -984,7 +984,7 @@ audio[data-voice-prompt],
+ @media (max-width: 860px) {
+   .hero,
+   .today-path,
+-  .check-in,
++  .check-in-picker,
+   .reward {
+     grid-template-columns: 1fr;
+   }
+diff --git a/styles.css b/styles.css
+index d9c0aa9..afc0b6f 100644
+--- a/styles.css
++++ b/styles.css
+@@ -429,13 +429,34 @@ body.locked .app-shell {
+ }
+ 
+ .check-in {
++  margin-top: 18px;
++  padding: 22px;
++  box-shadow: var(--shadow-soft);
++}
++
++.check-in-picker {
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
+   gap: 22px;
+   align-items: center;
+-  margin-top: 18px;
+-  padding: 22px;
+-  box-shadow: var(--shadow-soft);
++}
++
++.check-in-summary {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 12px;
++}
++
++.check-in-summary span {
++  font-weight: 800;
++  font-size: 1.05rem;
++  white-space: nowrap;
++}
++
++.check-in-summary .compact-button {
++  flex-shrink: 0;
++  width: auto;
+ }
+ 
+ .mood-grid,
+@@ -483,25 +504,72 @@ body.locked .app-shell {
+ }
+ 
+ .mood-button.selected,
+-.choice.correct,
+ .game-card.selected,
+-.game-card.matched,
+ .sequence-choice.selected,
+-.tile.selected,
++.tile.selected {
++  border-color: var(--accent);
++  background: linear-gradient(180deg, #fff, var(--accent-soft));
++}
++
++.choice.correct,
++.game-card.matched,
+ .tile.correct {
++  position: relative;
+   border-color: var(--accent);
+   background: linear-gradient(180deg, #fff, var(--accent-soft));
+ }
+ 
++.choice.correct::after,
++.game-card.matched::after,
++.tile.correct::after {
++  content: "✓";
++  position: absolute;
++  top: 50%;
++  right: 12px;
++  display: grid;
++  width: 22px;
++  height: 22px;
++  place-items: center;
++  transform: translateY(-50%);
++  border-radius: 50%;
++  background: var(--accent);
++  color: #fff;
++  font-size: 0.8rem;
++  font-weight: 900;
++  line-height: 1;
++}
++
+ .choice.wrong,
+ .game-card.wrong,
+ .sequence-choice.wrong,
+ .tile.wrong {
++  position: relative;
+   border-color: var(--wrong);
+   background: #fff3f1;
+   color: var(--wrong);
+ }
+ 
++.choice.wrong::after,
++.game-card.wrong::after,
++.sequence-choice.wrong::after,
++.tile.wrong::after {
++  content: "✗";
++  position: absolute;
++  top: 50%;
++  right: 12px;
++  display: grid;
++  width: 22px;
++  height: 22px;
++  place-items: center;
++  transform: translateY(-50%);
++  border-radius: 50%;
++  background: var(--wrong);
++  color: #fff;
++  font-size: 0.8rem;
++  font-weight: 900;
++  line-height: 1;
++}
++
+ .activity-layout {
+   display: grid;
+   grid-template-columns: minmax(0, 1fr);
+@@ -1718,7 +1786,7 @@ button:focus-visible {
+ 
+   .hero,
+   .today-path,
+-  .check-in,
++  .check-in-picker,
+   .activity-layout,
+   .mini-games,
+   .reward {

@@ -93,15 +93,21 @@
       </section>
 
       <section class="check-in" aria-labelledby="checkin-title">
-        <div>
-          <h2 id="checkin-title">How are you feeling?</h2>
-          <p>Pick one. This helps choose a good pace for today.</p>
+        <div class="check-in-summary" id="checkInSummary" hidden>
+          <span id="checkInSummaryText">Feeling: Calm</span>
+          <button type="button" class="secondary-button compact-button" id="changeMoodButton">Change</button>
         </div>
-        <div class="mood-grid" role="list">
-          <button class="mood-button" data-mood="Happy">Happy</button>
-          <button class="mood-button" data-mood="Calm">Calm</button>
-          <button class="mood-button" data-mood="Tired">Tired</button>
-          <button class="mood-button" data-mood="Unsure">Unsure</button>
+        <div class="check-in-picker" id="checkInPicker">
+          <div>
+            <h2 id="checkin-title">How are you feeling?</h2>
+            <p>Pick one. This helps choose a good pace for today.</p>
+          </div>
+          <div class="mood-grid" role="list">
+            <button class="mood-button" data-mood="Happy">Happy</button>
+            <button class="mood-button" data-mood="Calm">Calm</button>
+            <button class="mood-button" data-mood="Tired">Tired</button>
+            <button class="mood-button" data-mood="Unsure">Unsure</button>
+          </div>
         </div>
       </section>
 

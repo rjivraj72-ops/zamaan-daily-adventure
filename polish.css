@@ -984,7 +984,7 @@ audio[data-voice-prompt],
 @media (max-width: 860px) {
   .hero,
   .today-path,
-  .check-in,
+  .check-in-picker,
   .reward {
     grid-template-columns: 1fr;
   }

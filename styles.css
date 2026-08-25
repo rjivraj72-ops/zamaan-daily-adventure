@@ -429,13 +429,34 @@ body.locked .app-shell {
 }
 
 .check-in {
+  margin-top: 18px;
+  padding: 22px;
+  box-shadow: var(--shadow-soft);
+}
+
+.check-in-picker {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
   gap: 22px;
   align-items: center;
-  margin-top: 18px;
-  padding: 22px;
-  box-shadow: var(--shadow-soft);
+}
+
+.check-in-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.check-in-summary span {
+  font-weight: 800;
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+.check-in-summary .compact-button {
+  flex-shrink: 0;
+  width: auto;
 }
 
 .mood-grid,
@@ -483,23 +504,70 @@ body.locked .app-shell {
 }
 
 .mood-button.selected,
-.choice.correct,
 .game-card.selected,
-.game-card.matched,
 .sequence-choice.selected,
-.tile.selected,
-.tile.correct {
+.tile.selected {
   border-color: var(--accent);
   background: linear-gradient(180deg, #fff, var(--accent-soft));
+}
+
+.choice.correct,
+.game-card.matched,
+.tile.correct {
+  position: relative;
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #fff, var(--accent-soft));
+}
+
+.choice.correct::after,
+.game-card.matched::after,
+.tile.correct::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .choice.wrong,
 .game-card.wrong,
 .sequence-choice.wrong,
 .tile.wrong {
+  position: relative;
   border-color: var(--wrong);
   background: #fff3f1;
   color: var(--wrong);
+}
+
+.choice.wrong::after,
+.game-card.wrong::after,
+.sequence-choice.wrong::after,
+.tile.wrong::after {
+  content: "✗";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--wrong);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .activity-layout {
@@ -1718,7 +1786,7 @@ button:focus-visible {
 
   .hero,
   .today-path,
-  .check-in,
+  .check-in-picker,
   .activity-layout,
   .mini-games,
   .reward {
