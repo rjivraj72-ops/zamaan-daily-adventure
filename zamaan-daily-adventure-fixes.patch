@@ -1,0 +1,223 @@
+diff --git a/README.md b/README.md
+index 7193c8b..0531cf6 100644
+--- a/README.md
++++ b/README.md
+@@ -14,8 +14,8 @@ The PIN is meant as a simple privacy and routine screen. It is not bank-grade se
+ 
+ 1. Create a private Google Sheet.
+ 2. Open Extensions > Apps Script.
+-3. Paste the contents of `google-apps-script.js`.
+-4. Change `CHANGE_THIS_TO_A_PRIVATE_CODE` to a private family code.
++3. Create two script files in the project and paste in the contents of `google-apps-script.js` and `WeeklyAdventure.gs`. Both are required — they call functions defined in each other, so the project will throw errors if only one is added.
++4. Change `CHANGE_THIS_TO_A_PRIVATE_CODE` to a private family code (in `google-apps-script.js`).
+ 5. Deploy as a web app.
+ 6. Copy the web app URL into Caregiver settings in Daily Adventure.
+ 7. Enter the same family code in Caregiver settings.
+@@ -45,7 +45,7 @@ The Apps Script also creates and refreshes these analysis tabs:
+ - `Learning Attempts`
+ - `skill_mastery`
+ 
+-If you update `google-apps-script.js` after the first setup, paste the new script into Apps Script and redeploy the web app. After redeploying, open the Web App URL once in your browser to refresh the dashboard from existing rows.
++If you update `google-apps-script.js` after the first setup, paste the new script into Apps Script and redeploy the web app. After redeploying, open `YOUR_WEB_APP_URL?familyCode=YOUR_FAMILY_CODE` once in your browser to refresh the dashboard from existing rows. (The family code is required so the refresh link can't be triggered by anyone who finds the bare Web App URL.)
+ 
+ ## iPhone Sync Setup
+ 
+diff --git a/admin.html b/admin.html
+index 48659d5..71278c3 100644
+--- a/admin.html
++++ b/admin.html
+@@ -12,6 +12,7 @@
+     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+     <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+     <link rel="stylesheet" href="styles.css?v=20260727-stable-refresh">
++    <link rel="stylesheet" href="polish.css?v=20260727-stable-refresh" data-ui-polish="production">
+   </head>
+   <body class="caregiver-page admin-page">
+     <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">
+diff --git a/app.js b/app.js
+index b82199d..2c0fd6a 100644
+--- a/app.js
++++ b/app.js
+@@ -172,11 +172,23 @@ function loadExternalQuestionBank() {
+       return JSON.parse(request.responseText);
+     }
+   } catch (error) {
++    console.error("Daily Adventure: could not load question-bank.json.", error);
+     return null;
+   }
+   return null;
+ }
+ 
++function safeParseJSON(rawValue, fallback) {
++  if (rawValue === null || rawValue === undefined) return fallback;
++  try {
++    const parsed = JSON.parse(rawValue);
++    return parsed === null || parsed === undefined ? fallback : parsed;
++  } catch (error) {
++    console.error("Daily Adventure: could not read saved data, using default instead.", error);
++    return fallback;
++  }
++}
++
+ function getLocalDateKey(date = new Date()) {
+   const year = date.getFullYear();
+   const month = String(date.getMonth() + 1).padStart(2, "0");
+@@ -297,18 +309,12 @@ const defaultHistory = {
+   days: {}
+ };
+ 
+-const saved = JSON.parse(localStorage.getItem("dailyAdventure") || "null");
++const saved = safeParseJSON(localStorage.getItem("dailyAdventure"), null);
+ const state = saved && saved.date === todayKey
+   ? { ...defaultState, ...saved, rounds: { ...defaultState.rounds, ...(saved.rounds || {}) } }
+   : defaultState;
+-if (state.name === "Alex") {
+-  state.name = "Zamaan";
+-}
+-if (state.message === "Nice work. You stayed with it.") {
+-  state.message = defaultState.message;
+-}
+-const history = { ...defaultHistory, ...(JSON.parse(localStorage.getItem("dailyAdventureHistory") || "null") || {}) };
+-const activityLogs = JSON.parse(localStorage.getItem("dailyAdventureLogs") || "{}");
++const history = { ...defaultHistory, ...safeParseJSON(localStorage.getItem("dailyAdventureHistory"), {}) };
++const activityLogs = safeParseJSON(localStorage.getItem("dailyAdventureLogs"), {});
+ 
+ const curriculum = [
+   {
+@@ -1084,6 +1090,7 @@ function getAccessibilitySettings() {
+     const saved = JSON.parse(localStorage.getItem("dailyAdventureAccessibility") || "{}");
+     return { ...accessibilityDefaults, ...saved };
+   } catch (error) {
++    console.error("Daily Adventure: could not read accessibility settings, using defaults.", error);
+     return { ...accessibilityDefaults };
+   }
+ }
+@@ -1270,7 +1277,8 @@ function applyIncomingSyncSetup() {
+     if (!saveDecodedSetup(setup)) return false;
+     window.history.replaceState(null, "", window.location.pathname + window.location.search);
+     return true;
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not apply incoming sync setup link.", error);
+     return false;
+   }
+ }
+@@ -1289,7 +1297,8 @@ async function copySetupCode() {
+     if (syncStatus) {
+       syncStatus.textContent = "Setup code copied. Open the Home Screen app, paste it here, then tap Import setup code.";
+     }
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not copy setup code to clipboard.", error);
+     if (syncStatus) {
+       syncStatus.textContent = "Setup code is ready. Select it and copy it manually.";
+     }
+@@ -1311,7 +1320,8 @@ function importSetupCode() {
+     if (syncStatus) {
+       syncStatus.textContent = "Sync settings restored on this Home Screen app.";
+     }
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not import setup code.", error);
+     if (syncStatus) {
+       syncStatus.textContent = "That setup code did not work. Copy a fresh setup code from Safari.";
+     }
+@@ -1381,7 +1391,8 @@ async function loadParentViewData() {
+     if (parentViewStatus) {
+       parentViewStatus.textContent = `Loaded ${formatShortDateTime(data.updatedAt)}.`;
+     }
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not load parent view.", error);
+     if (parentViewStatus) {
+       parentViewStatus.textContent = "Could not load parent view. Check the Web App URL, family code, and Apps Script deployment.";
+     }
+@@ -1455,7 +1466,8 @@ async function shareOrCopySetupLink(preferShare = false) {
+     if (syncStatus) {
+       syncStatus.textContent = "Setup link copied. Paste it into iMessage, email, or Notes.";
+     }
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not share or copy the setup link.", error);
+     if (syncStatus) {
+       syncStatus.textContent = "Could not copy automatically. Try Copy setup link again.";
+     }
+@@ -2286,7 +2298,8 @@ async function copyWeeklyPromptText(successMessage) {
+       parentViewStatus.textContent = successMessage;
+     }
+     return true;
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not copy the weekly AI prompt.", error);
+     if (parentViewStatus) {
+       parentViewStatus.textContent = "Prompt is ready below. Select it and copy it manually.";
+     }
+@@ -2308,7 +2321,8 @@ async function copyQuestionGeneratorPrompt() {
+       parentViewStatus.textContent = "Question generator prompt copied. Paste it into ChatGPT or Gemini.";
+     }
+     return true;
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not load the question generator prompt.", error);
+     if (parentViewStatus) {
+       parentViewStatus.textContent = "Could not load the question generator prompt. Open question-generator-prompt.txt from GitHub.";
+     }
+@@ -2614,7 +2628,8 @@ function getExtraProgress() {
+   try {
+     const saved = JSON.parse(localStorage.getItem(`dailyAdventureExtraProgress-${todayKey}`) || "[]");
+     return Array.isArray(saved) ? saved.filter((id) => extraGameOrder.some((game) => game.id === id)) : [];
+-  } catch {
++  } catch (error) {
++    console.error("Daily Adventure: could not read extra game progress.", error);
+     return [];
+   }
+ }
+@@ -3211,7 +3226,8 @@ if (shareCompletionUpdate) {
+   shareCompletionUpdate.addEventListener("click", async () => {
+     try {
+       await shareCompletionMessage();
+-    } catch {
++    } catch (error) {
++      console.error("Daily Adventure: could not share the completion update.", error);
+       if (celebration) {
+         celebration.textContent = "Could not share just now. Try WhatsApp again.";
+       }
+diff --git a/caregiver.html b/caregiver.html
+index 449c22e..7c5a466 100644
+--- a/caregiver.html
++++ b/caregiver.html
+@@ -12,6 +12,7 @@
+     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+     <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+     <link rel="stylesheet" href="styles.css?v=20260727-stable-refresh">
++    <link rel="stylesheet" href="polish.css?v=20260727-stable-refresh" data-ui-polish="production">
+   </head>
+   <body class="caregiver-page">
+     <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">
+diff --git a/google-apps-script.js b/google-apps-script.js
+index 636350a..395d8bc 100644
+--- a/google-apps-script.js
++++ b/google-apps-script.js
+@@ -63,6 +63,10 @@ function doGet(e) {
+     return createJsonResponse_(handleWeeklyAdventureAdminAction_(params));
+   }
+ 
++  if (params.familyCode !== FAMILY_CODE) {
++    return ContentService.createTextOutput("Not allowed. Add ?familyCode=YOUR_FAMILY_CODE to the URL.");
++  }
++
+   refreshAnalysisSheets_();
+   return ContentService.createTextOutput("Daily Adventure dashboard refreshed.");
+ }
+diff --git a/index.html b/index.html
+index 3516b58..4402d8c 100644
+--- a/index.html
++++ b/index.html
+@@ -12,6 +12,7 @@
+     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+     <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+     <link rel="stylesheet" href="styles.css?v=20260727-stable-refresh">
++    <link rel="stylesheet" href="polish.css?v=20260727-stable-refresh" data-ui-polish="production">
+   </head>
+   <body class="daily-page">
+     <section class="pin-gate" id="pinGate" aria-labelledby="pin-title">

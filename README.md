@@ -14,8 +14,8 @@ The PIN is meant as a simple privacy and routine screen. It is not bank-grade se
 
 1. Create a private Google Sheet.
 2. Open Extensions > Apps Script.
-3. Paste the contents of `google-apps-script.js`.
-4. Change `CHANGE_THIS_TO_A_PRIVATE_CODE` to a private family code.
+3. Create two script files in the project and paste in the contents of `google-apps-script.js` and `WeeklyAdventure.gs`. Both are required — they call functions defined in each other, so the project will throw errors if only one is added.
+4. Change `CHANGE_THIS_TO_A_PRIVATE_CODE` to a private family code (in `google-apps-script.js`).
 5. Deploy as a web app.
 6. Copy the web app URL into Caregiver settings in Daily Adventure.
 7. Enter the same family code in Caregiver settings.
@@ -45,7 +45,7 @@ The Apps Script also creates and refreshes these analysis tabs:
 - `Learning Attempts`
 - `skill_mastery`
 
-If you update `google-apps-script.js` after the first setup, paste the new script into Apps Script and redeploy the web app. After redeploying, open the Web App URL once in your browser to refresh the dashboard from existing rows.
+If you update `google-apps-script.js` after the first setup, paste the new script into Apps Script and redeploy the web app. After redeploying, open `YOUR_WEB_APP_URL?familyCode=YOUR_FAMILY_CODE` once in your browser to refresh the dashboard from existing rows. (The family code is required so the refresh link can't be triggered by anyone who finds the bare Web App URL.)
 
 ## iPhone Sync Setup
 

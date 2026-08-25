@@ -172,9 +172,21 @@ function loadExternalQuestionBank() {
       return JSON.parse(request.responseText);
     }
   } catch (error) {
+    console.error("Daily Adventure: could not load question-bank.json.", error);
     return null;
   }
   return null;
+}
+
+function safeParseJSON(rawValue, fallback) {
+  if (rawValue === null || rawValue === undefined) return fallback;
+  try {
+    const parsed = JSON.parse(rawValue);
+    return parsed === null || parsed === undefined ? fallback : parsed;
+  } catch (error) {
+    console.error("Daily Adventure: could not read saved data, using default instead.", error);
+    return fallback;
+  }
 }
 
 function getLocalDateKey(date = new Date()) {
@@ -297,18 +309,12 @@ const defaultHistory = {
   days: {}
 };
 
-const saved = JSON.parse(localStorage.getItem("dailyAdventure") || "null");
+const saved = safeParseJSON(localStorage.getItem("dailyAdventure"), null);
 const state = saved && saved.date === todayKey
   ? { ...defaultState, ...saved, rounds: { ...defaultState.rounds, ...(saved.rounds || {}) } }
   : defaultState;
-if (state.name === "Alex") {
-  state.name = "Zamaan";
-}
-if (state.message === "Nice work. You stayed with it.") {
-  state.message = defaultState.message;
-}
-const history = { ...defaultHistory, ...(JSON.parse(localStorage.getItem("dailyAdventureHistory") || "null") || {}) };
-const activityLogs = JSON.parse(localStorage.getItem("dailyAdventureLogs") || "{}");
+const history = { ...defaultHistory, ...safeParseJSON(localStorage.getItem("dailyAdventureHistory"), {}) };
+const activityLogs = safeParseJSON(localStorage.getItem("dailyAdventureLogs"), {});
 
 const curriculum = [
   {
@@ -1084,6 +1090,7 @@ function getAccessibilitySettings() {
     const saved = JSON.parse(localStorage.getItem("dailyAdventureAccessibility") || "{}");
     return { ...accessibilityDefaults, ...saved };
   } catch (error) {
+    console.error("Daily Adventure: could not read accessibility settings, using defaults.", error);
     return { ...accessibilityDefaults };
   }
 }
@@ -1270,7 +1277,8 @@ function applyIncomingSyncSetup() {
     if (!saveDecodedSetup(setup)) return false;
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
     return true;
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not apply incoming sync setup link.", error);
     return false;
   }
 }
@@ -1289,7 +1297,8 @@ async function copySetupCode() {
     if (syncStatus) {
       syncStatus.textContent = "Setup code copied. Open the Home Screen app, paste it here, then tap Import setup code.";
     }
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not copy setup code to clipboard.", error);
     if (syncStatus) {
       syncStatus.textContent = "Setup code is ready. Select it and copy it manually.";
     }
@@ -1311,7 +1320,8 @@ function importSetupCode() {
     if (syncStatus) {
       syncStatus.textContent = "Sync settings restored on this Home Screen app.";
     }
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not import setup code.", error);
     if (syncStatus) {
       syncStatus.textContent = "That setup code did not work. Copy a fresh setup code from Safari.";
     }
@@ -1381,7 +1391,8 @@ async function loadParentViewData() {
     if (parentViewStatus) {
       parentViewStatus.textContent = `Loaded ${formatShortDateTime(data.updatedAt)}.`;
     }
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not load parent view.", error);
     if (parentViewStatus) {
       parentViewStatus.textContent = "Could not load parent view. Check the Web App URL, family code, and Apps Script deployment.";
     }
@@ -1455,7 +1466,8 @@ async function shareOrCopySetupLink(preferShare = false) {
     if (syncStatus) {
       syncStatus.textContent = "Setup link copied. Paste it into iMessage, email, or Notes.";
     }
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not share or copy the setup link.", error);
     if (syncStatus) {
       syncStatus.textContent = "Could not copy automatically. Try Copy setup link again.";
     }
@@ -2286,7 +2298,8 @@ async function copyWeeklyPromptText(successMessage) {
       parentViewStatus.textContent = successMessage;
     }
     return true;
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not copy the weekly AI prompt.", error);
     if (parentViewStatus) {
       parentViewStatus.textContent = "Prompt is ready below. Select it and copy it manually.";
     }
@@ -2308,7 +2321,8 @@ async function copyQuestionGeneratorPrompt() {
       parentViewStatus.textContent = "Question generator prompt copied. Paste it into ChatGPT or Gemini.";
     }
     return true;
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not load the question generator prompt.", error);
     if (parentViewStatus) {
       parentViewStatus.textContent = "Could not load the question generator prompt. Open question-generator-prompt.txt from GitHub.";
     }
@@ -2614,7 +2628,8 @@ function getExtraProgress() {
   try {
     const saved = JSON.parse(localStorage.getItem(`dailyAdventureExtraProgress-${todayKey}`) || "[]");
     return Array.isArray(saved) ? saved.filter((id) => extraGameOrder.some((game) => game.id === id)) : [];
-  } catch {
+  } catch (error) {
+    console.error("Daily Adventure: could not read extra game progress.", error);
     return [];
   }
 }
@@ -3211,7 +3226,8 @@ if (shareCompletionUpdate) {
   shareCompletionUpdate.addEventListener("click", async () => {
     try {
       await shareCompletionMessage();
-    } catch {
+    } catch (error) {
+      console.error("Daily Adventure: could not share the completion update.", error);
       if (celebration) {
         celebration.textContent = "Could not share just now. Try WhatsApp again.";
       }

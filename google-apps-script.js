@@ -63,6 +63,10 @@ function doGet(e) {
     return createJsonResponse_(handleWeeklyAdventureAdminAction_(params));
   }
 
+  if (params.familyCode !== FAMILY_CODE) {
+    return ContentService.createTextOutput("Not allowed. Add ?familyCode=YOUR_FAMILY_CODE to the URL.");
+  }
+
   refreshAnalysisSheets_();
   return ContentService.createTextOutput("Daily Adventure dashboard refreshed.");
 }
