@@ -63,3 +63,35 @@ This folder is ready to publish with GitHub Pages. Put these files at the root o
 - `app.js`
 
 Then enable GitHub Pages from the repository's `main` branch.
+
+## Automatic Question Rotation
+
+`question-bank.json` can regenerate itself on a schedule instead of being updated by hand. A GitHub Actions workflow (`.github/workflows/rotate-questions.yml`) calls the Anthropic API with the existing `question-generator-prompt.txt`, validates the result, and **opens a Pull Request** with the new `question-bank.json` — it never publishes directly. Nothing reaches Zamaan until you review the PR and merge it.
+
+### Setup (one-time)
+
+1. Get an API key from [console.anthropic.com](https://console.anthropic.com).
+2. In the GitHub repository, go to **Settings > Secrets and variables > Actions > New repository secret**.
+3. Name it `ANTHROPIC_API_KEY` and paste in the key. GitHub encrypts it — nobody, including you, can view it again after saving, only reference it in workflows.
+4. That's it. The workflow is already in the repo and will start running on its schedule.
+
+### How it runs
+
+- **On a schedule:** the 1st and 15th of every month (roughly every two weeks), automatically.
+- **On demand:** open the repo's **Actions** tab, select **Rotate question bank** in the sidebar, click **Run workflow**. Useful if you want a fresh set sooner (for example, before a special theme or if Zamaan has mastered the current set early).
+
+### Reviewing a generated set
+
+When the workflow runs, it opens a Pull Request titled "New question set ready for review." Open it, click the **Files changed** tab, and skim the `question-bank.json` diff — check the names, places, and wording look right. Two outcomes:
+
+- **Looks good:** click **Merge pull request**. The new set goes live the next time the app loads `question-bank.json`.
+- **Something's off:** either edit directly in the PR before merging, or close the PR without merging — the app keeps using the current `question-bank.json` and nothing changes for Zamaan.
+
+### If a run fails
+
+If the API call fails or the model returns something that doesn't match the expected structure, the workflow fails loudly and **no PR is opened** — GitHub emails the repository owner automatically when a scheduled workflow fails. Check the failed run's log under the **Actions** tab for the specific reason (invalid JSON, a missing field, an API error, etc.). The current `question-bank.json` is never touched by a failed run.
+
+### Cost
+
+Each run is a single API call (roughly 4,000–8,000 tokens). At current Anthropic pricing this is a small fraction of a cent to a few cents per run — negligible for a run every two weeks.
+

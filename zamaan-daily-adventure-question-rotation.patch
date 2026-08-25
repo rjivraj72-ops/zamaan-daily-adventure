@@ -1,0 +1,321 @@
+diff --git a/.github/scripts/generate-questions.mjs b/.github/scripts/generate-questions.mjs
+new file mode 100644
+index 0000000..4a01307
+--- /dev/null
++++ b/.github/scripts/generate-questions.mjs
+@@ -0,0 +1,176 @@
++// Generates a new question-bank.json for Zamaan's Daily Adventure using the
++// Anthropic API, then validates the result before writing it to disk.
++//
++// This script never publishes anything by itself — the GitHub Actions
++// workflow that calls it (.github/workflows/rotate-questions.yml) opens a
++// Pull Request with whatever this script writes, so a parent always reviews
++// before it reaches the app.
++//
++// Requires the ANTHROPIC_API_KEY environment variable (set as a GitHub
++// Actions secret — see README.md for setup steps).
++
++import { readFile, writeFile } from "node:fs/promises";
++
++// Update this if Anthropic ships a newer model you'd rather use.
++// See https://docs.claude.com for current model names.
++const MODEL = "claude-sonnet-5";
++const MAX_TOKENS = 8000;
++const PROMPT_PATH = new URL("../../question-generator-prompt.txt", import.meta.url);
++const OUTPUT_PATH = new URL("../../question-bank.json", import.meta.url);
++
++function todayIso() {
++  return new Date().toISOString().slice(0, 10);
++}
++
++async function callAnthropic(prompt) {
++  const apiKey = process.env.ANTHROPIC_API_KEY;
++  if (!apiKey) {
++    throw new Error(
++      "ANTHROPIC_API_KEY is not set. Add it as a repository secret " +
++      "(Settings > Secrets and variables > Actions) — see README.md."
++    );
++  }
++
++  const response = await fetch(process.env.ANTHROPIC_API_URL || "https://api.anthropic.com/v1/messages", {
++    method: "POST",
++    headers: {
++      "content-type": "application/json",
++      "x-api-key": apiKey,
++      "anthropic-version": "2023-06-01"
++    },
++    body: JSON.stringify({
++      model: MODEL,
++      max_tokens: MAX_TOKENS,
++      messages: [{ role: "user", content: prompt }]
++    })
++  });
++
++  if (!response.ok) {
++    const body = await response.text().catch(() => "");
++    throw new Error(`Anthropic API request failed: ${response.status} ${response.statusText}\n${body}`);
++  }
++
++  const data = await response.json();
++  const textBlock = (data.content || []).find((block) => block.type === "text");
++  if (!textBlock || !textBlock.text) {
++    throw new Error("Anthropic API response did not include a text block.");
++  }
++  return textBlock.text;
++}
++
++function extractJson(rawText) {
++  // The prompt asks for raw JSON, but strip markdown fences defensively in
++  // case the model wraps it anyway.
++  const trimmed = rawText.trim();
++  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
++  const jsonText = fenced ? fenced[1] : trimmed;
++
++  try {
++    return JSON.parse(jsonText);
++  } catch (error) {
++    throw new Error(`Model response was not valid JSON: ${error.message}\n---\n${rawText.slice(0, 2000)}`);
++  }
++}
++
++// Mirrors the exact conditions app.js's applyExternalQuestionBank() checks
++// before it will use a curriculum day. Anything that fails this would be
++// silently dropped by the app with no warning to anyone — so it's better to
++// fail loudly here and never open a PR with it.
++function isValidCurriculumDay(day) {
++  return Boolean(
++    day &&
++    typeof day.name === "string" && day.name.trim() &&
++    Array.isArray(day.brain) && day.brain.length > 0 &&
++    Array.isArray(day.life) && day.life.length > 0 &&
++    Array.isArray(day.talk) && day.talk.length > 0 &&
++    day.mini && typeof day.mini === "object"
++  );
++}
++
++function isValidDeckQuestion(question) {
++  return Boolean(
++    question &&
++    typeof question.title === "string" && question.title.trim() &&
++    typeof question.prompt === "string" && question.prompt.trim() &&
++    typeof question.answer === "string" && question.answer.trim() &&
++    Array.isArray(question.choices) && question.choices.length >= 2
++  );
++}
++
++function validate(data) {
++  const errors = [];
++
++  if (!data || typeof data !== "object") {
++    errors.push("Top-level response is not a JSON object.");
++    return errors;
++  }
++
++  if (!Array.isArray(data.curriculum) || data.curriculum.length === 0) {
++    errors.push("Missing or empty \"curriculum\" array.");
++  } else {
++    data.curriculum.forEach((day, index) => {
++      if (!isValidCurriculumDay(day)) {
++        errors.push(`curriculum[${index}] is missing a required field (name/brain/life/talk/mini).`);
++      }
++    });
++  }
++
++  for (const key of ["businessPracticeDecks", "pronounPracticeDecks"]) {
++    if (data[key] !== undefined) {
++      if (!Array.isArray(data[key])) {
++        errors.push(`"${key}" is present but is not an array.`);
++      } else {
++        data[key].forEach((question, index) => {
++          if (!isValidDeckQuestion(question)) {
++            errors.push(`${key}[${index}] is missing a required field (title/prompt/answer/choices).`);
++          }
++        });
++      }
++    }
++  }
++
++  for (const key of ["languageDecks", "moneyMathDecks"]) {
++    if (data[key] !== undefined && !Array.isArray(data[key])) {
++      errors.push(`"${key}" is present but is not an array.`);
++    }
++  }
++
++  // Loose sanity check: catch the model echoing the schema's own
++  // placeholder text back instead of generating real content.
++  const flatText = JSON.stringify(data);
++  if (flatText.includes('"palabra"') && flatText.includes('"Card 1"')) {
++    errors.push("Response looks like the unfilled schema template, not generated content.");
++  }
++
++  return errors;
++}
++
++async function main() {
++  const promptTemplate = await readFile(PROMPT_PATH, "utf8");
++  const prompt = `${promptTemplate}\n\nToday's date is ${todayIso()}. Use this exact date as the "version" value.`;
++
++  console.log(`Requesting a new question set from ${MODEL}...`);
++  const rawText = await callAnthropic(prompt);
++  const data = extractJson(rawText);
++
++  const errors = validate(data);
++  if (errors.length > 0) {
++    console.error("Generated question set failed validation:");
++    errors.forEach((error) => console.error(`  - ${error}`));
++    process.exit(1);
++  }
++
++  // Keep the version field accurate regardless of what the model returned.
++  data.version = todayIso();
++
++  const formatted = `${JSON.stringify(data, null, 2)}\n`;
++  await writeFile(OUTPUT_PATH, formatted, "utf8");
++
++  const dayCount = data.curriculum.length;
++  console.log(`Wrote question-bank.json: ${dayCount} curriculum day${dayCount === 1 ? "" : "s"}.`);
++}
++
++main().catch((error) => {
++  console.error(error.message || error);
++  process.exit(1);
++});
+diff --git a/.github/workflows/rotate-questions.yml b/.github/workflows/rotate-questions.yml
+new file mode 100644
+index 0000000..c1b85cf
+--- /dev/null
++++ b/.github/workflows/rotate-questions.yml
+@@ -0,0 +1,56 @@
++name: Rotate question bank
++
++# Runs on the 1st and 15th of every month (roughly every two weeks) and can
++# also be triggered manually from the Actions tab any time you want a fresh
++# set sooner. Either way, it never publishes directly — it opens a Pull
++# Request with the new question-bank.json for review, and nothing reaches
++# Zamaan until that PR is merged.
++on:
++  schedule:
++    - cron: '0 13 1,15 * *'
++  workflow_dispatch: {}
++
++permissions:
++  contents: write
++  pull-requests: write
++
++jobs:
++  generate-questions:
++    runs-on: ubuntu-latest
++    steps:
++      - name: Check out repo
++        uses: actions/checkout@v4
++
++      - name: Set up Node.js
++        uses: actions/setup-node@v4
++        with:
++          node-version: '20'
++
++      - name: Generate new question set
++        env:
++          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
++        run: node .github/scripts/generate-questions.mjs
++
++      - name: Open Pull Request for review
++        uses: peter-evans/create-pull-request@v7
++        with:
++          token: ${{ secrets.GITHUB_TOKEN }}
++          commit-message: "Rotate question bank: new practice set"
++          branch: rotate-questions/${{ github.run_number }}
++          title: "New question set ready for review"
++          body: |
++            A new practice set was generated automatically for Zamaan's Daily Adventure.
++
++            **Before merging:** open the `question-bank.json` diff in this PR and skim
++            through it — check the names, places, and wording look right, and that
++            nothing seems off. Edit directly in this PR if something needs a tweak.
++
++            **If it doesn't look good:** just close this PR without merging. The app
++            keeps using the current question-bank.json until a PR like this is merged,
++            so closing it is completely safe — nothing changes for Zamaan.
++
++            This PR was opened automatically by the `rotate-questions` workflow
++            (`.github/workflows/rotate-questions.yml`), using the Anthropic API and the
++            prompt in `question-generator-prompt.txt`.
++          labels: |
++            question-rotation
+diff --git a/README.md b/README.md
+index 0531cf6..745fbb2 100644
+--- a/README.md
++++ b/README.md
+@@ -63,3 +63,35 @@ This folder is ready to publish with GitHub Pages. Put these files at the root o
+ - `app.js`
+ 
+ Then enable GitHub Pages from the repository's `main` branch.
++
++## Automatic Question Rotation
++
++`question-bank.json` can regenerate itself on a schedule instead of being updated by hand. A GitHub Actions workflow (`.github/workflows/rotate-questions.yml`) calls the Anthropic API with the existing `question-generator-prompt.txt`, validates the result, and **opens a Pull Request** with the new `question-bank.json` — it never publishes directly. Nothing reaches Zamaan until you review the PR and merge it.
++
++### Setup (one-time)
++
++1. Get an API key from [console.anthropic.com](https://console.anthropic.com).
++2. In the GitHub repository, go to **Settings > Secrets and variables > Actions > New repository secret**.
++3. Name it `ANTHROPIC_API_KEY` and paste in the key. GitHub encrypts it — nobody, including you, can view it again after saving, only reference it in workflows.
++4. That's it. The workflow is already in the repo and will start running on its schedule.
++
++### How it runs
++
++- **On a schedule:** the 1st and 15th of every month (roughly every two weeks), automatically.
++- **On demand:** open the repo's **Actions** tab, select **Rotate question bank** in the sidebar, click **Run workflow**. Useful if you want a fresh set sooner (for example, before a special theme or if Zamaan has mastered the current set early).
++
++### Reviewing a generated set
++
++When the workflow runs, it opens a Pull Request titled "New question set ready for review." Open it, click the **Files changed** tab, and skim the `question-bank.json` diff — check the names, places, and wording look right. Two outcomes:
++
++- **Looks good:** click **Merge pull request**. The new set goes live the next time the app loads `question-bank.json`.
++- **Something's off:** either edit directly in the PR before merging, or close the PR without merging — the app keeps using the current `question-bank.json` and nothing changes for Zamaan.
++
++### If a run fails
++
++If the API call fails or the model returns something that doesn't match the expected structure, the workflow fails loudly and **no PR is opened** — GitHub emails the repository owner automatically when a scheduled workflow fails. Check the failed run's log under the **Actions** tab for the specific reason (invalid JSON, a missing field, an API error, etc.). The current `question-bank.json` is never touched by a failed run.
++
++### Cost
++
++Each run is a single API call (roughly 4,000–8,000 tokens). At current Anthropic pricing this is a small fraction of a cent to a few cents per run — negligible for a run every two weeks.
++
+diff --git a/admin.html b/admin.html
+index 71278c3..b25bb10 100644
+--- a/admin.html
++++ b/admin.html
+@@ -176,10 +176,10 @@
+           <div class="ai-prompt-panel" id="questionGeneratorPanel">
+             <div>
+               <h3 id="question-generator-title">Create New Questions</h3>
+-              <p>Use this when you want ChatGPT to create the next set of questions. The app automatically rotates through the question file that is already uploaded.</p>
++              <p>For an on-demand set right now: use this prompt with ChatGPT (or the same prompt on Claude.ai) and paste the result into question-bank.json yourself. Automatic rotation (below) handles the every-two-weeks refresh on its own.</p>
+             </div>
+             <div class="question-cycle-reminder">
+-              <strong>Parent reminder:</strong> Start a fresh question set every 2 weeks, or sooner if Zamaan is mastering the current set.
++              <strong>New sets now arrive automatically</strong> — a GitHub Pull Request opens roughly every two weeks for you to review and merge. See "Automatic Question Rotation" in the repo's README for setup. Use the manual option below anytime you want a fresh set right away instead of waiting.
+             </div>
+             <div class="ai-actions">
+               <button id="copyQuestionGeneratorPromptStatic" class="secondary-button" type="button">Copy ChatGPT prompt</button>
+@@ -194,12 +194,18 @@
+         </section>
+ 
+         <div class="caregiver-actions">
+-          <button id="saveSettings">Save changes</button>
+           <a class="button-link secondary-button" href="caregiver.html">Back to Parent Dashboard</a>
+           <button id="lockApp" class="secondary-button">Lock admin</button>
+           <button id="resetProgress" class="secondary-button danger-lite">Reset today's local progress</button>
+         </div>
+       </section>
++
++      <div class="sticky-save-bar">
++        <div class="sticky-save-bar-inner">
++          <p class="save-confirmation" id="saveConfirmation" aria-live="polite" hidden>Settings saved.</p>
++          <button id="saveSettings">Save changes</button>
++        </div>
++      </div>
+     </main>
+ 
+     <p id="reportSummary" hidden></p>

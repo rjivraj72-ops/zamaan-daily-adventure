@@ -1,0 +1,58 @@
+name: Rotate question bank
+
+# Runs on the 1st and 15th of every month (roughly every two weeks) and can
+# also be triggered manually from the Actions tab any time you want a fresh
+# set sooner. Either way, it never publishes directly — it opens a Pull
+# Request with the new question-bank.json for review, and nothing reaches
+# Zamaan until that PR is merged.
+on:
+  schedule:
+    - cron: '0 13 1,15 * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-questions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate new question set
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node .github/scripts/generate-questions.mjs
+
+      - name: Open Pull Request for review
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Rotate question bank: new practice set"
+          branch: rotate-questions/${{ github.run_number }}
+          title: "New question set ready for review"
+          body: |
+            A new practice set was generated automatically for Zamaan's Daily Adventure.
+
+            **Before merging:** open the `question-bank.json` diff in this PR and skim
+            through it — check the names, places, and wording look right, and that
+            nothing seems off. Edit directly in this PR if something needs a tweak.
+
+            **If it doesn't look good:** just close this PR without merging. The app
+            keeps using the current question-bank.json until a PR like this is merged,
+            so closing it is completely safe — nothing changes for Zamaan.
+
+            This PR was opened automatically by the `rotate-questions` workflow
+            (`.github/workflows/rotate-questions.yml`), using the Anthropic API and the
+            prompt in `question-generator-prompt.txt`.
+          labels: |
+            question-rotation
+          reviewers: rjivraj72-ops
+          assignees: rjivraj72-ops
