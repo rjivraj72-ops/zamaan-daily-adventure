@@ -194,12 +194,18 @@
         </section>
 
         <div class="caregiver-actions">
-          <button id="saveSettings">Save changes</button>
           <a class="button-link secondary-button" href="caregiver.html">Back to Parent Dashboard</a>
           <button id="lockApp" class="secondary-button">Lock admin</button>
           <button id="resetProgress" class="secondary-button danger-lite">Reset today's local progress</button>
         </div>
       </section>
+
+      <div class="sticky-save-bar">
+        <div class="sticky-save-bar-inner">
+          <p class="save-confirmation" id="saveConfirmation" aria-live="polite" hidden>Settings saved.</p>
+          <button id="saveSettings">Save changes</button>
+        </div>
+      </div>
     </main>
 
     <p id="reportSummary" hidden></p>

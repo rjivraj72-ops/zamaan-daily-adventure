@@ -1339,6 +1339,44 @@ button:focus-visible {
   gap: 10px;
 }
 
+.sticky-save-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 7;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 -8px 24px rgba(16, 47, 41, 0.1);
+}
+
+.sticky-save-bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 12px 0;
+}
+
+.sticky-save-bar-inner #saveSettings {
+  width: auto;
+  min-width: 160px;
+  margin-top: 0;
+}
+
+.save-confirmation {
+  margin: 0;
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+body.admin-page .app-shell {
+  padding-bottom: 96px;
+}
+
 .caregiver-actions button {
   margin-top: 0;
 }

@@ -3310,6 +3310,18 @@ if (caregiverToggle && caregiverPanel) {
 }
 
 const saveSettings = document.querySelector("#saveSettings");
+const saveConfirmation = document.querySelector("#saveConfirmation");
+let saveConfirmationTimeout = null;
+
+function showSaveConfirmation() {
+  if (!saveConfirmation) return;
+  window.clearTimeout(saveConfirmationTimeout);
+  saveConfirmation.hidden = false;
+  saveConfirmationTimeout = window.setTimeout(() => {
+    saveConfirmation.hidden = true;
+  }, 4000);
+}
+
 if (saveSettings) {
   saveSettings.addEventListener("click", () => {
     state.name = nameInput?.value.trim() || "Zamaan";
@@ -3348,6 +3360,7 @@ if (saveSettings) {
     if (parentViewStatus) {
       parentViewStatus.textContent = "Settings saved.";
     }
+    showSaveConfirmation();
     speak("Settings saved.", "settingsSaved");
     renderCaregiverReport();
   });
