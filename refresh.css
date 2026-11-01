@@ -904,3 +904,16 @@ body.a11y-reduce-motion .complete-button:active {
 .caregiver-hero::after {
   display: none;
 }
+
+body.a11y-high-contrast .resume-button,
+body.a11y-high-contrast .notice-banner button {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+  box-shadow: none;
+}
+
+body.a11y-high-contrast .notice-banner {
+  background: #000;
+  outline: 2px solid #fff;
+}

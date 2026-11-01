@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20261101-refresh";
+  polishLink.href = "polish.css?v=20261101-passport";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -3733,7 +3733,7 @@ if (quickSettingsButton && quickSettingsPanel) {
 }
 
 // ---------- Notices: new questions, new app version ----------
-const APP_VERSION = "2026-11-01";
+const APP_VERSION = "2026-11-01b";
 
 function showNotice(id, message, actionLabel, onAction) {
   if (document.getElementById(id)) return;
