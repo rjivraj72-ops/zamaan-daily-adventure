@@ -11,7 +11,8 @@ import { validate } from "./validate-question-bank.mjs";
 
 // Valid API model IDs: claude-sonnet-5-5, claude-opus-5-5, claude-haiku-5-5.
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5";
-const MAX_TOKENS = 12000;
+// A full set is ~13-15k tokens, so leave generous headroom (kept below the size where the API wants streaming).
+const MAX_TOKENS = 20000;
 const PROMPT_PATH = new URL("../question-generator-prompt.txt", import.meta.url);
 const BANK_PATH = new URL("../question-bank.json", import.meta.url);
 const API_URL = process.env.ANTHROPIC_API_URL || "https://api.anthropic.com/v1/messages";
@@ -73,7 +74,8 @@ Extra rules the app enforces (a set that breaks them is rejected):
 - Spanish words use plain letters only (no accents), for example "manana", "adios".
 - In "pattern", the sequence uses the colors blue, red, green or gold, OR short words; "answer" is lowercase and continues the repeating pattern.
 - Include at least 6 languageDecks, 6 moneyMathDecks, 8 businessPracticeDecks and 8 pronounPracticeDecks.
-- Money math must be correct arithmetic with whole dollars.`;
+- Money math must be correct arithmetic with whole dollars.
+- Return MINIFIED JSON: one line, no indentation, no line breaks or extra spaces between items. The script pretty-prints it afterwards. Keep wording short and simple.`;
 
 async function main() {
   const template = await readFile(PROMPT_PATH, "utf8");
