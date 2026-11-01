@@ -1055,6 +1055,21 @@ select {
   background: var(--accent);
 }
 
+.pattern-dot.gold {
+  background: var(--gold);
+  color: #49350b;
+}
+
+.pattern-dot.word {
+  width: auto;
+  min-width: 46px;
+  padding: 0 14px;
+  border: 2px solid rgba(8, 120, 101, 0.25);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
 .pattern-dot.mystery {
   border: 2px dashed var(--accent);
   background: #fff;
@@ -1071,6 +1086,10 @@ select {
 
 .color-choice[data-pattern="green"] {
   border-color: var(--accent);
+}
+
+.color-choice[data-pattern="gold"] {
+  border-color: var(--gold);
 }
 
 .mini-feedback {
@@ -1358,7 +1377,7 @@ button:focus-visible {
   gap: 10px 16px;
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 12px 0;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 .sticky-save-bar-inner #saveSettings {

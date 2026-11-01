@@ -1,585 +1,1738 @@
 {
-  "version": "2026-07-12",
-  "notes": "Generated Zamaan-focused practice set with travel, Spanish, exercise, family words, money math, and Granola Kid sales and marketing themes.",
+  "version": "2026-10-31",
+  "notes": "Fresh Zamaan-focused set (Nov 2026 cycle): new travel days, Spanish travel/food/family words, correct-by-construction money math, Granola Kid sales and marketing, and family-word practice. All answers are shuffled by the app, so position in this file does not matter.",
   "curriculum": [
     {
-      "name": "Travel and Family Day",
+      "name": "Paris and Family Day",
       "brain": [
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Paris", "pair": "pair-a" },
-            { "text": "Keyaan", "pair": "pair-b" },
-            { "text": "France", "pair": "pair-a" },
-            { "text": "Brother", "pair": "pair-b" }
+            {
+              "text": "Paris",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Mom",
+              "pair": "pair-b"
+            },
+            {
+              "text": "My mother",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Eiffel Tower",
+              "pair": "pair-a"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Mom", "pair": "pair-a" },
-            { "text": "Barcelona", "pair": "pair-b" },
-            { "text": "Her son", "pair": "pair-a" },
-            { "text": "Spain", "pair": "pair-b" }
+            {
+              "text": "Dad",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Monaco",
+              "pair": "pair-a"
+            },
+            {
+              "text": "A tiny country",
+              "pair": "pair-a"
+            },
+            {
+              "text": "My father",
+              "pair": "pair-b"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Granola Kid", "pair": "pair-a" },
-            { "text": "Sorrento", "pair": "pair-b" },
-            { "text": "Brand story", "pair": "pair-a" },
-            { "text": "Italy", "pair": "pair-b" }
+            {
+              "text": "Granola Kid",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Flyer",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Sells granola",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Shows our brand",
+              "pair": "pair-b"
+            }
           ]
         }
       ],
       "life": [
         {
-          "title": "Pack for a walk",
+          "title": "Pack a day bag",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Put on shoes", "Fill water bottle", "Go for a walk"]
+          "steps": [
+            "Open your bag",
+            "Put in your water bottle",
+            "Zip the bag"
+          ]
         },
         {
-          "title": "Call a buyer back",
+          "title": "Greet a buyer",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Read the message", "Write a short reply", "Send the follow-up"]
+          "steps": [
+            "Smile and say hello",
+            "Share your name",
+            "Ask how you can help"
+          ]
         },
         {
-          "title": "Talk about a trip",
+          "title": "Cool down",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Pick a place", "Say who went", "Share one memory"]
+          "steps": [
+            "Slow your walk",
+            "Drink water",
+            "Stretch your legs"
+          ]
         }
       ],
       "talk": [
-        "Tell me one thing you remember about Paris.",
-        "Who is Keyaan to you? Answer in a full sentence.",
-        "What can you say to a buyer who asks about Granola Kid?"
+        "What is one thing you would like to see in Paris?",
+        "Who is Mom to you? Answer in a full sentence.",
+        "How would you say hello to a new buyer?"
       ],
       "mini": {
         "sort": {
-          "title": "Travel places",
+          "title": "Paris things",
           "prompt": "Tap the correct group.",
-          "instruction": "Find 2 places in Spain.",
-          "correct": ["Barcelona", "Granada"],
-          "wrong": ["Venice", "Monaco"],
-          "success": "You found the Spain choices."
+          "instruction": "Find 2 things in Paris.",
+          "correct": [
+            "Eiffel Tower",
+            "Seine River"
+          ],
+          "wrong": [
+            "Alhambra",
+            "Gondola"
+          ],
+          "success": "You found the Paris things."
         },
         "pattern": {
           "title": "What comes next?",
-          "sequence": ["green", "gold", "green", "gold"],
-          "answer": "green",
-          "choices": ["Green", "Gold", "Blue"]
+          "sequence": [
+            "blue",
+            "red",
+            "blue",
+            "red"
+          ],
+          "answer": "blue",
+          "choices": [
+            "Blue",
+            "Red",
+            "Green"
+          ]
         },
         "money": {
           "title": "Granola sale",
-          "prompt": "A granola bag is $4. A customer buys 1 bag. How much?",
-          "answer": "$4",
-          "choices": ["$3", "$4", "$5"]
+          "prompt": "A granola bag is $6. A customer buys 2 bags. How much?",
+          "answer": "$12",
+          "choices": [
+            "$12",
+            "$8",
+            "$18"
+          ]
         }
       }
     },
     {
-      "name": "Business and Exercise Day",
+      "name": "Venice and Sorrento Day",
       "brain": [
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Exercise", "pair": "pair-a" },
-            { "text": "Buyer", "pair": "pair-b" },
-            { "text": "Movement", "pair": "pair-a" },
-            { "text": "Follow-up", "pair": "pair-b" }
+            {
+              "text": "Venice",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Sorrento",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Lemons",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Canals",
+              "pair": "pair-a"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Co-packer", "pair": "pair-a" },
-            { "text": "Granola Kid", "pair": "pair-b" },
-            { "text": "Makes granola", "pair": "pair-a" },
-            { "text": "Sells the brand", "pair": "pair-b" }
+            {
+              "text": "Keyaan",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Brother",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Marcus",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Cousin",
+              "pair": "pair-b"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Harold", "pair": "pair-a" },
-            { "text": "Aaron", "pair": "pair-b" },
-            { "text": "Friend", "pair": "pair-a" },
-            { "text": "Friend", "pair": "pair-b" }
+            {
+              "text": "Sample",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Follow-up",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Says thank you",
+              "pair": "pair-a"
+            },
+            {
+              "text": "A small taste",
+              "pair": "pair-b"
+            }
           ]
         }
       ],
       "life": [
         {
-          "title": "Exercise routine",
+          "title": "Pack a snack",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Stretch gently", "Move your body", "Drink water"]
+          "steps": [
+            "Choose a snack",
+            "Put it in a bag",
+            "Add a napkin"
+          ]
         },
         {
-          "title": "Buyer follow-up",
+          "title": "Thank a buyer",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Say hello", "Answer clearly", "Say thank you"]
+          "steps": [
+            "Look at the buyer",
+            "Say thank you",
+            "Smile and wave"
+          ]
         },
         {
-          "title": "Customer care",
+          "title": "Plan a city walk",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Listen to the question", "Give a clear answer", "Ask if they need anything else"]
+          "steps": [
+            "Check the weather",
+            "Put on comfy shoes",
+            "Walk with a friend"
+          ]
         }
       ],
       "talk": [
-        "What exercise do you like today?",
-        "What does a co-packer do for Granola Kid?",
-        "How can you be kind to a customer?"
-      ],
-      "mini": {
-        "sort": {
-          "title": "Business helpers",
-          "prompt": "Tap the correct group.",
-          "instruction": "Find 2 good buyer care choices.",
-          "correct": ["Answer clearly", "Say thank you"],
-          "wrong": ["Ignore the message", "Walk away"],
-          "success": "You found the buyer care choices."
-        },
-        "pattern": {
-          "title": "What comes next?",
-          "sequence": ["walk", "rest", "walk", "rest"],
-          "answer": "walk",
-          "choices": ["Walk", "Rest", "Sleep"]
-        },
-        "money": {
-          "title": "Two bags",
-          "prompt": "One bag is $4. Two bags cost how much?",
-          "answer": "$8",
-          "choices": ["$6", "$8", "$10"]
-        }
-      }
-    },
-    {
-      "name": "Spanish and Pronouns Day",
-      "brain": [
-        {
-          "title": "Find the pair",
-          "prompt": "Tap two cards that go together.",
-          "cards": [
-            { "text": "Agua", "pair": "pair-a" },
-            { "text": "Gracias", "pair": "pair-b" },
-            { "text": "Water", "pair": "pair-a" },
-            { "text": "Thank you", "pair": "pair-b" }
-          ]
-        },
-        {
-          "title": "Find the pair",
-          "prompt": "Tap two cards that go together.",
-          "cards": [
-            { "text": "Marcus", "pair": "pair-a" },
-            { "text": "Jasmine", "pair": "pair-b" },
-            { "text": "Cousin", "pair": "pair-a" },
-            { "text": "Cousin", "pair": "pair-b" }
-          ]
-        },
-        {
-          "title": "Find the pair",
-          "prompt": "Tap two cards that go together.",
-          "cards": [
-            { "text": "Dad", "pair": "pair-a" },
-            { "text": "Grandmother", "pair": "pair-b" },
-            { "text": "My father", "pair": "pair-a" },
-            { "text": "My family", "pair": "pair-b" }
-          ]
-        }
-      ],
-      "life": [
-        {
-          "title": "Practice Spanish card",
-          "prompt": "Tap the steps in the right order.",
-          "steps": ["Read the English word", "Say the Spanish word", "Pick the answer"]
-        },
-        {
-          "title": "Use family words",
-          "prompt": "Tap the steps in the right order.",
-          "steps": ["Look at the person", "Think about the relationship", "Say the right family word"]
-        },
-        {
-          "title": "Share a full sentence",
-          "prompt": "Tap the steps in the right order.",
-          "steps": ["Start with I", "Add what happened", "Say where it happened"]
-        }
-      ],
-      "talk": [
+        "What do you remember about Venice?",
         "Who is Marcus to you?",
-        "Who is Jasmine to you?",
-        "Say one Spanish word you know."
+        "What can you tell a buyer about our granola?"
       ],
       "mini": {
         "sort": {
-          "title": "Family words",
+          "title": "Places in Italy",
           "prompt": "Tap the correct group.",
-          "instruction": "Find 2 cousins.",
-          "correct": ["Marcus", "Jasmine"],
-          "wrong": ["Dad", "Harold"],
-          "success": "You found the cousins."
+          "instruction": "Find 2 places in Italy.",
+          "correct": [
+            "Venice",
+            "Sorrento"
+          ],
+          "wrong": [
+            "Lisbon",
+            "Granada"
+          ],
+          "success": "You found the Italy places."
         },
         "pattern": {
           "title": "What comes next?",
-          "sequence": ["hola", "adios", "hola", "adios"],
-          "answer": "hola",
-          "choices": ["Hola", "Adios", "Agua"]
+          "sequence": [
+            "gold",
+            "green",
+            "gold",
+            "green"
+          ],
+          "answer": "gold",
+          "choices": [
+            "Gold",
+            "Green",
+            "Red"
+          ]
         },
         "money": {
-          "title": "Customer change",
-          "prompt": "A snack is $3. The customer gives $5. What is the change?",
-          "answer": "$2",
-          "choices": ["$1", "$2", "$3"]
+          "title": "Lemon drinks",
+          "prompt": "A lemon drink is $3. You buy 3. How much?",
+          "answer": "$9",
+          "choices": [
+            "$6",
+            "$9",
+            "$12"
+          ]
         }
       }
     },
     {
-      "name": "Travel Memory Day",
+      "name": "Lisbon and Algarve Day",
       "brain": [
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Venice", "pair": "pair-a" },
-            { "text": "Lisbon", "pair": "pair-b" },
-            { "text": "Italy", "pair": "pair-a" },
-            { "text": "Portugal", "pair": "pair-b" }
+            {
+              "text": "Lisbon",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Algarve",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Portugal",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Beaches",
+              "pair": "pair-b"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Cordoba", "pair": "pair-a" },
-            { "text": "Granada", "pair": "pair-b" },
-            { "text": "Spain", "pair": "pair-a" },
-            { "text": "Spain", "pair": "pair-b" }
+            {
+              "text": "Aaron",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Jasmine",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Cousin",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Friend",
+              "pair": "pair-b"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Algarve", "pair": "pair-a" },
-            { "text": "Monaco", "pair": "pair-b" },
-            { "text": "Portugal", "pair": "pair-a" },
-            { "text": "Small country", "pair": "pair-b" }
+            {
+              "text": "Flyer",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Thank you note",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Shows we care",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Shares our name",
+              "pair": "pair-a"
+            }
           ]
         }
       ],
       "life": [
         {
-          "title": "Tell a travel story",
+          "title": "Get ready to move",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Name the place", "Say who was there", "Share one favorite part"]
+          "steps": [
+            "Put on sneakers",
+            "Fill your water bottle",
+            "Go outside"
+          ]
         },
         {
-          "title": "Ask for help while traveling",
+          "title": "Answer a question",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Say excuse me", "Ask the question", "Say thank you"]
+          "steps": [
+            "Listen to the question",
+            "Think for a moment",
+            "Answer clearly"
+          ]
         },
         {
-          "title": "Get ready for a day out",
+          "title": "Share a trip photo",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Check the plan", "Bring what you need", "Stay with family"]
+          "steps": [
+            "Pick a photo",
+            "Say where it is",
+            "Say who was there"
+          ]
         }
       ],
       "talk": [
-        "What did you like about Venice?",
-        "Tell me one memory from Lisbon.",
-        "Who did you travel with?"
+        "Tell me one thing you remember about Lisbon.",
+        "Who is Jasmine to you?",
+        "What can you say when a customer buys granola?"
       ],
       "mini": {
         "sort": {
-          "title": "Portugal places",
+          "title": "Places in Portugal",
           "prompt": "Tap the correct group.",
           "instruction": "Find 2 places in Portugal.",
-          "correct": ["Lisbon", "Algarve"],
-          "wrong": ["Paris", "Sorrento"],
-          "success": "You found the Portugal choices."
+          "correct": [
+            "Lisbon",
+            "Algarve"
+          ],
+          "wrong": [
+            "Paris",
+            "Cordoba"
+          ],
+          "success": "You found the Portugal places."
         },
         "pattern": {
           "title": "What comes next?",
-          "sequence": ["plane", "hotel", "plane", "hotel"],
-          "answer": "plane",
-          "choices": ["Plane", "Hotel", "Taxi"]
+          "sequence": [
+            "red",
+            "blue",
+            "red",
+            "blue"
+          ],
+          "answer": "red",
+          "choices": [
+            "Red",
+            "Blue",
+            "Gold"
+          ]
         },
         "money": {
-          "title": "Travel snack",
-          "prompt": "A water is $2 and a bar is $3. What is the total?",
-          "answer": "$5",
-          "choices": ["$4", "$5", "$6"]
+          "title": "Beach lunch",
+          "prompt": "Lunch is $9. You pay with $10. What is the change?",
+          "answer": "$1",
+          "choices": [
+            "$2",
+            "$3",
+            "$1"
+          ]
         }
       }
     },
     {
-      "name": "Granola Kid Day",
+      "name": "Spain Adventure Day",
       "brain": [
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Buyer", "pair": "pair-a" },
-            { "text": "Customer", "pair": "pair-b" },
-            { "text": "Store decision maker", "pair": "pair-a" },
-            { "text": "Enjoys the product", "pair": "pair-b" }
+            {
+              "text": "Barcelona",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Spain",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Sorrento",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Italy",
+              "pair": "pair-b"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Sales", "pair": "pair-a" },
-            { "text": "Marketing", "pair": "pair-b" },
-            { "text": "Follow up", "pair": "pair-a" },
-            { "text": "Tell the story", "pair": "pair-b" }
+            {
+              "text": "Mom",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Dad",
+              "pair": "pair-b"
+            },
+            {
+              "text": "He",
+              "pair": "pair-b"
+            },
+            {
+              "text": "She",
+              "pair": "pair-a"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Co-packer", "pair": "pair-a" },
-            { "text": "Granola Kid", "pair": "pair-b" },
-            { "text": "Makes the granola", "pair": "pair-a" },
-            { "text": "Builds the brand", "pair": "pair-b" }
+            {
+              "text": "Marketing",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Co-packer",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Makes granola",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Tells our story",
+              "pair": "pair-b"
+            }
           ]
         }
       ],
       "life": [
         {
-          "title": "Share the brand story",
+          "title": "Learn a Spanish word",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Say the brand name", "Say what we sell", "Say why it matters"]
+          "steps": [
+            "Read the word",
+            "Say it out loud",
+            "Use it in a sentence"
+          ]
         },
         {
-          "title": "Prepare for a buyer chat",
+          "title": "Make a thank you call",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Review the question", "Practice the answer", "Speak clearly"]
+          "steps": [
+            "Pick up the phone",
+            "Say who you are",
+            "Say thank you"
+          ]
         },
         {
-          "title": "Follow up after a meeting",
+          "title": "Stretch after a walk",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Say thank you", "Share next step", "Ask if they have questions"]
+          "steps": [
+            "Stand up tall",
+            "Reach up high",
+            "Slowly relax"
+          ]
         }
       ],
       "talk": [
-        "What does Granola Kid sell?",
-        "What can you say to a buyer after a meeting?",
-        "Who makes the granola for Granola Kid?"
+        "Say one Spanish word you learned today.",
+        "Who is Dad to you?",
+        "Why do we work with a co-packer?"
       ],
       "mini": {
         "sort": {
-          "title": "Sales and marketing",
+          "title": "Places in Spain",
           "prompt": "Tap the correct group.",
-          "instruction": "Find 2 sales or marketing actions.",
-          "correct": ["Follow up", "Tell the brand story"],
-          "wrong": ["Make the granola", "Ignore the buyer"],
-          "success": "You found the sales and marketing choices."
+          "instruction": "Find 2 places in Spain.",
+          "correct": [
+            "Barcelona",
+            "Cordoba"
+          ],
+          "wrong": [
+            "Venice",
+            "Monaco"
+          ],
+          "success": "You found the Spain places."
         },
         "pattern": {
           "title": "What comes next?",
-          "sequence": ["call", "email", "call", "email"],
-          "answer": "call",
-          "choices": ["Call", "Email", "Run"]
+          "sequence": [
+            "si",
+            "no",
+            "si",
+            "no"
+          ],
+          "answer": "si",
+          "choices": [
+            "Si",
+            "No",
+            "Gracias"
+          ]
         },
         "money": {
-          "title": "Granola order",
-          "prompt": "One bag is $4. Three bags cost how much?",
-          "answer": "$12",
-          "choices": ["$10", "$12", "$14"]
+          "title": "Spanish class",
+          "prompt": "A book is $7 and a pen is $2. What is the total?",
+          "answer": "$9",
+          "choices": [
+            "$9",
+            "$8",
+            "$11"
+          ]
         }
       }
     },
     {
-      "name": "Friends and Communication Day",
+      "name": "Friends and Kindness Day",
       "brain": [
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Harold", "pair": "pair-a" },
-            { "text": "David", "pair": "pair-b" },
-            { "text": "Friend", "pair": "pair-a" },
-            { "text": "Friend", "pair": "pair-b" }
+            {
+              "text": "Please",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Friend",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Por favor",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Amigo",
+              "pair": "pair-b"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Mom", "pair": "pair-a" },
-            { "text": "Dad", "pair": "pair-b" },
-            { "text": "My mother", "pair": "pair-a" },
-            { "text": "My father", "pair": "pair-b" }
+            {
+              "text": "Marcus",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Harold",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Friend",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Cousin",
+              "pair": "pair-b"
+            }
           ]
         },
         {
           "title": "Find the pair",
           "prompt": "Tap two cards that go together.",
           "cards": [
-            { "text": "Keyaan", "pair": "pair-a" },
-            { "text": "Aaron", "pair": "pair-b" },
-            { "text": "Brother", "pair": "pair-a" },
-            { "text": "Friend", "pair": "pair-b" }
+            {
+              "text": "David",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Friend",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Jasmine",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Cousin",
+              "pair": "pair-b"
+            }
           ]
         }
       ],
       "life": [
         {
-          "title": "Send a kind message",
+          "title": "Start a chat",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Say hello", "Write one clear sentence", "Say thank you"]
+          "steps": [
+            "Say hello",
+            "Ask a question",
+            "Listen to the answer"
+          ]
         },
         {
-          "title": "Answer a family question",
+          "title": "Say goodbye kindly",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Listen carefully", "Think about who", "Answer clearly"]
+          "steps": [
+            "Finish your sentence",
+            "Say goodbye",
+            "Wave and smile"
+          ]
         },
         {
-          "title": "Practice a greeting",
+          "title": "Wait your turn to talk",
           "prompt": "Tap the steps in the right order.",
-          "steps": ["Look at the person", "Say hello", "Ask how they are"]
+          "steps": [
+            "Listen first",
+            "Wait for a pause",
+            "Share your idea"
+          ]
         }
       ],
       "talk": [
-        "Who is Harold to you?",
-        "Who is David to you?",
-        "What can you say when you greet a friend?"
+        "What can you say when you meet Harold?",
+        "How can you start a talk with Aaron?",
+        "What is a kind thing to say to a friend?"
       ],
       "mini": {
         "sort": {
-          "title": "Friends",
+          "title": "Kind words",
           "prompt": "Tap the correct group.",
-          "instruction": "Find 2 friends.",
-          "correct": ["Harold", "David"],
-          "wrong": ["Dad", "Jasmine"],
-          "success": "You found the friends."
+          "instruction": "Find 2 kind things to say.",
+          "correct": [
+            "Thank you",
+            "Nice to see you"
+          ],
+          "wrong": [
+            "Go away",
+            "Be quiet"
+          ],
+          "success": "You found the kind words."
         },
         "pattern": {
           "title": "What comes next?",
-          "sequence": ["hello", "thank you", "hello", "thank you"],
-          "answer": "hello",
-          "choices": ["Hello", "Thank you", "Goodbye"]
+          "sequence": [
+            "green",
+            "blue",
+            "green",
+            "blue"
+          ],
+          "answer": "green",
+          "choices": [
+            "Green",
+            "Blue",
+            "Red"
+          ]
         },
         "money": {
-          "title": "Share a snack",
-          "prompt": "Two snacks cost $6 total. One snack costs how much?",
+          "title": "Kind cards",
+          "prompt": "A card is $4. You buy 2 cards. How much?",
+          "answer": "$8",
+          "choices": [
+            "$6",
+            "$8",
+            "$12"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Exercise and Energy Day",
+      "brain": [
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Stretch",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Water",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Cool drink",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Warm up",
+              "pair": "pair-a"
+            }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Dad",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Keyaan",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Father",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Brother",
+              "pair": "pair-b"
+            }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Sneakers",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Granola",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Snack",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Shoes for moving",
+              "pair": "pair-b"
+            }
+          ]
+        }
+      ],
+      "life": [
+        {
+          "title": "Warm up",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Stand up tall",
+            "Roll your shoulders",
+            "Stretch your arms"
+          ]
+        },
+        {
+          "title": "After exercise",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Slow down",
+            "Drink water",
+            "Rest a little"
+          ]
+        },
+        {
+          "title": "Plan your exercise",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Pick an activity",
+            "Pick a time",
+            "Do it"
+          ]
+        }
+      ],
+      "talk": [
+        "What kind of movement do you enjoy the most?",
+        "How do you feel after exercise?",
+        "Who can you exercise with?"
+      ],
+      "mini": {
+        "sort": {
+          "title": "Ways to move",
+          "prompt": "Tap the correct group.",
+          "instruction": "Find 2 ways to move.",
+          "correct": [
+            "Walking",
+            "Stretching"
+          ],
+          "wrong": [
+            "Napping",
+            "Sitting still"
+          ],
+          "success": "You found the ways to move."
+        },
+        "pattern": {
+          "title": "What comes next?",
+          "sequence": [
+            "red",
+            "gold",
+            "red",
+            "gold"
+          ],
+          "answer": "red",
+          "choices": [
+            "Red",
+            "Gold",
+            "Green"
+          ]
+        },
+        "money": {
+          "title": "Water break",
+          "prompt": "Water is $2. You buy 3 bottles. How much?",
+          "answer": "$6",
+          "choices": [
+            "$5",
+            "$8",
+            "$6"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Granola Kid Sales Day",
+      "brain": [
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Sample",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Price",
+              "pair": "pair-b"
+            },
+            {
+              "text": "How much it costs",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Small taste",
+              "pair": "pair-a"
+            }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Flyer",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Brand story",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Why we make granola",
+              "pair": "pair-a"
+            },
+            {
+              "text": "A paper ad",
+              "pair": "pair-b"
+            }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Follow-up",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Thank you",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Check in later",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Shows we care",
+              "pair": "pair-b"
+            }
+          ]
+        }
+      ],
+      "life": [
+        {
+          "title": "Share a sample",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Smile at the buyer",
+            "Offer a small taste",
+            "Ask what they think"
+          ]
+        },
+        {
+          "title": "Give change",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Take the money",
+            "Count out the change",
+            "Hand it over with a smile"
+          ]
+        },
+        {
+          "title": "Send a follow-up",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Say thank you",
+            "Ask if they liked it",
+            "Say you are here to help"
+          ]
+        }
+      ],
+      "talk": [
+        "What would you say to a new buyer?",
+        "Why do you think customers like granola?",
+        "How can you tell a buyer about our brand story?"
+      ],
+      "mini": {
+        "sort": {
+          "title": "Good sales actions",
+          "prompt": "Tap the correct group.",
+          "instruction": "Find 2 good sales actions.",
+          "correct": [
+            "Offer a sample",
+            "Say thank you"
+          ],
+          "wrong": [
+            "Ignore the buyer",
+            "Hide the price"
+          ],
+          "success": "You found the good sales actions."
+        },
+        "pattern": {
+          "title": "What comes next?",
+          "sequence": [
+            "blue",
+            "green",
+            "blue",
+            "green"
+          ],
+          "answer": "blue",
+          "choices": [
+            "Blue",
+            "Green",
+            "Gold"
+          ]
+        },
+        "money": {
+          "title": "Sales day",
+          "prompt": "A bag is $5. You sell 4 bags. How much?",
+          "answer": "$20",
+          "choices": [
+            "$20",
+            "$9",
+            "$25"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Travel Stories Day",
+      "brain": [
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Monaco",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Cordoba",
+              "pair": "pair-b"
+            },
+            {
+              "text": "A tiny country",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Spain",
+              "pair": "pair-b"
+            }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Brother",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Grandmother",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Abuela",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Hermano",
+              "pair": "pair-b"
+            }
+          ]
+        },
+        {
+          "title": "Find the pair",
+          "prompt": "Tap two cards that go together.",
+          "cards": [
+            {
+              "text": "Algarve",
+              "pair": "pair-a"
+            },
+            {
+              "text": "Barcelona",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Spain",
+              "pair": "pair-b"
+            },
+            {
+              "text": "Portugal",
+              "pair": "pair-a"
+            }
+          ]
+        }
+      ],
+      "life": [
+        {
+          "title": "Tell a trip story",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Say where you went",
+            "Say who came",
+            "Say what you liked"
+          ]
+        },
+        {
+          "title": "Pack a suitcase",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Open the suitcase",
+            "Pack your clothes",
+            "Close the suitcase"
+          ]
+        },
+        {
+          "title": "Look at a map",
+          "prompt": "Tap the steps in the right order.",
+          "steps": [
+            "Find where you are",
+            "Find where you want to go",
+            "Plan the way"
+          ]
+        }
+      ],
+      "talk": [
+        "Where would you like to go next?",
+        "Tell me about a place with a beach.",
+        "Who was with you on a trip?"
+      ],
+      "mini": {
+        "sort": {
+          "title": "Trip things",
+          "prompt": "Tap the correct group.",
+          "instruction": "Find 2 things to pack.",
+          "correct": [
+            "Passport",
+            "Water bottle"
+          ],
+          "wrong": [
+            "Couch",
+            "Refrigerator"
+          ],
+          "success": "You found the things to pack."
+        },
+        "pattern": {
+          "title": "What comes next?",
+          "sequence": [
+            "map",
+            "bag",
+            "map",
+            "bag"
+          ],
+          "answer": "map",
+          "choices": [
+            "Map",
+            "Bag",
+            "Hat"
+          ]
+        },
+        "money": {
+          "title": "Trip souvenir",
+          "prompt": "You have $7. You buy a magnet for $4. How much is left?",
           "answer": "$3",
-          "choices": ["$2", "$3", "$4"]
+          "choices": [
+            "$2",
+            "$3",
+            "$4"
+          ]
         }
       }
     }
   ],
   "languageDecks": [
     [
-      { "english": "Water", "spanish": "agua", "choices": ["agua", "pan", "casa"] },
-      { "english": "Hello", "spanish": "hola", "choices": ["gracias", "hola", "adios"] },
-      { "english": "Thank you", "spanish": "gracias", "choices": ["viaje", "familia", "gracias"] }
+      {
+        "english": "Beach",
+        "spanish": "playa",
+        "choices": [
+          "playa",
+          "ciudad",
+          "tren"
+        ]
+      },
+      {
+        "english": "City",
+        "spanish": "ciudad",
+        "choices": [
+          "playa",
+          "ciudad",
+          "tren"
+        ]
+      },
+      {
+        "english": "Train",
+        "spanish": "tren",
+        "choices": [
+          "playa",
+          "ciudad",
+          "tren"
+        ]
+      }
     ],
     [
-      { "english": "Family", "spanish": "familia", "choices": ["familia", "agua", "pan"] },
-      { "english": "Trip", "spanish": "viaje", "choices": ["hola", "viaje", "casa"] },
-      { "english": "Friend", "spanish": "amigo", "choices": ["gracias", "familia", "amigo"] }
+      {
+        "english": "Suitcase",
+        "spanish": "maleta",
+        "choices": [
+          "mapa",
+          "maleta",
+          "pasaporte"
+        ]
+      },
+      {
+        "english": "Passport",
+        "spanish": "pasaporte",
+        "choices": [
+          "maleta",
+          "mapa",
+          "pasaporte"
+        ]
+      },
+      {
+        "english": "Map",
+        "spanish": "mapa",
+        "choices": [
+          "mapa",
+          "maleta",
+          "pasaporte"
+        ]
+      }
     ],
     [
-      { "english": "Granola", "spanish": "granola", "choices": ["granola", "agua", "viaje"] },
-      { "english": "Buyer", "spanish": "comprador", "choices": ["amigo", "comprador", "hola"] },
-      { "english": "Exercise", "spanish": "ejercicio", "choices": ["familia", "viaje", "ejercicio"] }
+      {
+        "english": "Breakfast",
+        "spanish": "desayuno",
+        "choices": [
+          "cena",
+          "comida",
+          "desayuno"
+        ]
+      },
+      {
+        "english": "Dinner",
+        "spanish": "cena",
+        "choices": [
+          "cena",
+          "desayuno",
+          "comida"
+        ]
+      },
+      {
+        "english": "Food",
+        "spanish": "comida",
+        "choices": [
+          "cena",
+          "comida",
+          "desayuno"
+        ]
+      }
+    ],
+    [
+      {
+        "english": "Brother",
+        "spanish": "hermano",
+        "choices": [
+          "primo",
+          "hermano",
+          "abuela"
+        ]
+      },
+      {
+        "english": "Grandmother",
+        "spanish": "abuela",
+        "choices": [
+          "abuela",
+          "hermano",
+          "primo"
+        ]
+      },
+      {
+        "english": "Cousin",
+        "spanish": "primo",
+        "choices": [
+          "abuela",
+          "hermano",
+          "primo"
+        ]
+      }
+    ],
+    [
+      {
+        "english": "Store",
+        "spanish": "tienda",
+        "choices": [
+          "regalo",
+          "mercado",
+          "tienda"
+        ]
+      },
+      {
+        "english": "Gift",
+        "spanish": "regalo",
+        "choices": [
+          "tienda",
+          "regalo",
+          "mercado"
+        ]
+      },
+      {
+        "english": "Market",
+        "spanish": "mercado",
+        "choices": [
+          "mercado",
+          "tienda",
+          "regalo"
+        ]
+      }
+    ],
+    [
+      {
+        "english": "Street",
+        "spanish": "calle",
+        "choices": [
+          "calle",
+          "barco",
+          "foto"
+        ]
+      },
+      {
+        "english": "Boat",
+        "spanish": "barco",
+        "choices": [
+          "foto",
+          "calle",
+          "barco"
+        ]
+      },
+      {
+        "english": "Photo",
+        "spanish": "foto",
+        "choices": [
+          "calle",
+          "foto",
+          "barco"
+        ]
+      }
     ]
   ],
   "moneyMathDecks": [
     [
-      { "title": "One granola bag", "prompt": "One bag is $4. How much for 1 bag?", "answer": "$4", "choices": ["$3", "$4", "$5"] },
-      { "title": "Two granola bags", "prompt": "One bag is $4. How much for 2 bags?", "answer": "$8", "choices": ["$6", "$8", "$10"] },
-      { "title": "Three granola bags", "prompt": "One bag is $4. How much for 3 bags?", "answer": "$12", "choices": ["$10", "$12", "$14"] }
+      {
+        "title": "Two bags",
+        "prompt": "A granola bag is $5. A buyer takes 2 bags. How much?",
+        "answer": "$10",
+        "choices": [
+          "$10",
+          "$7",
+          "$15"
+        ]
+      },
+      {
+        "title": "Three bags",
+        "prompt": "A granola bag is $5. A buyer takes 3 bags. How much?",
+        "answer": "$15",
+        "choices": [
+          "$8",
+          "$15",
+          "$20"
+        ]
+      },
+      {
+        "title": "Change back",
+        "prompt": "A bag is $5. The buyer gives $10. What is the change?",
+        "answer": "$5",
+        "choices": [
+          "$4",
+          "$7",
+          "$5"
+        ]
+      }
     ],
     [
-      { "title": "Customer change", "prompt": "A snack is $3. The customer gives $5. What is the change?", "answer": "$2", "choices": ["$1", "$2", "$3"] },
-      { "title": "Travel snack", "prompt": "Water is $2 and a bar is $3. What is the total?", "answer": "$5", "choices": ["$4", "$5", "$6"] },
-      { "title": "Exercise drink", "prompt": "A smoothie is $6. You have $10. How much is left?", "answer": "$4", "choices": ["$3", "$4", "$5"] }
+      {
+        "title": "Train snack",
+        "prompt": "A drink is $3 and a pastry is $4. What is the total?",
+        "answer": "$7",
+        "choices": [
+          "$7",
+          "$6",
+          "$9"
+        ]
+      },
+      {
+        "title": "Beach water",
+        "prompt": "Water is $2. You buy 4 bottles. How much?",
+        "answer": "$8",
+        "choices": [
+          "$6",
+          "$8",
+          "$10"
+        ]
+      },
+      {
+        "title": "Postcard change",
+        "prompt": "A postcard is $3. You give $5. What is the change?",
+        "answer": "$2",
+        "choices": [
+          "$1",
+          "$4",
+          "$2"
+        ]
+      }
+    ],
+    [
+      {
+        "title": "Smoothie",
+        "prompt": "A smoothie is $6. You have $9. How much is left after you buy it?",
+        "answer": "$3",
+        "choices": [
+          "$3",
+          "$2",
+          "$4"
+        ]
+      },
+      {
+        "title": "Sneaker fund",
+        "prompt": "You need $20 for sneakers. You saved $12. How much more?",
+        "answer": "$8",
+        "choices": [
+          "$6",
+          "$8",
+          "$9"
+        ]
+      },
+      {
+        "title": "Class pass",
+        "prompt": "A class is $4. You go to 3 classes. How much?",
+        "answer": "$12",
+        "choices": [
+          "$7",
+          "$16",
+          "$12"
+        ]
+      }
+    ],
+    [
+      {
+        "title": "Flyers",
+        "prompt": "You have $12. You spend $5 on flyers. How much is left?",
+        "answer": "$7",
+        "choices": [
+          "$7",
+          "$6",
+          "$8"
+        ]
+      },
+      {
+        "title": "Sticker pack",
+        "prompt": "Stickers are $2 each. You buy 5. How much?",
+        "answer": "$10",
+        "choices": [
+          "$7",
+          "$10",
+          "$12"
+        ]
+      },
+      {
+        "title": "Two costs",
+        "prompt": "Flyers cost $4 and stickers cost $3. What is the total?",
+        "answer": "$7",
+        "choices": [
+          "$6",
+          "$9",
+          "$7"
+        ]
+      }
+    ],
+    [
+      {
+        "title": "Cafe order",
+        "prompt": "A cafe buys 4 bags at $5 each. How much?",
+        "answer": "$20",
+        "choices": [
+          "$20",
+          "$9",
+          "$25"
+        ]
+      },
+      {
+        "title": "Sales total",
+        "prompt": "You sell a bag for $5 and a bar for $3. What is the total?",
+        "answer": "$8",
+        "choices": [
+          "$7",
+          "$8",
+          "$10"
+        ]
+      },
+      {
+        "title": "Bar change",
+        "prompt": "A bar is $4. The buyer gives $10. What is the change?",
+        "answer": "$6",
+        "choices": [
+          "$5",
+          "$8",
+          "$6"
+        ]
+      }
+    ],
+    [
+      {
+        "title": "Gift shop",
+        "prompt": "A gift is $8. You have $10. How much is left after you buy it?",
+        "answer": "$2",
+        "choices": [
+          "$2",
+          "$1",
+          "$3"
+        ]
+      },
+      {
+        "title": "Museum tickets",
+        "prompt": "A museum ticket is $6. Two tickets cost how much?",
+        "answer": "$12",
+        "choices": [
+          "$8",
+          "$12",
+          "$18"
+        ]
+      },
+      {
+        "title": "Save up",
+        "prompt": "You need $18. You saved $10. How much more?",
+        "answer": "$8",
+        "choices": [
+          "$6",
+          "$9",
+          "$8"
+        ]
+      }
     ]
   ],
   "businessPracticeDecks": [
     {
-      "title": "Buyer care",
-      "prompt": "A buyer asks a question. What should Zamaan do?",
-      "answer": "Answer clearly",
-      "choices": ["Answer clearly", "Ignore it", "Walk away"]
+      "title": "Flyer message",
+      "prompt": "You make a flyer for Granola Kid. What should it show?",
+      "answer": "Our name and what we sell",
+      "choices": [
+        "Only a blank page",
+        "Our name and what we sell",
+        "Another brand's name"
+      ]
     },
     {
-      "title": "Co-packer role",
-      "prompt": "Who makes the granola for Granola Kid?",
-      "answer": "The co-packer",
-      "choices": ["The co-packer", "The buyer", "The customer"]
+      "title": "New buyer",
+      "prompt": "A new buyer asks about the granola. What is a good first step?",
+      "answer": "Say hello and share our story",
+      "choices": [
+        "Say hello and share our story",
+        "Walk away",
+        "Hide the granola"
+      ]
     },
     {
-      "title": "Brand story",
-      "prompt": "What is marketing for Granola Kid?",
-      "answer": "Telling the brand story",
-      "choices": ["Telling the brand story", "Making the granola", "Closing the laptop"]
+      "title": "Taste test",
+      "prompt": "A buyer wants to try the granola. What can you offer?",
+      "answer": "A small sample",
+      "choices": [
+        "An empty bag",
+        "Nothing at all",
+        "A small sample"
+      ]
     },
     {
-      "title": "Follow-up",
-      "prompt": "After a buyer meeting, what is a good next step?",
-      "answer": "Send a thank you message",
-      "choices": ["Send a thank you message", "Forget the buyer", "Throw away notes"]
+      "title": "After an order",
+      "prompt": "A cafe ordered granola. What do you send after?",
+      "answer": "A thank you message",
+      "choices": [
+        "A thank you message",
+        "Nothing at all",
+        "A confusing message"
+      ]
     },
     {
-      "title": "Customer question",
-      "prompt": "A customer asks about the granola. What is a good answer style?",
-      "answer": "Kind and clear",
-      "choices": ["Kind and clear", "Fast and rude", "Silent"]
+      "title": "Co-packer job",
+      "prompt": "A co-packer works with Granola Kid. What is their job?",
+      "answer": "Making the granola",
+      "choices": [
+        "Selling at the cafe",
+        "Drawing the flyers",
+        "Making the granola"
+      ]
+    },
+    {
+      "title": "Price on the bag",
+      "prompt": "Why do we show a price?",
+      "answer": "So buyers know the cost",
+      "choices": [
+        "So the bag looks empty",
+        "So buyers know the cost",
+        "So nobody can buy it"
+      ]
+    },
+    {
+      "title": "Social post",
+      "prompt": "You share a photo of Granola Kid online. What is this called?",
+      "answer": "Marketing",
+      "choices": [
+        "Marketing",
+        "Baking",
+        "Shipping"
+      ]
+    },
+    {
+      "title": "Unknown question",
+      "prompt": "A customer asks something you do not know. What can you say?",
+      "answer": "I will find out and tell you",
+      "choices": [
+        "I will find out and tell you",
+        "That is not my job",
+        "No questions please"
+      ]
+    },
+    {
+      "title": "Repeat customer",
+      "prompt": "A customer comes back to buy again. What can you say?",
+      "answer": "Thank you for coming back",
+      "choices": [
+        "Who are you again?",
+        "We are closed forever",
+        "Thank you for coming back"
+      ]
     }
   ],
   "pronounPracticeDecks": [
     {
-      "title": "Mom's son",
-      "prompt": "Mom says Keyaan is my son. Who is Keyaan to Zamaan?",
-      "answer": "My brother",
-      "choices": ["My brother", "My son", "My dad"]
+      "title": "About Mom",
+      "prompt": "Zamaan talks about Mom. Which sentence fits?",
+      "answer": "She is my mom",
+      "choices": [
+        "He is my mom",
+        "She is my mom",
+        "It is my mom"
+      ]
     },
     {
-      "title": "Dad's son",
-      "prompt": "Dad says Zamaan is my son. What can Zamaan say?",
-      "answer": "I am Dad's son",
-      "choices": ["I am Dad's son", "Dad is my son", "Keyaan is my dad"]
+      "title": "About Dad",
+      "prompt": "Zamaan talks about Dad. Which sentence fits?",
+      "answer": "He is my dad",
+      "choices": [
+        "He is my dad",
+        "She is my dad",
+        "It is my dad"
+      ]
     },
     {
-      "title": "Cousin Marcus",
-      "prompt": "Marcus is Zamaan's cousin. What should Zamaan say?",
-      "answer": "Marcus is my cousin",
-      "choices": ["Marcus is my cousin", "Marcus is my brother", "Marcus is my grandmother"]
+      "title": "About Keyaan",
+      "prompt": "Zamaan talks about his brother Keyaan. What can he say?",
+      "answer": "He is my brother",
+      "choices": [
+        "She is my brother",
+        "He is my cousin",
+        "He is my brother"
+      ]
     },
     {
-      "title": "Cousin Jasmine",
-      "prompt": "Jasmine is Zamaan's cousin. What should Zamaan say?",
-      "answer": "Jasmine is my cousin",
-      "choices": ["Jasmine is my cousin", "Jasmine is my mom", "Jasmine is my son"]
+      "title": "Two cousins",
+      "prompt": "Zamaan talks about both Marcus and Jasmine. What can he say?",
+      "answer": "They are my cousins",
+      "choices": [
+        "They are my cousins",
+        "He is my cousin",
+        "She is my cousin"
+      ]
     },
     {
       "title": "Grandmother",
-      "prompt": "Mom's mom is Zamaan's grandmother. What should Zamaan say?",
+      "prompt": "Zamaan talks about his grandmother. What can he say?",
       "answer": "She is my grandmother",
-      "choices": ["She is my grandmother", "She is my brother", "She is my son"]
+      "choices": [
+        "He is my grandmother",
+        "She is my grandmother",
+        "It is my grandmother"
+      ]
     },
     {
-      "title": "Friend Harold",
-      "prompt": "Harold is Zamaan's friend. What should Zamaan say?",
-      "answer": "Harold is my friend",
-      "choices": ["Harold is my friend", "Harold is my dad", "Harold is my cousin"]
+      "title": "Brothers",
+      "prompt": "Zamaan talks about himself and Keyaan together. What can he say?",
+      "answer": "We are brothers",
+      "choices": [
+        "I am brothers",
+        "You are brothers",
+        "We are brothers"
+      ]
     },
     {
-      "title": "Brother Keyaan",
-      "prompt": "Keyaan is Zamaan's brother. What should Zamaan say?",
-      "answer": "Keyaan is my brother",
-      "choices": ["Keyaan is my brother", "Keyaan is my son", "Keyaan is my grandmother"]
+      "title": "Parents",
+      "prompt": "Mom and Dad say, Zamaan is our son. Who are Mom and Dad to Zamaan?",
+      "answer": "My parents",
+      "choices": [
+        "My parents",
+        "My cousins",
+        "My friends"
+      ]
+    },
+    {
+      "title": "Friend Aaron",
+      "prompt": "Aaron is Zamaan's friend. What can Zamaan say?",
+      "answer": "Aaron is my friend",
+      "choices": [
+        "Aaron is my cousin",
+        "Aaron is my friend",
+        "Aaron is my brother"
+      ]
+    },
+    {
+      "title": "Meet David",
+      "prompt": "Zamaan introduces his friend David to Mom. What can he say?",
+      "answer": "Mom, this is my friend David",
+      "choices": [
+        "Mom, this is my cousin David",
+        "Mom, this is my brother David",
+        "Mom, this is my friend David"
+      ]
+    },
+    {
+      "title": "Say hello back",
+      "prompt": "Harold says hello to Zamaan. What can Zamaan say back?",
+      "answer": "Hello Harold, how are you?",
+      "choices": [
+        "Hello Harold, how are you?",
+        "Hello Aaron, how are you?",
+        "Hello Mom, how are you?"
+      ]
     }
   ]
 }

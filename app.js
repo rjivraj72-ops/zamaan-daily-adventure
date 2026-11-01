@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20260727-stable-refresh";
+  polishLink.href = "polish.css?v=20261101-refresh";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -206,6 +206,45 @@ function getDayNumber(dateKey) {
 
 const todayKey = getLocalDateKey();
 const curriculumDay = getDayNumber(todayKey);
+
+// Stable, per-day shuffling. The same day + same game always produces the same
+// order (so re-rendering never rearranges tiles mid-play), but the correct
+// answer is not always in the same spot from one question to the next.
+function hashSeed(text) {
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededShuffle(items, seedText, options = {}) {
+  const list = [...items];
+  if (list.length < 2) return list;
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    let seed = hashSeed(`${seedText}#${attempt}`);
+    const nextRandom = () => {
+      seed = (seed + 0x6d2b79f5) >>> 0;
+      let t = seed;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const result = [...list];
+    for (let i = result.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(nextRandom() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    const sameAsOriginal = result.every((item, index) => item === list[index]);
+    if (!options.avoidOriginalOrder || !sameAsOriginal) return result;
+  }
+  return [...list.slice(1), list[0]];
+}
+
+function shuffledChoices(choices, key) {
+  return seededShuffle(choices, `${todayKey}|${key}`);
+}
 const sectionIds = ["brain", "life", "language", "talk"];
 const totalRounds = 12;
 const maxRounds = {
@@ -2380,7 +2419,7 @@ function renderBrainRound() {
     : deck.prompt;
   activity.querySelector(".feedback").textContent = "";
 
-  memoryGame.innerHTML = deck.cards.map((card) => (
+  memoryGame.innerHTML = seededShuffle(deck.cards, `${todayKey}|brain|${round}`).map((card) => (
     `<button class="game-card" data-pair="${card.pair}">${card.text}</button>`
   )).join("");
   memoryPicks = [];
@@ -2392,7 +2431,7 @@ function renderLifeRound() {
   const activity = document.querySelector('[data-activity="life"]');
   if (!activity || !sequenceGame) return;
   addReplayButton(activity, "beforeQuestion", "Life Skill");
-  const shuffledSteps = [deck.steps[0], deck.steps[2], deck.steps[1]];
+  const shuffledSteps = seededShuffle(deck.steps, `${todayKey}|life|${round}`, { avoidOriginalOrder: true });
 
   activity.querySelector("h2").textContent = state.completed.includes("life") ? "Life skills complete" : deck.title;
   activity.querySelector(".prompt").textContent = state.completed.includes("life")
@@ -2425,7 +2464,7 @@ function renderLanguageRound() {
   languageWord.textContent = isDone ? "Great work" : deck.english;
   languageChoices.innerHTML = isDone
     ? ""
-    : deck.choices.map((choice) => (
+    : shuffledChoices(deck.choices, `language|${round}`).map((choice) => (
       `<button class="choice language-choice" data-language-choice="${choice}">${choice}</button>`
     )).join("");
   activity.querySelector(".feedback").textContent = "";
@@ -2489,7 +2528,7 @@ function renderDailyRounds() {
 function renderMiniGames() {
   if (!miniGames) return;
 
-  const sortChoices = [...todayPlan.mini.sort.correct, ...todayPlan.mini.sort.wrong];
+  const sortChoices = seededShuffle([...todayPlan.mini.sort.correct, ...todayPlan.mini.sort.wrong], `${todayKey}|sort`);
   const pattern = todayPlan.mini.pattern;
   const moneyMathQuestions = todayMoneyMath;
   const businessPractice = todayBusinessPractice;
@@ -2521,15 +2560,19 @@ function renderMiniGames() {
         <strong>${pattern.title}</strong>
       </div>
       <div class="pattern-row" aria-label="${pattern.sequence.join(" ")} pattern">
-        ${pattern.sequence.map((color) => `<span class="pattern-dot ${color}"></span>`).join("")}
+        ${pattern.sequence.map((item) => (
+          ["blue", "red", "green", "gold"].includes(String(item).toLowerCase())
+            ? `<span class="pattern-dot ${String(item).toLowerCase()}"></span>`
+            : `<span class="pattern-dot word">${item}</span>`
+        )).join("")}
         <span class="pattern-dot mystery">?</span>
       </div>
       <div class="tile-grid three">
-        ${pattern.choices.map((choice) => (
+        ${shuffledChoices(pattern.choices, "pattern").map((choice) => (
           `<button class="tile color-choice" data-pattern="${choice.toLowerCase()}">${choice}</button>`
         )).join("")}
       </div>
-      <p class="mini-feedback" aria-live="polite">Choose the next color.</p>
+      <p class="mini-feedback" aria-live="polite">Choose what comes next.</p>
     </article>
 
     <article class="${getExtraGameClass("money-math", extraProgress, currentExtraStep)}" data-mini-game="money-math" ${getExtraGameHidden("money-math", currentExtraStep)}>
@@ -2543,7 +2586,7 @@ function renderMiniGames() {
             <strong>${index + 1}. ${question.title}</strong>
             <p>${question.prompt}</p>
             <div class="tile-grid three">
-              ${question.choices.map((choice) => (
+              ${shuffledChoices(question.choices, `money|${index}`).map((choice) => (
                 `<button class="tile money-math-choice" data-money-question-index="${index}" data-money-math-correct="${choice === question.answer}">${choice}</button>`
               )).join("")}
             </div>
@@ -2560,7 +2603,7 @@ function renderMiniGames() {
       </div>
       <p>${businessPractice.prompt}</p>
       <div class="tile-grid">
-        ${businessPractice.choices.map((choice) => (
+        ${shuffledChoices(businessPractice.choices, "business").map((choice) => (
           `<button class="tile business-choice" data-business-correct="${choice === businessPractice.answer}">${choice}</button>`
         )).join("")}
       </div>
@@ -2574,7 +2617,7 @@ function renderMiniGames() {
       </div>
       <p>${pronounPractice.prompt}</p>
       <div class="tile-grid">
-        ${pronounPractice.choices.map((choice) => (
+        ${shuffledChoices(pronounPractice.choices, "pronouns").map((choice) => (
           `<button class="tile pronoun-choice" data-pronoun-correct="${choice === pronounPractice.answer}">${choice}</button>`
         )).join("")}
       </div>
@@ -2791,7 +2834,7 @@ function attachRoundHandlers() {
         button.dataset.picked = String(sequenceStep);
         sequenceStep += 1;
 
-        if (sequenceStep > 3) {
+        if (sequenceStep > deck.steps.length) {
           const isLast = state.rounds.life + 1 >= maxRounds.life;
           const message = isLast ? "Life skills section finished." : "You put the steps in order. New steps are ready.";
           feedback.textContent = message;
@@ -3034,7 +3077,7 @@ function attachMiniGameHandlers() {
       if (isCorrect) clearRetry("pattern");
       feedback.textContent = isCorrect
         ? `Yes. ${capitalize(todayPlan.mini.pattern.answer)} comes next.`
-        : getRetryFeedback("pattern", "Look at which colors repeat.", capitalize(todayPlan.mini.pattern.answer));
+        : getRetryFeedback("pattern", "Look at what repeats.", capitalize(todayPlan.mini.pattern.answer));
       speak(feedback.textContent, isCorrect ? "correct" : "incorrect");
       if (isCorrect) {
         completeExtraGame("pattern", "Pattern is finished. The next extra activity is ready.");
@@ -3443,9 +3486,9 @@ if (resetProgress) {
   });
   document.querySelectorAll(".mini-feedback").forEach((feedback) => {
     feedback.textContent = feedback.closest("[data-mini-game='sort']")
-      ? "Find 2 food choices."
+      ? todayPlan.mini.sort.instruction
       : feedback.closest("[data-mini-game='pattern']")
-        ? "Choose the next color."
+        ? "Choose what comes next."
         : "Pick the exact amount.";
   });
   memoryPicks = [];

@@ -66,32 +66,49 @@ Then enable GitHub Pages from the repository's `main` branch.
 
 ## Automatic Question Rotation
 
-`question-bank.json` can regenerate itself on a schedule instead of being updated by hand. A GitHub Actions workflow (`.github/workflows/rotate-questions.yml`) calls the Anthropic API with the existing `question-generator-prompt.txt`, validates the result, and **opens a Pull Request** with the new `question-bank.json` — it never publishes directly. Nothing reaches Zamaan until you review the PR and merge it.
+`question-bank.json` can regenerate itself on a schedule. A GitHub Actions workflow calls the Anthropic API with `question-generator-prompt.txt`, passes in the current set so wording is not repeated, checks the result with `scripts/validate-question-bank.mjs`, and **opens a Pull Request**. It never publishes directly: nothing reaches Zamaan until you review and merge the PR.
 
-### Setup (one-time)
+### Files
 
-1. Get an API key from [console.anthropic.com](https://console.anthropic.com).
-2. In the GitHub repository, go to **Settings > Secrets and variables > Actions > New repository secret**.
-3. Name it `ANTHROPIC_API_KEY` and paste in the key. GitHub encrypts it — nobody, including you, can view it again after saving, only reference it in workflows.
-4. That's it. The workflow is already in the repo and will start running on its schedule.
+| File | Location |
+|---|---|
+| `scripts/generate-questions.mjs` | normal folder in the repo |
+| `scripts/validate-question-bank.mjs` | normal folder in the repo |
+| `rotate-questions.yml` | must live at `.github/workflows/rotate-questions.yml` |
 
-### How it runs
+GitHub's drag-and-drop upload skips hidden folders such as `.github`, so create the workflow file in the browser: **Add file > Create new file**, type `.github/workflows/rotate-questions.yml` in the name box (the folders are created as you type the slashes), paste the file's contents, and commit. A copy of the contents is in `workflow-to-create/rotate-questions.yml`; delete that copy afterwards.
 
-- **On a schedule:** the 1st and 15th of every month (roughly every two weeks), automatically.
-- **On demand:** open the repo's **Actions** tab, select **Rotate question bank** in the sidebar, click **Run workflow**. Useful if you want a fresh set sooner (for example, before a special theme or if Zamaan has mastered the current set early).
+### One-time setup
 
-### Reviewing a generated set
+1. Create an API key at [console.anthropic.com](https://console.anthropic.com) (the account needs a small prepaid credit balance; $5 lasts years at this usage).
+2. Repo **Settings > Secrets and variables > Actions > New repository secret**: name `ANTHROPIC_API_KEY`, paste the key.
+3. Repo **Settings > Actions > General > Workflow permissions**: choose **Read and write permissions** and tick **Allow GitHub Actions to create and approve pull requests**. Without this the run succeeds but the Pull Request step fails.
 
-When the workflow runs, it opens a Pull Request titled "New question set ready for review." Open it, click the **Files changed** tab, and skim the `question-bank.json` diff — check the names, places, and wording look right. Two outcomes:
+### Running it
 
-- **Looks good:** click **Merge pull request**. The new set goes live the next time the app loads `question-bank.json`.
-- **Something's off:** either edit directly in the PR before merging, or close the PR without merging — the app keeps using the current `question-bank.json` and nothing changes for Zamaan.
+- **On a schedule:** the 1st and 15th of every month.
+- **On demand:** **Actions** tab > **Rotate question bank** > **Run workflow**.
+
+### Reviewing a set
+
+A Pull Request titled "New question set ready for review" opens with you as reviewer. Open **Files changed**, skim `question-bank.json`, then **Merge pull request** or close it. Closing is always safe: the app keeps the current set.
+
+### Checking a set by hand
+
+```
+node scripts/validate-question-bank.mjs question-bank.json
+```
+
+It reports anything the app could not play properly (duplicate card text, answer missing from the choices, wrong number of steps, and so on).
 
 ### If a run fails
 
-If the API call fails or the model returns something that doesn't match the expected structure, the workflow fails loudly and **no PR is opened** — GitHub emails the repository owner automatically when a scheduled workflow fails. Check the failed run's log under the **Actions** tab for the specific reason (invalid JSON, a missing field, an API error, etc.). The current `question-bank.json` is never touched by a failed run.
+No Pull Request opens and `question-bank.json` is untouched. The script retries once, feeding the problems back to the model. Open the failed run under **Actions** to see the reason.
 
-### Cost
+### How new sets are used
 
-Each run is a single API call (roughly 4,000–8,000 tokens). At current Anthropic pricing this is a small fraction of a cent to a few cents per run — negligible for a run every two weeks.
+The app plays its built-in days first and then appends every day in `question-bank.json`, repeating the whole cycle. Replacing the file replaces only the appended days, so the cycle length can change when a new set is merged.
 
+### Model
+
+`scripts/generate-questions.mjs` uses `claude-sonnet-5-5`. Set the `ANTHROPIC_MODEL` environment variable in the workflow to change it.
