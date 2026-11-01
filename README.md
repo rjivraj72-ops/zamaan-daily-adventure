@@ -55,14 +55,28 @@ On iPhone, Safari and the Home Screen app may keep separate settings. If sync se
 
 ## GitHub Pages
 
-This folder is ready to publish with GitHub Pages. Put these files at the root of a GitHub repository:
+This folder is ready to publish with GitHub Pages. Put every file in this folder at the root of a GitHub repository, then enable GitHub Pages from the repository's `main` branch. The app needs at least: `index.html`, `caregiver.html`, `admin.html`, `styles.css`, `polish.css`, `refresh.css`, `app.js`, `sw.js`, `version.json`, `question-bank.json`, `manifest.webmanifest`, and the `icons` and `audio` folders.
 
-- `index.html`
-- `caregiver.html`
-- `styles.css`
-- `app.js`
+## What the learner screen does
 
-Then enable GitHub Pages from the repository's `main` branch.
+- **Continue card:** one big button that jumps to the next unfinished round, with a 12-segment progress bar for the day.
+- **Streak and stamps:** each day with all 12 rounds finished earns a passport stamp. Days in a row build a streak, with titles at 3, 7, 14 and 30 days (Explorer, Traveler, Globetrotter, World Wanderer).
+- **Quick settings:** the gear button next to the level badge turns sound and larger text on or off.
+- **Works offline:** `sw.js` saves the app on the phone. Pages and code are fetched from the network first, so updates show up straight away, and the saved copy is used when there is no signal. Audio clips need a connection.
+- **Update notice:** while the app is open it checks `version.json` and `question-bank.json`. If either changed, a "Refresh" banner appears.
+- **Fresh questions banner:** shown once whenever a new question set (a new `version` in `question-bank.json`) loads for the first time.
+- **Conversation Coach clips:** topic clips such as `coach-paris-1.mp3` play when they exist and fall back to the general coach line when they don't. Scripts for new clips are in `elevenlabs-new-coach-lines.txt`.
+
+### Releasing a code change
+
+When you change `app.js`, `styles.css`, `refresh.css`, `polish.css` or the HTML pages, bump these together so phones pick the change up:
+
+1. `APP_VERSION` near the bottom of `app.js` and the "Version:" line in `index.html`.
+2. `version.json` (same value as `APP_VERSION`).
+3. The `?v=` tag on the stylesheet and script links in `index.html`, `caregiver.html` and `admin.html`.
+4. `CACHE` at the top of `sw.js`.
+
+Changing only `question-bank.json` needs none of this.
 
 ## Automatic Question Rotation
 

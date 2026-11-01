@@ -1,0 +1,906 @@
+/* Fresh look for Zamaan's Daily Adventure (November 2026). Loaded after polish.css.
+   Idea: a travel passport. Azulejo blue for the main path, sun yellow for the next step,
+   green for finished things, and a stamp for every day completed. */
+
+:root {
+  --bg: #f2f6fc;
+  --surface: #ffffff;
+  --surface-soft: #eaf0fa;
+  --surface-warm: #fff6dc;
+  --ink: #0f1d3a;
+  --muted: #55627f;
+  --line: #d6dfee;
+  --accent: #1f4e9c;
+  --accent-strong: #163a78;
+  --accent-soft: #e2ebf9;
+  --blue: #1f4e9c;
+  --blue-soft: #e8effa;
+  --coral: #d9533f;
+  --coral-soft: #fdebe7;
+  --gold: #f2b53a;
+  --gold-soft: #fff2cf;
+  --plum: #4b5fb0;
+  --plum-soft: #eceffc;
+  --good: #1b8f61;
+  --good-soft: #def4ea;
+  --wrong: #b3392c;
+  --radius: 16px;
+  --radius-small: 12px;
+  --shadow: 0 14px 34px rgba(15, 29, 58, 0.12);
+  --shadow-soft: 0 6px 16px rgba(15, 29, 58, 0.07);
+  --shadow-lift: 0 10px 24px rgba(15, 29, 58, 0.12);
+  --font-body: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  background: var(--bg);
+}
+
+body,
+body.daily-page,
+body.caregiver-page {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+body::before {
+  display: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.app-shell {
+  width: min(760px, calc(100% - 28px));
+  padding-top: max(14px, env(safe-area-inset-top, 0px));
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ---------- Navigation ---------- */
+.app-nav {
+  top: max(8px, env(safe-area-inset-top, 0px));
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.app-nav a {
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.app-nav a.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+/* ---------- Header ---------- */
+.eyebrow {
+  display: none;
+}
+
+.hero {
+  display: block;
+  padding: 18px 4px 4px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.hero::before,
+.hero::after {
+  display: none;
+}
+
+.hero .app-mark {
+  display: none;
+}
+
+.hero h1 {
+  margin-bottom: 4px;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.hero .intro {
+  max-width: 34ch;
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.learner-controls {
+  position: absolute;
+  top: 8px;
+  right: 4px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero {
+  position: relative;
+}
+
+.hero > div:first-child {
+  padding-right: 120px;
+}
+
+.level-badge {
+  min-height: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.today-card {
+  display: none;
+}
+
+.quick-settings-wrap {
+  position: relative;
+}
+
+.quick-settings-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.quick-settings {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  width: 220px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.quick-settings .sound-toggle {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 12px;
+}
+
+.quick-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 4px;
+  font-weight: 700;
+}
+
+.quick-toggle input {
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  accent-color: var(--accent);
+}
+
+/* ---------- Resume card: the one bold element ---------- */
+.resume-card {
+  position: relative;
+  overflow: hidden;
+  margin: 18px 0 14px;
+  padding: 20px 18px 18px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(242, 181, 58, 0.28), transparent 11rem),
+    linear-gradient(145deg, #1f4e9c 0%, #163a78 100%);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+/* azulejo tile pattern, kept quiet */
+.resume-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(circle at 50% 0, transparent 0 9px, #fff 9px 10px, transparent 10px),
+    radial-gradient(circle at 0 50%, transparent 0 9px, #fff 9px 10px, transparent 10px),
+    radial-gradient(circle at 100% 50%, transparent 0 9px, #fff 9px 10px, transparent 10px),
+    radial-gradient(circle at 50% 100%, transparent 0 9px, #fff 9px 10px, transparent 10px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(120deg, #000 0%, transparent 60%);
+  -webkit-mask-image: linear-gradient(120deg, #000 0%, transparent 60%);
+}
+
+.resume-card > * {
+  position: relative;
+}
+
+.resume-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resume-kicker {
+  margin-bottom: 4px;
+  color: #cfe0fa;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.resume-card h2 {
+  margin-bottom: 4px;
+  color: #fff;
+  font-size: clamp(1.7rem, 6vw, 2.2rem);
+  line-height: 1.05;
+}
+
+.resume-detail {
+  margin-bottom: 0;
+  color: #e6efff;
+  font-size: 1.02rem;
+}
+
+.streak-chip {
+  display: grid;
+  justify-items: center;
+  flex: none;
+  min-width: 74px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  text-align: center;
+}
+
+.streak-chip strong {
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--gold);
+}
+
+.streak-chip span {
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #e6efff;
+}
+
+.segment-bar {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 16px;
+}
+
+.seg-group {
+  display: flex;
+  flex: 1;
+  gap: 3px;
+}
+
+.seg {
+  flex: 1;
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.seg.done {
+  background: var(--gold);
+}
+
+.seg.current {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.resume-button {
+  width: 100%;
+  min-height: 60px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--gold);
+  color: #2b1f00;
+  font-size: 1.2rem;
+  font-weight: 800;
+  box-shadow: 0 8px 0 #c98d1b, 0 14px 24px rgba(0, 0, 0, 0.18);
+}
+
+.resume-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 4px 0 #c98d1b, 0 8px 14px rgba(0, 0, 0, 0.18);
+}
+
+.stamp-earned {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 16px;
+}
+
+.stamp-earned p {
+  margin: 0;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* the passport stamp */
+.day-stamp {
+  flex: none;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  width: 104px;
+  height: 104px;
+  padding: 8px;
+  border: 3px double #ffd777;
+  border-radius: 50%;
+  color: #ffd777;
+  text-align: center;
+  transform: rotate(-8deg);
+  animation: stamp-in 420ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.day-stamp .stamp-arc {
+  max-width: 82px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.day-stamp strong {
+  margin: 3px 0;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.day-stamp .stamp-day {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(1.9);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-8deg) scale(1);
+  }
+}
+
+/* ---------- Path (compact) ---------- */
+.today-path {
+  display: block;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.today-path > div:first-child {
+  display: none;
+}
+
+.path-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.path-step {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  text-align: center;
+  box-shadow: none;
+}
+
+.path-step span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.path-step strong {
+  font-size: 0.78rem;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.path-step small {
+  display: none;
+}
+
+.path-step.current {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.path-step.current span {
+  background: var(--accent);
+  color: #fff;
+}
+
+.path-step.done {
+  border-color: #9fd9bf;
+  background: var(--good-soft);
+}
+
+.path-step.done span {
+  background: var(--good);
+  color: #fff;
+}
+
+/* ---------- Check in ---------- */
+.check-in {
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.mood-button {
+  min-height: 52px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.mood-button.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* ---------- Activity cards ---------- */
+.activity-layout {
+  gap: 14px;
+}
+
+.activity {
+  min-height: 0;
+  padding: 20px 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.activity::before {
+  display: none;
+}
+
+.activity.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow-soft);
+}
+
+.activity-step {
+  width: 44px;
+  height: 44px;
+  flex-basis: 44px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.activity-type {
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.activity h2 {
+  font-size: clamp(1.5rem, 5vw, 1.9rem);
+}
+
+.prompt {
+  font-size: 1.1rem;
+  line-height: 1.45;
+}
+
+.game-card,
+.sequence-choice,
+.tile,
+.language-choices button {
+  min-height: 72px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.12rem;
+  font-weight: 700;
+  box-shadow: 0 4px 0 var(--line);
+}
+
+.game-card:hover,
+.sequence-choice:hover,
+.tile:hover,
+.language-choices button:hover {
+  border-color: var(--accent);
+  background: var(--blue-soft);
+  transform: none;
+}
+
+.game-card:active,
+.sequence-choice:active,
+.tile:active,
+.language-choices button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--line);
+}
+
+.game-card.selected,
+.sequence-choice.selected,
+.tile.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.game-card.matched,
+.choice.correct,
+.tile.correct,
+.sequence-choice.correct {
+  border-color: var(--good);
+  background: var(--good-soft);
+  box-shadow: 0 4px 0 #9fd9bf;
+}
+
+.game-card.wrong,
+.choice.wrong,
+.tile.wrong,
+.sequence-choice.wrong {
+  border-color: var(--wrong);
+  background: var(--coral-soft);
+  box-shadow: 0 4px 0 #f1b9b1;
+}
+
+.language-word {
+  border-radius: 16px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.feedback,
+.mini-feedback {
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="url"],
+input[type="tel"],
+select {
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: 1.05rem;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+  border-color: var(--accent);
+}
+
+.complete-button,
+#saveSettings,
+#shareSyncSetup,
+#sendCompletionUpdate {
+  min-height: 58px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 6px 0 var(--accent-strong);
+}
+
+.complete-button:active,
+#saveSettings:active,
+#shareSyncSetup:active,
+#sendCompletionUpdate:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 var(--accent-strong);
+}
+
+.secondary-button {
+  min-height: 52px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--accent-strong);
+  font-weight: 800;
+  box-shadow: none;
+}
+
+/* ---------- Extra games, stars, calendar ---------- */
+.game-shelf,
+.reward,
+.calendar-panel,
+.completion-panel,
+.movement-break {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.mini-game {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.star {
+  background: #dfe5f1;
+}
+
+.star.earned {
+  background: var(--gold);
+}
+
+.calendar-grid {
+  gap: 6px;
+}
+
+.calendar-day {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.calendar-day.started {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+/* a finished day looks stamped */
+.calendar-day.done {
+  position: relative;
+  border: 2px double var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  transform: rotate(-2deg);
+}
+
+.calendar-day.done strong {
+  color: var(--accent-strong);
+}
+
+/* ---------- Notices ---------- */
+.notice-banner {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px 12px 12px 16px;
+  border-radius: 16px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
+.notice-banner + .notice-banner {
+  bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+}
+
+.notice-banner button {
+  flex: none;
+  white-space: nowrap;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--gold);
+  color: #2b1f00;
+  font-weight: 800;
+}
+
+/* ---------- PIN screen ---------- */
+.pin-gate {
+  background: var(--bg);
+}
+
+.pin-card {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.pin-key {
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 4px 0 var(--line);
+}
+
+.pin-display span.filled {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Larger screens ---------- */
+@media (min-width: 720px) {
+  .app-shell {
+    width: min(820px, calc(100% - 48px));
+  }
+
+  .path-step strong {
+    font-size: 0.92rem;
+  }
+}
+
+/* ---------- Comfort settings still win ---------- */
+body.a11y-large-text .resume-card h2 {
+  font-size: clamp(2rem, 7vw, 2.6rem);
+}
+
+body.a11y-large-text .path-step strong {
+  font-size: 0.95rem;
+}
+
+body.a11y-high-contrast .resume-card {
+  background: #0a1f4a;
+  outline: 3px solid #fff;
+}
+
+body.a11y-high-contrast .resume-kicker,
+body.a11y-high-contrast .resume-detail {
+  color: #fff;
+}
+
+body.a11y-high-contrast .seg {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+body.a11y-high-contrast .game-card,
+body.a11y-high-contrast .sequence-choice,
+body.a11y-high-contrast .tile {
+  border-color: #000;
+}
+
+body.a11y-reduce-motion .day-stamp {
+  animation: none;
+}
+
+body.a11y-reduce-motion .resume-button:active,
+body.a11y-reduce-motion .complete-button:active {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-stamp {
+    animation: none;
+  }
+}
+
+/* ---------- Three-link navigation (Parent Dashboard, Admin) ---------- */
+.app-nav {
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}
+
+.app-nav a {
+  padding: 12px 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .app-nav {
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .app-nav a {
+    padding: 11px 2px;
+    font-size: 0.8rem;
+  }
+}
+
+.caregiver-hero,
+.caregiver-panel > section,
+.parent-view,
+.learning-settings,
+.sync-settings {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.caregiver-hero::before,
+.caregiver-hero::after {
+  display: none;
+}

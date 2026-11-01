@@ -164,16 +164,25 @@ function getHiddenVoicePlayer() {
 }
 
 function loadExternalQuestionBank() {
+  const cacheKey = "dailyAdventureBankCache";
   try {
     const request = new XMLHttpRequest();
     request.open("GET", `question-bank.json?v=${Date.now()}`, false);
     request.send(null);
     if (request.status >= 200 && request.status < 300) {
-      return JSON.parse(request.responseText);
+      const parsed = JSON.parse(request.responseText);
+      try { localStorage.setItem(cacheKey, request.responseText); } catch (error) { /* storage full or blocked */ }
+      return parsed;
     }
   } catch (error) {
-    console.error("Daily Adventure: could not load question-bank.json.", error);
-    return null;
+    // Offline or the file could not be read. Fall back to the last copy that loaded fine.
+    console.error("Daily Adventure: could not load question-bank.json, trying the saved copy.", error);
+  }
+  try {
+    const saved = localStorage.getItem(cacheKey);
+    if (saved) return JSON.parse(saved);
+  } catch (error) {
+    console.error("Daily Adventure: the saved question bank could not be read.", error);
   }
   return null;
 }
@@ -260,6 +269,7 @@ const conversationCoachDeck = [
     title: "Keyaan is my brother",
     prompt: "Who is Keyaan to you?",
     model: "Keyaan is my brother.",
+    voiceFile: "audio/personality/coach-keyaan-1.mp3",
     voiceKey: "conversationCoachFamily"
   },
   {
@@ -267,6 +277,7 @@ const conversationCoachDeck = [
     title: "Mom and Dad",
     prompt: "Who are you to Mom and Dad?",
     model: "I am Mom and Dad's son.",
+    voiceFile: "audio/personality/coach-mom-dad-1.mp3",
     voiceKey: "conversationCoachFamily"
   },
   {
@@ -281,6 +292,7 @@ const conversationCoachDeck = [
     title: "Paris memory",
     prompt: "Tell me one thing you remember about Paris.",
     model: "I remember seeing the Eiffel Tower in Paris.",
+    voiceFile: "audio/personality/coach-paris-1.mp3",
     voiceKey: "conversationCoachTravel"
   },
   {
@@ -288,6 +300,23 @@ const conversationCoachDeck = [
     title: "Barcelona memory",
     prompt: "Who did you travel with in Barcelona?",
     model: "I traveled with my family in Barcelona.",
+    voiceFile: "audio/personality/coach-barcelona-1.mp3",
+    voiceKey: "conversationCoachTravel"
+  },
+  {
+    topic: "Travel Talk",
+    title: "Venice memory",
+    prompt: "What do you remember about Venice?",
+    model: "I remember the boats in Venice.",
+    voiceFile: "audio/personality/coach-venice-1.mp3",
+    voiceKey: "conversationCoachTravel"
+  },
+  {
+    topic: "Travel Talk",
+    title: "Lisbon memory",
+    prompt: "What was one fun thing in Lisbon?",
+    model: "I had fun walking around Lisbon.",
+    voiceFile: "audio/personality/coach-lisbon-1.mp3",
     voiceKey: "conversationCoachTravel"
   },
   {
@@ -302,6 +331,7 @@ const conversationCoachDeck = [
     title: "Buyer greeting",
     prompt: "What can you say to a buyer?",
     model: "Hi, I am Zamaan from Granola Kid.",
+    voiceFile: "audio/personality/coach-granola-buyer-1.mp3",
     voiceKey: "conversationCoachBusiness"
   },
   {
@@ -309,6 +339,7 @@ const conversationCoachDeck = [
     title: "Thank a buyer",
     prompt: "How can you thank someone for trying a sample?",
     model: "Thank you for trying our granola.",
+    voiceFile: "audio/personality/coach-granola-thanks-1.mp3",
     voiceKey: "conversationCoachBusiness"
   },
   {
@@ -1151,6 +1182,8 @@ function applyAccessibilitySettings() {
   document.body.classList.toggle("a11y-replay-audio", settings.replayAudio);
 
   if (largeTextInput) largeTextInput.checked = settings.largeText;
+  const quickLargeText = document.querySelector("#quickLargeText");
+  if (quickLargeText) quickLargeText.checked = settings.largeText;
   if (highContrastInput) highContrastInput.checked = settings.highContrast;
   if (extraHintsInput) extraHintsInput.checked = settings.extraHints;
   if (reduceMotionInput) reduceMotionInput.checked = settings.reduceMotion;
@@ -1748,6 +1781,37 @@ function speak(_text, promptKey = "") {
   }
 }
 
+// Plays one specific clip. If the file is missing or can't play, falls back to a generic voice line.
+function speakClip(path, fallbackKey = "") {
+  if (!isSoundEnabled()) return;
+  if (!path) {
+    if (fallbackKey) speak("", fallbackKey);
+    return;
+  }
+  try {
+    if (currentVoicePrompt) {
+      currentVoicePrompt.pause();
+      currentVoicePrompt.currentTime = 0;
+    }
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    const player = getHiddenVoicePlayer();
+    currentVoicePrompt = player;
+    const useFallback = () => {
+      player.removeEventListener("playing", clearFallback);
+      if (fallbackKey) speak("", fallbackKey);
+    };
+    const clearFallback = () => player.removeEventListener("error", useFallback);
+    player.addEventListener("error", useFallback, { once: true });
+    player.addEventListener("playing", clearFallback, { once: true });
+    player.removeAttribute("controls");
+    player.src = path;
+    player.currentTime = 0;
+    player.play().catch(() => {});
+  } catch (error) {
+    // Stay quiet if the clip cannot play.
+  }
+}
+
 function getRoundTotal() {
   return sectionIds.reduce((total, id) => total + state.rounds[id], 0);
 }
@@ -1813,11 +1877,11 @@ function nextActivityId() {
 
 function updateGreeting() {
   if (title) {
-    title.textContent = `Hi, ${state.name}. Ready for today's adventure?`;
+    title.textContent = `Hi, ${state.name}!`;
   }
   const intro = document.querySelector(".intro");
   if (intro) {
-    intro.textContent = `Today is Day ${activeDayNumber} of ${activeCycleLength}: ${todayPlan.name}. ${getDifficultyLabel()}. Finish the four short sections, then unlock extra learning games.`;
+    intro.textContent = `Day ${activeDayNumber} of ${activeCycleLength}: ${todayPlan.name}. Four short sections, then extra games.`;
   }
   if (nameInput) {
     nameInput.value = state.name;
@@ -2008,6 +2072,8 @@ function updateProgress() {
   if (completionPanel) {
     completionPanel.hidden = !mainRoundsComplete || !extraComplete;
   }
+
+  renderResume();
 
   if (movementBreak && doneRounds >= 6 && doneRounds < totalRounds) {
     const wasHandled = sessionStorage.getItem(`dailyAdventureMovement-${todayKey}`) === "done";
@@ -2919,6 +2985,7 @@ function updateHistory() {
   };
   saveHistory();
   renderCalendar();
+  renderResume();
 }
 
 function renderCalendar() {
@@ -2930,7 +2997,7 @@ function renderCalendar() {
   for (let i = 13; i >= 0; i -= 1) {
     const date = new Date(now);
     date.setDate(now.getDate() - i);
-    const key = date.toISOString().slice(0, 10);
+    const key = getLocalDateKey(date);
     const record = history.days[key];
     days.push({ date, key, record });
   }
@@ -3165,7 +3232,7 @@ function attachMiniGameHandlers() {
 
       if (action === "hear") {
         feedback.textContent = "Listen to Coach, then say the blue reply.";
-        speak(feedback.textContent, coachPrompt.voiceKey || "conversationCoachStart");
+        speakClip(coachPrompt.voiceFile, coachPrompt.voiceKey || "conversationCoachStart");
         return;
       }
 
@@ -3520,6 +3587,217 @@ function resetSequenceGame() {
   });
 }
 
+
+// ---------- Resume card, streak and stamps ----------
+const streakTitles = [[30, "World Wanderer"], [14, "Globetrotter"], [7, "Traveler"], [3, "Explorer"]];
+
+function getStreak() {
+  const cursor = new Date();
+  const todayDone = Boolean(history.days[getLocalDateKey(cursor)]?.completed);
+  if (!todayDone) cursor.setDate(cursor.getDate() - 1);
+  let count = 0;
+  for (let i = 0; i < 400; i += 1) {
+    const record = history.days[getLocalDateKey(cursor)];
+    if (!record || !record.completed) break;
+    count += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return { count, todayDone };
+}
+
+function streakTitleFor(count) {
+  const match = streakTitles.find(([days]) => count >= days);
+  return match ? match[1] : "";
+}
+
+function renderResume() {
+  const card = document.querySelector("#resumeCard");
+  if (!card) return;
+
+  const kicker = document.querySelector("#resumeKicker");
+  const heading = document.querySelector("#resume-title");
+  const detail = document.querySelector("#resumeDetail");
+  const button = document.querySelector("#resumeButton");
+  const bar = document.querySelector("#segmentBar");
+  const chip = document.querySelector("#streakChip");
+  const stampBox = document.querySelector("#stampEarned");
+  const stamp = document.querySelector("#dayStamp");
+  const stampMessage = document.querySelector("#stampMessage");
+
+  const doneRounds = getRoundTotal();
+  const mainDone = doneRounds >= totalRounds;
+  const extraDone = areExtraGamesComplete();
+  const nextId = nextActivityId();
+  const streak = getStreak();
+
+  card.classList.toggle("is-done", mainDone);
+
+  if (bar) {
+    bar.setAttribute("aria-label", `${doneRounds} of ${totalRounds} rounds finished today`);
+    bar.innerHTML = sectionIds.map((id) => {
+      const cells = Array.from({ length: maxRounds[id] }, (_, index) => {
+        const isDone = index < state.rounds[id];
+        const isCurrent = !mainDone && id === nextId && index === state.rounds[id];
+        return `<span class="seg${isDone ? " done" : ""}${isCurrent ? " current" : ""}"></span>`;
+      }).join("");
+      return `<span class="seg-group">${cells}</span>`;
+    }).join("");
+  }
+
+  if (chip) {
+    chip.hidden = streak.count < 1;
+    const count = document.querySelector("#streakCount");
+    const label = document.querySelector("#streakLabel");
+    if (count) count.textContent = String(streak.count);
+    if (label) label.textContent = streak.count === 1 ? "day done" : "days in a row";
+    chip.title = streakTitleFor(streak.count);
+  }
+
+  if (stampBox) stampBox.hidden = !mainDone;
+  if (mainDone && stamp) {
+    const dateLabel = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date());
+    stamp.innerHTML = `<span class="stamp-arc">${escapeHtml(todayPlan.name)}</span><strong>${escapeHtml(dateLabel)}</strong><span class="stamp-day">Day ${activeDayNumber}</span>`;
+    const rank = streakTitleFor(streak.count);
+    const inARow = streak.count > 1 ? ` ${streak.count} days in a row.` : " First stamp of your streak.";
+    const article = /^[AEIOU]/.test(rank) ? "an" : "a";
+    if (stampMessage) stampMessage.textContent = `Stamp earned!${inARow}${rank ? ` You are ${article} ${rank}.` : ""}`;
+  }
+
+  if (!button) return;
+  if (mainDone && extraDone) {
+    kicker.textContent = "All finished";
+    heading.textContent = "Adventure complete";
+    detail.textContent = `${state.name}, you finished everything today.`;
+    button.textContent = "See my progress";
+    button.dataset.target = "calendar";
+  } else if (mainDone) {
+    kicker.textContent = "12 of 12 rounds done";
+    heading.textContent = "Great work today";
+    detail.textContent = "Extra games are open if you want more.";
+    button.textContent = "Play extra games";
+    button.dataset.target = "extra";
+  } else {
+    const round = Math.min(state.rounds[nextId] + 1, maxRounds[nextId]);
+    kicker.textContent = doneRounds > 0 ? "Pick up where you left off" : "Today's adventure";
+    heading.textContent = labelFor(nextId);
+    detail.textContent = `Round ${round} of ${maxRounds[nextId]}. ${doneRounds} of ${totalRounds} done.`;
+    button.textContent = doneRounds > 0 ? "Continue" : "Start";
+    button.dataset.target = "activity";
+  }
+}
+
+const resumeButtonEl = document.querySelector("#resumeButton");
+if (resumeButtonEl) {
+  resumeButtonEl.addEventListener("click", () => {
+    const target = resumeButtonEl.dataset.target;
+    let element = null;
+    if (target === "extra") {
+      if (extraGames && extraGames.hidden && toggleExtraGames && !toggleExtraGames.disabled) toggleExtraGames.click();
+      element = extraGames && !extraGames.hidden ? extraGames : document.querySelector(".game-shelf");
+    } else if (target === "calendar") {
+      element = document.querySelector(".calendar-panel");
+    } else {
+      element = document.querySelector(".activity.active:not([hidden])") || document.querySelector(".activity-layout");
+    }
+    if (element) element.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
+  });
+}
+
+// ---------- Quick settings ----------
+const quickSettingsButton = document.querySelector("#quickSettingsButton");
+const quickSettingsPanel = document.querySelector("#quickSettings");
+if (quickSettingsButton && quickSettingsPanel) {
+  const setQuickSettings = (open) => {
+    quickSettingsPanel.hidden = !open;
+    quickSettingsButton.setAttribute("aria-expanded", String(open));
+  };
+  quickSettingsButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setQuickSettings(quickSettingsPanel.hidden);
+  });
+  document.addEventListener("click", (event) => {
+    if (!quickSettingsPanel.hidden && !event.target.closest(".quick-settings-wrap")) setQuickSettings(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !quickSettingsPanel.hidden) {
+      setQuickSettings(false);
+      quickSettingsButton.focus();
+    }
+  });
+  const quickLarge = document.querySelector("#quickLargeText");
+  if (quickLarge) {
+    quickLarge.addEventListener("change", () => {
+      saveAccessibilitySettings({ ...getAccessibilitySettings(), largeText: quickLarge.checked });
+    });
+  }
+}
+
+// ---------- Notices: new questions, new app version ----------
+const APP_VERSION = "2026-11-01";
+
+function showNotice(id, message, actionLabel, onAction) {
+  if (document.getElementById(id)) return;
+  const notice = document.createElement("div");
+  notice.className = "notice-banner";
+  notice.id = id;
+  notice.setAttribute("role", "status");
+  const text = document.createElement("span");
+  text.textContent = message;
+  notice.appendChild(text);
+  const action = document.createElement("button");
+  action.type = "button";
+  action.textContent = actionLabel;
+  action.addEventListener("click", () => {
+    notice.remove();
+    if (onAction) onAction();
+  });
+  notice.appendChild(action);
+  document.body.appendChild(notice);
+}
+
+function showNewQuestionsNotice() {
+  if (!hasDailyPage || !externalQuestionBank || !externalQuestionBank.version) return;
+  let seen = null;
+  try { seen = localStorage.getItem("dailyAdventureBankSeen"); } catch (error) { seen = null; }
+  if (seen === String(externalQuestionBank.version)) return;
+  showNotice("newQuestionsNotice", `Fresh questions are here, ${state.name}!`, "Got it", () => {
+    try { localStorage.setItem("dailyAdventureBankSeen", String(externalQuestionBank.version)); } catch (error) { /* ignore */ }
+  });
+}
+
+async function checkForUpdates() {
+  if (!navigator.onLine || document.getElementById("updateNotice")) return;
+  try {
+    const stamp = Date.now();
+    const [versionResponse, bankResponse] = await Promise.all([
+      fetch(`version.json?t=${stamp}`, { cache: "no-store" }),
+      fetch(`question-bank.json?t=${stamp}`, { cache: "no-store" })
+    ]);
+    const latest = versionResponse.ok ? await versionResponse.json() : null;
+    const bank = bankResponse.ok ? await bankResponse.json() : null;
+    const appChanged = latest && latest.version && latest.version !== APP_VERSION;
+    const bankChanged = bank && bank.version && externalQuestionBank && externalQuestionBank.version
+      && String(bank.version) !== String(externalQuestionBank.version);
+    if (appChanged || bankChanged) {
+      showNotice("updateNotice", appChanged ? "A new version is ready." : "New questions are ready.", "Refresh", () => window.location.reload());
+    }
+  } catch (error) {
+    console.error("Daily Adventure: could not check for updates.", error);
+  }
+}
+
+if ("serviceWorker" in navigator && /^https?:$/.test(window.location.protocol)) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch((error) => {
+      console.error("Daily Adventure: offline mode could not start.", error);
+    });
+  });
+}
+window.setTimeout(checkForUpdates, 4000);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") checkForUpdates();
+});
+
 const syncSetupApplied = applyIncomingSyncSetup();
 
 applyAccessibilitySettings();
@@ -3532,6 +3810,7 @@ if (hasDailyPage) {
   updateHistory();
 }
 renderCaregiverReport();
+showNewQuestionsNotice();
 
 if (loadParentView) {
   const { url, familyCode } = getSyncConfig();
