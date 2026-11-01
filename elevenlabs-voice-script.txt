@@ -1,0 +1,287 @@
+Zamaan's Daily Adventure - full voice script (November 2026 playful redo)
+
+Voice: Arthur - Conversational American (ElevenLabs voice id 3LPKEa2TICTsITcoxL7H), model eleven_v4.
+Style: a fun, playful older-cousin coach. Square-bracket words are ElevenLabs v4 audio tags, not spoken.
+Every clip keeps its existing filename, so the app needs no code change: replace the file with the same name.
+Folders: audio/ (28 clips) and audio/personality/ (65 clips, including coach-venice-1 and coach-lisbon-1).
+Coach clips keep their 'Start with ...' / 'Try saying ...' stems, because Zamaan repeats that sentence.
+To redo a clip later: paste its line into ElevenLabs with the same voice and model, export MP3, keep the filename.
+
+audio/welcome.mp3
+  [excited] ZAMAAN! You're back! [laughs] Yesss! Okay okay okay... [warmly] today's adventure is gonna be SO good. [excited] Ready? Let's gooo!
+
+audio/before-question.mp3
+  [warmly] Okay Zamaan, life skill time! [slowly] Listen close... [chuckles] then pick the best answer. You got this!
+
+audio/start-path.mp3
+  [excited] Adventure time! [laughs] Buckle up, Zamaan, here we gooo!
+
+audio/memory-game.mp3
+  [excited] Memory game! [laughs] Use those super brain powers, Zamaan. [slowly] Look carefully... then find the match!
+
+audio/money-math.mp3
+  [excited] Money math, baby! [laughs] Let's count it up like a real CEO, Zamaan!
+
+audio/spanish-cards.mp3
+  [excited] ¡Hola, Zamaan! ¡Vamos! [laughs] Spanish time! Listen to the word... then pick the card!
+
+audio/talk-time.mp3
+  [warmly] Talk time, Zamaan! [chuckles] Take a big breath... [slowly] and say it in one nice, clear sentence.
+
+audio/family-words.mp3
+  [excited] Family words! [laughs] Who's who in the Zamaan crew? [slowly] Think about it... then say it clear!
+
+audio/correct.mp3
+  [excited] Booooom! [laughs] Zamaan, you are on FIRE! [chuckles] Nailed it!
+
+audio/incorrect.mp3
+  [chuckles] Ooooh, so close! [warmly] No worries, Zamaan. [slowly] Shake it off... and try again!
+
+audio/keep-going.mp3
+  [excited] Look at you go, Zamaan! [laughs] Don't stop now. Keep it rolling!
+
+audio/halfway-done.mp3
+  [excited] Halfway there, Zamaan! [laughs] You're crushing it! Keep it up!
+
+audio/almost-done.mp3
+  [excited] Almost done! [laughs] I can see the finish line, Zamaan. Sprint, sprint, sprint!
+
+audio/finished.mp3
+  [excited] YOU DID IT, ZAMAAN! [laughs] What an adventure! [warmly] I am so proud of you. Give yourself a high five!
+
+audio/send-update.mp3
+  [excited] Awesome job today, Zamaan! [laughs] Now go send Mom and Dad your update. They're gonna love it!
+
+audio/extra-games.mp3
+  [excited] Whoa, nice work, Zamaan! [laughs] Your extra games are unlocked. Let's play!
+
+audio/caregiver-completion.mp3
+  [excited] All done! [laughs] Zamaan finished today's adventure. [warmly] Great job, everyone!
+
+audio/pick-one-more-card.mp3
+  [chuckles] Almost, Zamaan! [slowly] Pick... one more card.
+
+audio/next-step.mp3
+  [excited] Yes! [laughs] Good one! Now find the next step!
+
+audio/settings-saved.mp3
+  [warmly] Done! [chuckles] Your settings are saved, Zamaan.
+
+audio/sound-on.mp3
+  [excited] Sound is ON! [laughs] Can you hear me, Zamaan? Hellooo!
+
+audio/progress-reset.mp3
+  [laughs] Poof! Fresh start! [excited] Today's progress is reset. Let's go again!
+
+audio/mood-happy.mp3
+  [excited] Yay! A happy Zamaan! [laughs] I love that. Let's make today awesome!
+
+audio/mood-calm.mp3
+  [warmly] Calm and cool. [chuckles] Love it, Zamaan. [slowly] Nice and easy... let's go.
+
+audio/mood-tired.mp3
+  [warmly] Aww, tired? That's okay, Zamaan. [chuckles] We'll take it easy. [slowly] One step at a time.
+
+audio/mood-unsure.mp3
+  [warmly] Not sure? That's totally okay, Zamaan. [chuckles] We'll figure it out together. I'm right here!
+
+audio/first-person-reminder.mp3
+  [warmly] Remember, Zamaan, talk about yourself with the word I. [slowly] I... and my answer. [chuckles] You got this!
+
+audio/third-person-reminder.mp3
+  [warmly] Remember, Zamaan, use your name, or he. [slowly] Zamaan... and his answer. [chuckles] You got this!
+
+audio/personality/welcome-1.mp3
+  [excited] Look who's here! It's ZAMAAN! [laughs] Let's make today awesome!
+
+audio/personality/welcome-2.mp3
+  [excited] Heyyy, Zamaan! [laughs] Your adventure has been waiting for you. Let's roll!
+
+audio/personality/welcome-3.mp3
+  [excited] Zamaan is back! [laughs] I knew you'd show up. Ready for some fun?
+
+audio/personality/start-path-1.mp3
+  [excited] Okay Zamaan, here we go! [laughs] One step at a time. You've got this!
+
+audio/personality/start-path-2.mp3
+  [excited] Adventure time! [laughs] Let's see what today has in store!
+
+audio/personality/correct-1.mp3
+  [excited] Boom! [laughs] That's right, Zamaan!
+
+audio/personality/correct-2.mp3
+  [laughs] Yesss! Nailed it, Zamaan! [excited] You're amazing!
+
+audio/personality/correct-3.mp3
+  [excited] You got it! [laughs] Look at you go, Zamaan!
+
+audio/personality/try-again-1.mp3
+  [chuckles] Ooh, almost! [warmly] Take a breath... [slowly] and try again.
+
+audio/personality/try-again-2.mp3
+  [warmly] Good try, Zamaan! [chuckles] Let's give it one more shot.
+
+audio/personality/try-again-3.mp3
+  [chuckles] That one's tricky! [warmly] No worries. [excited] You can get it. Try again!
+
+audio/personality/hint-1.mp3
+  [chuckles] Psst, Zamaan... here's a little hint. [slowly] Read it again, and think about it.
+
+audio/personality/hint-2.mp3
+  [warmly] Need a hand? [chuckles] Look at the clue... [slowly] then take your best guess.
+
+audio/personality/keep-going-1.mp3
+  [excited] Keep it up, Zamaan! [laughs] You're doing great!
+
+audio/personality/keep-going-2.mp3
+  [excited] Ooh, nice rhythm, Zamaan! [laughs] Don't stop now!
+
+audio/personality/halfway-1.mp3
+  [excited] Halfway there, Zamaan! [laughs] Look how far you've come!
+
+audio/personality/halfway-2.mp3
+  [excited] Hey, that's half done already! [laughs] Great work, Zamaan. Keep going!
+
+audio/personality/almost-done-1.mp3
+  [excited] Almost there, Zamaan! [laughs] I can see the finish line!
+
+audio/personality/almost-done-2.mp3
+  [excited] Just a couple more! [laughs] You're so close. Finish strong!
+
+audio/personality/finished-1.mp3
+  [excited] You finished, Zamaan! [laughs] Adventure complete! [warmly] Awesome job today.
+
+audio/personality/finished-2.mp3
+  [excited] Yes! All done! [laughs] You are a STAR, Zamaan!
+
+audio/personality/money-math-1.mp3
+  [excited] Money math! [laughs] Time to count it up like a real CEO, Zamaan!
+
+audio/personality/money-math-2.mp3
+  [chuckles] Time for some business math. [excited] Granola money, here we come!
+
+audio/personality/spanish-1.mp3
+  [excited] ¡Hola, Zamaan! [laughs] Spanish time! Listen close.
+
+audio/personality/spanish-2.mp3
+  [excited] ¡Vamos, Zamaan! [laughs] Let's learn some Spanish words!
+
+audio/personality/talk-time-1.mp3
+  [warmly] Talk time! [chuckles] Take a breath... [slowly] and say it in a full sentence.
+
+audio/personality/talk-time-2.mp3
+  [excited] Your turn to talk, Zamaan! [chuckles] Nice and clear. I'm listening!
+
+audio/personality/family-words-1.mp3
+  [excited] Family words time! [slowly] Think about the people you love... [chuckles] and say who they are.
+
+audio/personality/family-words-2.mp3
+  [excited] Let's talk about your family, Zamaan! [chuckles] Say it nice and clear.
+
+audio/personality/granola-ceo-1.mp3
+  [excited] Granola Kid CEO on the job! [laughs] Let's practice, boss!
+
+audio/personality/granola-ceo-2.mp3
+  [chuckles] Business mode, Zamaan. [excited] Friendly, clear, and confident. Just like a CEO!
+
+audio/personality/travel-1.mp3
+  [excited] Travel time! [warmly] Think about a place you've been, Zamaan.
+
+audio/personality/travel-2.mp3
+  [excited] Let's go on a trip! [laughs] No suitcase needed. Tell me what you remember!
+
+audio/personality/family-cheer-1.mp3
+  [excited] Mom! Dad! Keyaan! Zamaan did it! [laughs] Everybody cheer!
+
+audio/personality/family-cheer-2.mp3
+  [excited] Hooray for Zamaan! [laughs] Your family is going to be so proud!
+
+audio/personality/send-update-1.mp3
+  [excited] Great work, Zamaan! [laughs] Now send Mom and Dad your update!
+
+audio/personality/send-update-2.mp3
+  [excited] You did it! [laughs] Go tell Mom and Dad. They'll be so happy!
+
+audio/personality/workout-break-1.mp3
+  [excited] Movement break! [laughs] Stand up, stretch, and shake it out, Zamaan!
+
+audio/personality/workout-break-2.mp3
+  [excited] Let's move! [laughs] Jump, wiggle, and stretch. Go, go, go!
+
+audio/personality/coach-start-1.mp3
+  [warmly] Hey Zamaan, want to talk for a minute? [excited] Let's practice one good sentence!
+
+audio/personality/coach-start-2.mp3
+  [excited] Alright Zamaan, conversation time! [chuckles] One question, one strong answer.
+
+audio/personality/coach-family-1.mp3
+  [excited] Let's practice family words! [slowly] Listen to the question... then say the full sentence.
+
+audio/personality/coach-family-2.mp3
+  [chuckles] Family words can be tricky. No worries! [slowly] Let's say it nice and clear.
+
+audio/personality/coach-travel-1.mp3
+  [excited] Let's talk travel! [warmly] Think about the place... then tell me one memory.
+
+audio/personality/coach-travel-2.mp3
+  [excited] Travel story time! [chuckles] Say it in one full sentence, nice and easy.
+
+audio/personality/coach-business-1.mp3
+  [excited] Granola Kid time! [laughs] Let's practice what you can say to a buyer.
+
+audio/personality/coach-business-2.mp3
+  [chuckles] Business mode, Zamaan. [excited] Keep it friendly, clear, and confident!
+
+audio/personality/coach-sentence-1.mp3
+  [excited] Nice! [chuckles] Now make it a full sentence.
+
+audio/personality/coach-sentence-2.mp3
+  [warmly] Try saying the whole sentence... [slowly] from the beginning.
+
+audio/personality/coach-nice-1.mp3
+  [excited] That was great practice! [laughs] Nice job, Zamaan!
+
+audio/personality/coach-nice-2.mp3
+  [excited] Yes, that's it! [laughs] Clear sentence, strong answer!
+
+audio/personality/coach-next-1.mp3
+  [excited] Okay, let's try another one!
+
+audio/personality/coach-next-2.mp3
+  [excited] New question coming up! [chuckles] You've got this.
+
+audio/personality/coach-correction-1.mp3
+  [chuckles] Almost! [slowly] Listen to the sentence... then try it again.
+
+audio/personality/coach-correction-2.mp3
+  [warmly] Good try! [slowly] Let's fix the words... and say it one more time.
+
+audio/personality/coach-keyaan-1.mp3
+  [warmly] Okay, quick one! Who is Keyaan to you? [chuckles] Yep, your brother! [slowly] Try saying... Keyaan is my brother. [laughs] Easy, right?
+
+audio/personality/coach-mom-dad-1.mp3
+  [warmly] Okay, quick one! Who are you to Mom and Dad? [chuckles] Their son! [slowly] Try saying... I am Mom and Dad's son. [laughs] Easy, right?
+
+audio/personality/coach-cousins-1.mp3
+  [warmly] Okay, quick one! Who are Marcus and Jasmine to you? [chuckles] Your cousins! [slowly] Try saying... Marcus and Jasmine are my cousins. [laughs] Easy, right?
+
+audio/personality/coach-friends-1.mp3
+  [warmly] Harold, Aaron, and David are your friends! [chuckles] The squad. [slowly] Try saying... They are my friends.
+
+audio/personality/coach-paris-1.mp3
+  [excited] Paris! The Eiffel Tower! [laughs] Okay Zamaan, tell me about Paris. [slowly] Start with... I remember.
+
+audio/personality/coach-barcelona-1.mp3
+  [excited] Barcelona! [laughs] Okay Zamaan, tell me about it. [slowly] Start with... I traveled with.
+
+audio/personality/coach-venice-1.mp3
+  [excited] Venice! The city with BOATS instead of cars. [laughs] How cool is that? [warmly] Okay, Zamaan, tell me what you remember. [slowly] Start with... I remember the boats.
+
+audio/personality/coach-lisbon-1.mp3
+  [excited] Lisbon time! Hills, yellow trams, and so much yummy food. [chuckles] Okay, Zamaan, give me one fun thing. [slowly] Start with... I had fun walking.
+
+audio/personality/coach-granola-buyer-1.mp3
+  [excited] Granola Kid CEO time! [laughs] Try a buyer greeting. [slowly] Start with... Hi, I am Zamaan from Granola Kid.
+
+audio/personality/coach-granola-thanks-1.mp3
+  [excited] Somebody tried your granola! [laughs] Let's thank them. [slowly] Start with... Thank you for trying our granola.

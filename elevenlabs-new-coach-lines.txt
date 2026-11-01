@@ -1,20 +1,2 @@
-ElevenLabs prompts for Zamaan's Daily Adventure - New Conversation Coach lines (November 2026)
-
-These two lines are already wired into the app. Until the MP3 files exist, the coach
-plays its normal travel line instead, so nothing breaks while you make them.
-
-Voice direction (same as the other coach clips):
-Warm, natural, upbeat, and relaxed. Speak like a friendly older cousin or coach. Keep it
-clear and not too fast. Avoid sounding robotic, clinical, or overly childish. Leave a tiny
-pause before the sentence he should repeat.
-
-How to use:
-1. In ElevenLabs, create each clip below with the same voice you used for the other coach clips.
-2. Export each clip as MP3 and name it exactly as shown.
-3. In GitHub, open the audio/personality folder, choose Add file > Upload files, and drop the two MP3s in.
-
-coach-venice-1.mp3
-Tell me about Venice. Start with, I remember the boats.
-
-coach-lisbon-1.mp3
-Tell me about Lisbon. Start with, I had fun walking.
+The Venice and Lisbon coach clips are now part of the full voice script.
+See elevenlabs-voice-script.txt (coach-venice-1.mp3 and coach-lisbon-1.mp3 are near the bottom).
