@@ -3,7 +3,7 @@ Zamaan's Daily Adventure - full voice script (November 2026 playful redo)
 Voice: Arthur - Conversational American (ElevenLabs voice id 3LPKEa2TICTsITcoxL7H), model eleven_v4.
 Style: a fun, playful older-cousin coach. Square-bracket words are ElevenLabs v4 audio tags, not spoken.
 Every clip keeps its existing filename, so the app needs no code change: replace the file with the same name.
-Folders: audio/ (28 clips) and audio/personality/ (65 clips, including coach-venice-1 and coach-lisbon-1).
+Folders: audio/ (28 clips) and audio/personality/ (65 clips, including coach-venice-1 and coach-lisbon-1), plus 15 NEW chat clips at the end of this file.
 Coach clips keep their 'Start with ...' / 'Try saying ...' stems, because Zamaan repeats that sentence.
 To redo a clip later: paste its line into ElevenLabs with the same voice and model, export MP3, keep the filename.
 
@@ -285,3 +285,50 @@ audio/personality/coach-granola-buyer-1.mp3
 
 audio/personality/coach-granola-thanks-1.mp3
   [excited] Somebody tried your granola! [laughs] Let's thank them. [slowly] Start with... Thank you for trying our granola.
+
+# ===== NEW: Ask One Back and Chat Time (15 more clips) =====
+
+audio/personality/askback-1.mp3
+  [warmly] Hi Zamaan! How are you today? [slowly] Tell me, then ask me back. Start with... I am good.
+
+audio/personality/askback-2.mp3
+  [excited] I love pizza! [laughs] It is my favorite. [slowly] Now ask me one back. Start with... What is.
+
+audio/personality/askback-3.mp3
+  [excited] I went to the park today! [laughs] So fun. [slowly] Ask me a question. Start with... What did.
+
+audio/personality/askback-nice-1.mp3
+  [excited] Great question, Zamaan! [laughs] That is how real conversations work. You ask, I answer!
+
+audio/personality/askback-nice-2.mp3
+  [laughs] Ooh, I love that question! [excited] You are a great conversation partner, Zamaan!
+
+audio/personality/chat-paris-2.mp3
+  [excited] Ooh, the Eiffel Tower! [laughs] Cool! [slowly] Who were you with? Start with... I was with.
+
+audio/personality/chat-paris-3.mp3
+  [excited] Great job, Zamaan! [laughs] Now it is YOUR turn. [warmly] Ask me one! [slowly] Start with... Have you been to Paris?
+
+audio/personality/chat-keyaan-2.mp3
+  [excited] Yep, Keyaan is your brother! [chuckles] What is fun to do with him? [slowly] Start with... We like to.
+
+audio/personality/chat-keyaan-3.mp3
+  [laughs] Love it! [excited] Now ask me one. [slowly] Start with... Do you have.
+
+audio/personality/chat-granola-2.mp3
+  [excited] Nice! [laughs] A buyer wants to know more. [slowly] What is Granola Kid? Start with... Granola Kid makes.
+
+audio/personality/chat-granola-3.mp3
+  [excited] Boom, great pitch! [laughs] Now ask the buyer one. [slowly] Start with... Would you like.
+
+audio/personality/chat-cousins-2.mp3
+  [excited] Marcus and Jasmine! [laughs] What is fun to do with your cousins? [slowly] Start with... We like to.
+
+audio/personality/chat-cousins-3.mp3
+  [excited] Nice one! [laughs] Now you ask me one. [slowly] Start with... Do you have.
+
+audio/personality/chat-venice-2.mp3
+  [excited] Boats, yes! [laughs] Did you like the boats? [slowly] Start with... Yes, I liked.
+
+audio/personality/chat-venice-3.mp3
+  [excited] Awesome! [laughs] Now ask me one. [slowly] Start with... Have you.

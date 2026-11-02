@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20261101-passport";
+  polishLink.href = "polish.css?v=20261101-chat";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -285,6 +285,7 @@ const conversationCoachDeck = [
     title: "Cousins",
     prompt: "Who are Marcus and Jasmine to you?",
     model: "Marcus and Jasmine are my cousins.",
+    voiceFile: "audio/personality/coach-cousins-1.mp3",
     voiceKey: "conversationCoachFamily"
   },
   {
@@ -348,8 +349,92 @@ const conversationCoachDeck = [
     prompt: "Who makes the granola?",
     model: "Our co-packer makes the granola.",
     voiceKey: "conversationCoachBusiness"
+  },
+
+  // Ask One Back: Coach shares something, then Zamaan asks a question back.
+  {
+    topic: "Ask One Back",
+    title: "How are you?",
+    voiceKey: "conversationCoachStart",
+    steps: [
+      { coach: "Hi Zamaan! How are you today?", say: "I am good. How are you?", ask: true, voiceFile: "audio/personality/askback-1.mp3" }
+    ]
+  },
+  {
+    topic: "Ask One Back",
+    title: "Favorite food",
+    voiceKey: "conversationCoachStart",
+    steps: [
+      { coach: "I love pizza! It is my favorite. Ask me a question back.", say: "What is your favorite food?", ask: true, voiceFile: "audio/personality/askback-2.mp3" }
+    ]
+  },
+  {
+    topic: "Ask One Back",
+    title: "At the park",
+    voiceKey: "conversationCoachStart",
+    steps: [
+      { coach: "I went to the park today! Ask me a question.", say: "What did you do at the park?", ask: true, voiceFile: "audio/personality/askback-3.mp3" }
+    ]
+  },
+
+  // Chat Time: three turns. Coach asks, Zamaan answers, Coach follows up, then Zamaan asks one back.
+  {
+    topic: "Chat Time",
+    title: "Paris chat",
+    voiceKey: "conversationCoachTravel",
+    steps: [
+      { coach: "Tell me one thing you remember about Paris.", say: "I remember seeing the Eiffel Tower in Paris.", voiceFile: "audio/personality/coach-paris-1.mp3" },
+      { coach: "Cool! Who were you with?", say: "I was with my family.", voiceFile: "audio/personality/chat-paris-2.mp3" },
+      { coach: "Your turn! Ask me one.", say: "Have you been to Paris?", ask: true, voiceFile: "audio/personality/chat-paris-3.mp3" }
+    ]
+  },
+  {
+    topic: "Chat Time",
+    title: "Keyaan chat",
+    voiceKey: "conversationCoachFamily",
+    steps: [
+      { coach: "Who is Keyaan to you?", say: "Keyaan is my brother.", voiceFile: "audio/personality/coach-keyaan-1.mp3" },
+      { coach: "Yep! What is fun to do with Keyaan?", say: "We like to have fun together.", voiceFile: "audio/personality/chat-keyaan-2.mp3" },
+      { coach: "Love it! Now ask me one.", say: "Do you have a brother or sister?", ask: true, voiceFile: "audio/personality/chat-keyaan-3.mp3" }
+    ]
+  },
+  {
+    topic: "Chat Time",
+    title: "Granola Kid chat",
+    voiceKey: "conversationCoachBusiness",
+    steps: [
+      { coach: "What can you say to a buyer?", say: "Hi, I am Zamaan from Granola Kid.", voiceFile: "audio/personality/coach-granola-buyer-1.mp3" },
+      { coach: "Nice! What is Granola Kid?", say: "Granola Kid makes yummy granola.", voiceFile: "audio/personality/chat-granola-2.mp3" },
+      { coach: "Great pitch! Now ask the buyer one.", say: "Would you like to try some?", ask: true, voiceFile: "audio/personality/chat-granola-3.mp3" }
+    ]
+  },
+  {
+    topic: "Chat Time",
+    title: "Cousins chat",
+    voiceKey: "conversationCoachFamily",
+    steps: [
+      { coach: "Who are Marcus and Jasmine to you?", say: "Marcus and Jasmine are my cousins.", voiceFile: "audio/personality/coach-cousins-1.mp3" },
+      { coach: "What is fun to do with your cousins?", say: "We like to play together.", voiceFile: "audio/personality/chat-cousins-2.mp3" },
+      { coach: "Nice one! Now you ask me one.", say: "Do you have cousins?", ask: true, voiceFile: "audio/personality/chat-cousins-3.mp3" }
+    ]
+  },
+  {
+    topic: "Chat Time",
+    title: "Venice chat",
+    voiceKey: "conversationCoachTravel",
+    steps: [
+      { coach: "What do you remember about Venice?", say: "I remember the boats in Venice.", voiceFile: "audio/personality/coach-venice-1.mp3" },
+      { coach: "Boats, yes! Did you like the boats?", say: "Yes, I liked the boats!", voiceFile: "audio/personality/chat-venice-2.mp3" },
+      { coach: "Awesome! Now ask me one.", say: "Have you been on a boat?", ask: true, voiceFile: "audio/personality/chat-venice-3.mp3" }
+    ]
   }
 ];
+
+// Every card is a chat of one or more steps. Older single-sentence cards become one-step chats.
+function getCoachSteps(card) {
+  if (Array.isArray(card.steps) && card.steps.length) return card.steps;
+  return [{ coach: card.prompt, say: card.model, voiceFile: card.voiceFile }];
+}
 
 const extraGameOrder = [
   { id: "sort", label: "Sort" },
@@ -2600,6 +2685,12 @@ function renderMiniGames() {
   const businessPractice = todayBusinessPractice;
   const pronounPractice = todayPronounPractice;
   const conversationCoach = getConversationCoachPrompt();
+  const coachSteps = getCoachSteps(conversationCoach);
+  const coachStepIndex = getConversationCoachStep(coachSteps.length);
+  const coachChatMarkup = buildCoachChatMarkup(coachSteps, coachStepIndex);
+  const coachChatHint = coachSteps.length > 1
+    ? `Step ${coachStepIndex + 1} of ${coachSteps.length}. Say the blue message, then tap Send Reply.`
+    : "Tap Send Reply after saying the blue message.";
   const extraProgress = getExtraProgress();
   const currentExtraStep = getCurrentExtraStep();
 
@@ -2696,19 +2787,7 @@ function renderMiniGames() {
         <strong>${escapeHtml(conversationCoach.title)}</strong>
       </div>
       <div class="coach-chat" aria-label="Conversation Coach chat">
-        <div class="coach-message-row coach-message-row-bot">
-          <div class="coach-avatar">C</div>
-          <div class="coach-bubble coach-bubble-bot">
-            <span>Coach</span>
-            <p>${escapeHtml(conversationCoach.prompt)}</p>
-          </div>
-        </div>
-        <div class="coach-message-row coach-message-row-user coach-suggested-reply">
-          <div class="coach-bubble coach-bubble-user">
-            <span>Zamaan can say</span>
-            <p>${escapeHtml(conversationCoach.model)}</p>
-          </div>
-        </div>
+        ${coachChatMarkup}
       </div>
       <div class="coach-actions">
         <button class="tile" data-coach-action="hear">Hear Coach</button>
@@ -2716,7 +2795,7 @@ function renderMiniGames() {
         <button class="tile" data-coach-action="help">Help Me</button>
         <button class="tile" data-coach-action="next">New Chat</button>
       </div>
-      <p class="mini-feedback" aria-live="polite">Tap Send Reply after saying the blue message.</p>
+      <p class="mini-feedback" aria-live="polite">${escapeHtml(coachChatHint)}</p>
     </article>
 
     ${areExtraGamesComplete()
@@ -2792,7 +2871,7 @@ function renderExtraPathHeader(progress, currentStep) {
   `;
 }
 
-function completeExtraGame(id, message = "Nice work. The next extra activity is ready.") {
+function completeExtraGame(id, message = "Nice work. The next extra activity is ready.", delayMs = 650) {
   const progress = getExtraProgress();
   if (!progress.includes(id)) {
     progress.push(id);
@@ -2808,7 +2887,7 @@ function completeExtraGame(id, message = "Nice work. The next extra activity is 
     } else {
       speak(message, "keepGoing");
     }
-  }, 650);
+  }, delayMs);
 }
 
 function getConversationCoachIndex() {
@@ -2818,6 +2897,51 @@ function getConversationCoachIndex() {
 
 function setConversationCoachIndex(index) {
   sessionStorage.setItem(`dailyAdventureCoachIndex-${todayKey}`, String(index));
+}
+
+// Chat and Ask One Back clips are specific to one question, so if one is missing stay quiet
+// instead of playing an unrelated Coach clip. Older single-sentence cards keep their fallback.
+function getCoachFallbackKey(step, card) {
+  if (step.voiceFile && /\/(chat|askback)-/.test(step.voiceFile)) return "";
+  return card.voiceKey || "conversationCoachStart";
+}
+
+function getConversationCoachStep(stepCount) {
+  const step = Number(sessionStorage.getItem(`dailyAdventureCoachStep-${todayKey}`) || "0");
+  if (!Number.isFinite(step) || step < 0) return 0;
+  return Math.min(step, Math.max(stepCount - 1, 0));
+}
+
+function setConversationCoachStep(step) {
+  sessionStorage.setItem(`dailyAdventureCoachStep-${todayKey}`, String(step));
+}
+
+function buildCoachChatMarkup(steps, currentIndex) {
+  const bot = (text) => `
+    <div class="coach-message-row coach-message-row-bot">
+      <div class="coach-avatar">C</div>
+      <div class="coach-bubble coach-bubble-bot">
+        <span>Coach</span>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </div>`;
+  const user = (text) => `
+    <div class="coach-message-row coach-message-row-user">
+      <div class="coach-bubble coach-bubble-user">
+        <span>Zamaan</span>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </div>`;
+
+  const done = steps.slice(0, currentIndex).map((step) => bot(step.coach) + user(step.say)).join("");
+  const current = steps[currentIndex];
+  return `${done}${bot(current.coach)}
+    <div class="coach-message-row coach-message-row-user coach-suggested-reply">
+      <div class="coach-bubble coach-bubble-user">
+        <span>${current.ask ? "Zamaan can ask" : "Zamaan can say"}</span>
+        <p>${escapeHtml(current.say)}</p>
+      </div>
+    </div>`;
 }
 
 function getConversationCoachPrompt() {
@@ -3228,36 +3352,59 @@ function attachMiniGameHandlers() {
       const feedback = game.querySelector(".mini-feedback");
       const chat = game.querySelector(".coach-chat");
       const coachPrompt = getConversationCoachPrompt();
+      const coachSteps = getCoachSteps(coachPrompt);
+      const stepIndex = getConversationCoachStep(coachSteps.length);
+      const step = coachSteps[stepIndex];
+      const isLastStep = stepIndex >= coachSteps.length - 1;
       const action = button.dataset.coachAction;
 
       if (action === "hear") {
         feedback.textContent = "Listen to Coach, then say the blue reply.";
-        speakClip(coachPrompt.voiceFile, coachPrompt.voiceKey || "conversationCoachStart");
+        speakClip(step.voiceFile, getCoachFallbackKey(step, coachPrompt));
         return;
       }
 
       if (action === "help") {
         feedback.textContent = "Try saying the blue message out loud.";
-        addCoachBotBubble(chat, `Try saying: ${coachPrompt.model}`);
+        addCoachBotBubble(chat, `Try saying: ${step.say}`);
         speak(feedback.textContent, "conversationCoachSentence");
         return;
       }
 
       if (action === "reply") {
-        feedback.textContent = "Nice reply. That sounded like a real conversation.";
-        addCoachUserBubble(chat, coachPrompt.model);
-        window.setTimeout(() => {
-          addCoachBotBubble(chat, "Nice sentence. Want another one?");
-        }, 250);
-        logLearningAttempt("Conversation Coach", coachPrompt.title, coachPrompt.prompt, "Practiced sentence", coachPrompt.model, true, {
-          card: coachPrompt.topic
+        logLearningAttempt("Conversation Coach", coachPrompt.title, step.coach, step.ask ? "Asked a question back" : "Practiced sentence", step.say, true, {
+          card: `${coachPrompt.topic} (step ${stepIndex + 1} of ${coachSteps.length})`
         });
-        speak(feedback.textContent, "conversationCoachNice");
-        completeExtraGame("conversation-coach", "Conversation Coach is finished.");
+
+        if (!isLastStep) {
+          // Keep the chat going: show Zamaan's reply, then Coach's next turn.
+          setConversationCoachStep(stepIndex + 1);
+          const nextStep = coachSteps[stepIndex + 1];
+          renderMiniGames();
+          speakClip(nextStep.voiceFile, getCoachFallbackKey(nextStep, coachPrompt));
+          return;
+        }
+
+        feedback.textContent = step.ask
+          ? "Great question! Asking one back is how real conversations work."
+          : "Nice reply. That sounded like a real conversation.";
+        addCoachUserBubble(chat, step.say);
+        window.setTimeout(() => {
+          addCoachBotBubble(chat, step.ask ? "Great question! Want another chat?" : "Nice sentence. Want another one?");
+        }, 250);
+        if (step.ask) {
+          speakClip(`audio/personality/askback-nice-${(getConversationCoachIndex() % 2) + 1}.mp3`, "");
+          // Give the longer "great question" clip time to finish before the next prompt.
+          completeExtraGame("conversation-coach", "Conversation Coach is finished.", 3800);
+        } else {
+          speak(feedback.textContent, "conversationCoachNice");
+          completeExtraGame("conversation-coach", "Conversation Coach is finished.");
+        }
         return;
       }
 
       setConversationCoachIndex(getConversationCoachIndex() + 1);
+      setConversationCoachStep(0);
       renderMiniGames();
       speak("Okay. Let's try another one.", "conversationCoachNext");
     });
@@ -3733,7 +3880,7 @@ if (quickSettingsButton && quickSettingsPanel) {
 }
 
 // ---------- Notices: new questions, new app version ----------
-const APP_VERSION = "2026-11-01b";
+const APP_VERSION = "2026-11-01c";
 
 function showNotice(id, message, actionLabel, onAction) {
   if (document.getElementById(id)) return;
