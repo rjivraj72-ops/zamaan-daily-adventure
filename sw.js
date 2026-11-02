@@ -1,7 +1,7 @@
 /* Offline support for Zamaan's Daily Adventure.
    Pages and code are fetched from the network first (so updates show up right away)
    and fall back to the saved copy when there is no signal. */
-const CACHE = "zda-2026-11-01c";
+const CACHE = "zda-2026-11-01d";
 const CORE = [
   "./",
   "index.html",

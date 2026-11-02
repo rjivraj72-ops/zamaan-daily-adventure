@@ -877,15 +877,29 @@ body.a11y-reduce-motion .complete-button:active {
   white-space: nowrap;
 }
 
-@media (max-width: 420px) {
+.app-nav .nav-short {
+  display: none;
+}
+
+@media (max-width: 520px) {
   .app-nav {
-    gap: 2px;
-    padding: 4px;
+    gap: 4px;
+    padding: 5px;
   }
 
   .app-nav a {
-    padding: 11px 2px;
-    font-size: 0.8rem;
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 0.92rem;
+    line-height: 1.2;
+  }
+
+  .app-nav .nav-long {
+    display: none;
+  }
+
+  .app-nav .nav-short {
+    display: inline;
   }
 }
 

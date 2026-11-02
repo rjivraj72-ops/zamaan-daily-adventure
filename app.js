@@ -4,7 +4,7 @@ function loadPolishedUi() {
   }
   const polishLink = document.createElement("link");
   polishLink.rel = "stylesheet";
-  polishLink.href = "polish.css?v=20261101-chat";
+  polishLink.href = "polish.css?v=20261101-nav";
   polishLink.dataset.uiPolish = "production";
   document.head.appendChild(polishLink);
 }
@@ -3880,7 +3880,7 @@ if (quickSettingsButton && quickSettingsPanel) {
 }
 
 // ---------- Notices: new questions, new app version ----------
-const APP_VERSION = "2026-11-01c";
+const APP_VERSION = "2026-11-01d";
 
 function showNotice(id, message, actionLabel, onAction) {
   if (document.getElementById(id)) return;
